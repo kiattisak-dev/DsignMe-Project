@@ -1,14 +1,15 @@
-'use client';
+// app/dashboard/page.tsx
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   BarChart,
   Bar,
@@ -19,13 +20,13 @@ import {
   PieChart,
   Pie,
   Cell,
-} from 'recharts';
-import { ArrowRight, ExternalLink, Plus, UserPlus } from 'lucide-react';
-import Link from 'next/link';
-import { DashboardHeader } from '@/components/dashboard/dashboard-header';
-import { DashboardStats } from '@/components/dashboard/dashboard-stats';
-import { RecentProjects } from '@/components/dashboard/recent-projects';
-import { RecentContacts } from '@/components/dashboard/recent-contacts';
+} from "recharts";
+import { ArrowRight, ExternalLink, Plus, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { DashboardStats } from "@/components/dashboard/dashboard-stats";
+import { RecentProjects } from "@/components/dashboard/recent-projects";
+import { RecentContacts } from "@/components/dashboard/recent-contacts";
 
 // Define Types for Chart Data
 interface ProjectData {
@@ -42,7 +43,7 @@ interface ContactData {
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-8 bg-background text-foreground p-6">
+    <div className="space-y-8 bg-background text-foreground p-4 md:p-6 lg:p-8">
       <DashboardHeader />
 
       <DashboardStats />
@@ -94,51 +95,18 @@ export default function DashboardPage() {
           <RecentContacts />
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <Link href="/admin/dashboard/projects/new">
-              <Button className="w-full justify-between bg-primary text-primary-foreground">
-                <div className="flex items-center">
-                  <Plus className="mr-2 h-4 w-4" />
-                  <span>Add New Project</span>
-                </div>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-
-            <Link href="/admin/dashboard/contacts">
-              <Button variant="outline" className="w-full justify-between">
-                <div className="flex items-center">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  <span>View Recent Contacts</span>
-                </div>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="p-4 bg-red-500 text-white animate-accordion-down">
-        Test Tailwind CSS and Animation
-      </div>
     </div>
   );
 }
 
 function ProjectChart() {
   const data: ProjectData[] = [
-    { name: 'Jan', Complete: 12, InProgress: 8, Planning: 5 },
-    { name: 'Feb', Complete: 15, InProgress: 10, Planning: 7 },
-    { name: 'Mar', Complete: 18, InProgress: 7, Planning: 10 },
-    { name: 'Apr', Complete: 14, InProgress: 12, Planning: 8 },
-    { name: 'May', Complete: 21, InProgress: 15, Planning: 5 },
-    { name: 'Jun', Complete: 25, InProgress: 10, Planning: 8 },
+    { name: "Jan", Complete: 12, InProgress: 8, Planning: 5 },
+    { name: "Feb", Complete: 15, InProgress: 10, Planning: 7 },
+    { name: "Mar", Complete: 18, InProgress: 7, Planning: 10 },
+    { name: "Apr", Complete: 14, InProgress: 12, Planning: 8 },
+    { name: "May", Complete: 21, InProgress: 15, Planning: 5 },
+    { name: "Jun", Complete: 25, InProgress: 10, Planning: 8 },
   ];
 
   return (
@@ -175,19 +143,19 @@ function ProjectChart() {
 
 function ContactChart() {
   const data: ContactData[] = [
-    { name: 'Information', value: 35 },
-    { name: 'Feedback', value: 25 },
-    { name: 'Support', value: 20 },
-    { name: 'Collaboration', value: 15 },
-    { name: 'Other', value: 5 },
+    { name: "Information", value: 35 },
+    { name: "Feedback", value: 25 },
+    { name: "Support", value: 20 },
+    { name: "Collaboration", value: 15 },
+    { name: "Other", value: 5 },
   ];
 
   const COLORS = [
-    'hsl(var(--chart-1))',
-    'hsl(var(--chart-2))',
-    'hsl(var(--chart-3))',
-    'hsl(var(--chart-4))',
-    'hsl(var(--chart-5))',
+    "hsl(var(--chart-1))",
+    "hsl(var(--chart-2))",
+    "hsl(var(--chart-3))",
+    "hsl(var(--chart-4))",
+    "hsl(var(--chart-5))",
   ];
 
   return (
