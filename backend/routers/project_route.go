@@ -11,6 +11,9 @@ func ProjectRoutes(app *fiber.App) {
 	route := app.Group("/projects", middleware.AuthMiddleware())
 	route.Get("/", controllers.GetAllProjectsHandler)
 
+	// Route GridFS
+	app.Get("/files/:id", controllers.GetFileHandler)
+
 	// Categories routes
 	route.Post("/categories", controllers.AddCategoryHandler)
 	route.Get("/categories", controllers.GetCategoriesHandler)

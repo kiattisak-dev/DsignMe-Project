@@ -4,12 +4,12 @@
     "": {
       "name": "frontend",
       "dependencies": {
-        "@radix-ui/react-toast": "^1.2.1",
+        "@radix-ui/react-toast": "^1.2.11",
         "daisyui": "^5.0.35",
         "framer-motion": "^12.11.0",
         "js-cookie": "^3.0.5",
         "next": "14.2.15",
-        "next-themes": "^0.3.0",
+        "next-themes": "^0.4.6",
         "react": "18.3.1",
         "react-dom": "18.3.1",
       },

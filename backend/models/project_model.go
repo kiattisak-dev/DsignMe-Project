@@ -5,14 +5,6 @@ import (
 	"time"
 )
 
-// Valid project categories
-const (
-	CategoryLogo          = "Logo"
-	CategoryAdvertisement = "Advertisement"
-	CategoryProduct       = "Product"
-	CategoryVisualMotion  = "VisualMotion"
-)
-
 type Category struct {
 	ID           primitive.ObjectID `bson:"_id,omitempty"`
 	NameCategory string             `bson:"nameCategory"`

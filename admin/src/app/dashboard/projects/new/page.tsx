@@ -1,12 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
+import Cookies from "js-cookie";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import {
   Card,
   CardContent,
@@ -14,78 +19,251 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ExternalLink, ImageIcon, Loader2 } from "lucide-react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import CategorySelect from "@/components/newProject/CategorySelect";
+import UploadTypeRadio from "@/components/newProject/UploadTypeRadio";
+import ImageUpload from "@/components/newProject/ImageUpload";
+import VideoUpload from "@/components/newProject/VideoUpload";
+import VideoUrlInput from "@/components/newProject/VideoUrlInput";
 
-const formSchema = z.object({
-  title: z
-    .string()
-    .min(3, { message: "Title must be at least 3 characters long" }),
-  description: z
-    .string()
-    .min(10, { message: "Description must be at least 10 characters long" }),
-  imageUrl: z.string().url({ message: "Please enter a valid URL" }),
-  status: z.enum([
-    "Planning",
-    "In Progress",
-    "Complete",
-    "On Hold",
-    "Cancelled",
-  ]),
-});
+interface Category {
+  ID: string;
+  NameCategory: string;
+}
+
+const formSchema = z
+  .object({
+    uploadType: z.enum(["image", "video", "videoUrl"], {
+      message: "Please select an upload type",
+    }),
+    imageFile: z
+      .instanceof(File)
+      .optional()
+      .refine(
+        (file) => !file || ["image/jpeg", "image/png"].includes(file.type),
+        "Only JPEG or PNG images are allowed"
+      )
+      .refine(
+        (file) => !file || file.size <= 5 * 1024 * 1024,
+        "Image must be less than 5MB"
+      ),
+    videoFile: z
+      .instanceof(File)
+      .optional()
+      .refine(
+        (file) => !file || ["video/mp4", "video/webm"].includes(file.type),
+        "Only MP4 or WebM videos are allowed"
+      )
+      .refine(
+        (file) => !file || file.size <= 50 * 1024 * 1024,
+        "Video must be less than 50MB"
+      ),
+    videoUrl: z.string().optional(),
+    category: z.string().min(1, "Please select a category"),
+  })
+  .refine(
+    (data) => {
+      if (data.uploadType === "videoUrl") {
+        return (
+          data.videoUrl && z.string().url().safeParse(data.videoUrl).success
+        );
+      }
+      return true;
+    },
+    {
+      message: "Please enter a valid URL",
+      path: ["videoUrl"],
+    }
+  );
 
 export default function NewProjectPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      imageUrl: "",
-      status: "Planning",
+      uploadType: "image",
+      imageFile: undefined,
+      videoFile: undefined,
+      videoUrl: "",
+      category: "",
     },
+    mode: "onSubmit",
   });
 
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const token = Cookies.get("auth_token");
+        if (!token) {
+          throw new Error("Authentication token not found. Please log in.");
+        }
+        const response = await fetch(
+          "http://localhost:8081/projects/categories",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data.data || []);
+        // Set default category to the first one if available
+        if (data.data && data.data.length > 0) {
+          form.setValue("category", data.data[0].NameCategory);
+        } else {
+          toast({
+            title: "Warning",
+            description: "No categories found. Please create a category first.",
+            variant: "destructive",
+          });
+        }
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to load categories.",
+          variant: "destructive",
+        });
+      }
+    };
+    fetchCategories();
+  }, [toast, form]);
+
+  const formErrors = form.formState.errors;
+  useEffect(() => {
+    if (Object.keys(formErrors).length > 0) {
+      console.log("Form validation errors:", formErrors);
+      toast({
+        title: "Validation Error",
+        description: "Please check the form for errors.",
+        variant: "destructive",
+      });
+    }
+  }, [formErrors, toast]);
+
+  const handleUploadTypeChange = (value: string) => {
+    console.log("Upload type changed to:", value);
+    form.setValue("uploadType", value as "image" | "video" | "videoUrl", {
+      shouldValidate: false,
+    });
+    form.setValue("imageFile", undefined, { shouldValidate: false });
+    form.setValue("videoFile", undefined, { shouldValidate: false });
+    form.setValue("videoUrl", "", { shouldValidate: false });
+    setImagePreview(null);
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("onSubmit called with values:", values);
     setIsLoading(true);
 
-    // Simulate API request
-    setTimeout(() => {
-      console.log(values);
+    const customValidation = z
+      .object({
+        uploadType: z.enum(["image", "video", "videoUrl"]),
+        imageFile: z.instanceof(File).optional(),
+        videoFile: z.instanceof(File).optional(),
+        videoUrl: z.string().optional(),
+        category: z.string().min(1),
+      })
+      .refine(
+        (data) => {
+          if (data.uploadType === "image") return !!data.imageFile;
+          if (data.uploadType === "video") return !!data.videoFile;
+          if (data.uploadType === "videoUrl") return !!data.videoUrl;
+          return true;
+        },
+        {
+          message: "Please provide the selected upload type content",
+          path: ["uploadType"],
+        }
+      )
+      .safeParse(values);
 
+    if (!customValidation.success) {
+      console.log("Custom validation errors:", customValidation.error.errors);
+      toast({
+        title: "Validation Error",
+        description: "Please provide the selected upload type content.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const token = Cookies.get("auth_token");
+      if (!token)
+        throw new Error("Authentication token not found. Please log in.");
+
+      const formData = new FormData();
+      if (values.uploadType === "image" && values.imageFile) {
+        formData.append("file", values.imageFile);
+        formData.append("type", "image");
+      } else if (values.uploadType === "video" && values.videoFile) {
+        formData.append("file", values.videoFile);
+        formData.append("type", "video");
+      } else if (values.uploadType === "videoUrl" && values.videoUrl) {
+        formData.append("videoUrl", values.videoUrl);
+      }
+
+      // Use the exact category name from the form (already TitleCase from backend)
+      const url = `http://localhost:8081/projects/${encodeURIComponent(
+        values.category
+      )}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+        signal: AbortSignal.timeout(60000),
+      });
+
+      const responseBody = await response.text();
+      if (!response.ok)
+        throw new Error(
+          JSON.parse(responseBody)?.error ||
+            `Failed to create project (status: ${response.status})`
+        );
+
+      const responseData = JSON.parse(responseBody);
       toast({
         title: "Project created",
         description: "Your new project has been successfully created.",
       });
-
       router.push("/dashboard/projects");
+    } catch (error: any) {
+      console.error("Error in onSubmit:", error);
+      let errorMessage = "Failed to create project. Please try again.";
+      if (error.name === "TimeoutError")
+        errorMessage = "Request timed out. Please check your connection.";
+      else if (error.message.includes("token"))
+        errorMessage = "Authentication error. Please log in again.";
+      else if (error.message.includes("Category not found"))
+        errorMessage =
+          "Selected category does not exist. Please create it first.";
+      else if (error.message.includes("Invalid response"))
+        errorMessage = "Invalid response from server. Please contact support.";
+      else if (error.message.includes("Failed to create project"))
+        errorMessage = `Server error: ${error.message}`;
+      else if (error.message.includes("Failed to fetch"))
+        errorMessage =
+          "Cannot connect to the server. Please ensure the server is running and try again.";
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   }
 
-  // Animation variants for the header and card
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -95,17 +273,6 @@ export default function NewProjectPage() {
     },
   };
 
-  // Animation variants for form fields (staggered effect)
-  const fieldVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.5, delay: i * 0.1, ease: "easeOut" },
-    }),
-  };
-
-  // Animation variants for buttons
   const buttonVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.5, delay: 0.6 } },
@@ -124,15 +291,13 @@ export default function NewProjectPage() {
         <div className="space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">Add New Project</h1>
           <p className="text-lg text-muted-foreground">
-            Create a new project with all the necessary details.
+            Create a new project with an image, video, or video URL.
           </p>
         </div>
-
         <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
           <Link href="/dashboard/projects">
             <Button variant="outline" size="lg">
-              <ArrowLeft className="mr-2 h-5 w-5" />
-              Back to Projects
+              <ArrowLeft className="mr-2 h-5 w-5" /> Back to Projects
             </Button>
           </Link>
         </motion.div>
@@ -151,161 +316,33 @@ export default function NewProjectPage() {
               Fill out the form below to add a new project to your dashboard.
             </CardDescription>
           </CardHeader>
-
           <CardContent>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8"
               >
-                <div className="grid gap-6 md:grid-cols-2">
-                  <motion.div
-                    custom={0}
-                    variants={fieldVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base">
-                            Project Title
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter project title"
-                              {...field}
-                              className="h-12 text-base"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            A clear and concise title for your project.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </motion.div>
-
-                  <motion.div
-                    custom={1}
-                    variants={fieldVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base">Status</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="h-12 text-base">
-                                <SelectValue placeholder="Select a status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Planning">Planning</SelectItem>
-                              <SelectItem value="In Progress">
-                                In Progress
-                              </SelectItem>
-                              <SelectItem value="Complete">Complete</SelectItem>
-                              <SelectItem value="On Hold">On Hold</SelectItem>
-                              <SelectItem value="Cancelled">
-                                Cancelled
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>
-                            The current status of your project.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </motion.div>
-                </div>
-
-                <motion.div
-                  custom={2}
-                  variants={fieldVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base">Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Enter a detailed description of the project"
-                            className="min-h-[150px] text-base"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Provide a comprehensive description of the project's
-                          goals, scope, and other relevant details.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                <CategorySelect
+                  control={form.control}
+                  categories={categories}
+                />
+                <UploadTypeRadio
+                  control={form.control}
+                  onChange={handleUploadTypeChange}
+                />
+                {form.watch("uploadType") === "image" && (
+                  <ImageUpload
+                    imagePreview={imagePreview}
+                    setImagePreview={setImagePreview}
+                    isLoading={isLoading}
                   />
-                </motion.div>
-
-                <motion.div
-                  custom={3}
-                  variants={fieldVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <FormField
-                    control={form.control}
-                    name="imageUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base">
-                          Project Image URL
-                        </FormLabel>
-                        <FormControl>
-                          <div className="flex space-x-3">
-                            <Input
-                              placeholder="https://example.com/image.jpg"
-                              {...field}
-                              className="h-12 text-base"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => window.open(field.value, "_blank")}
-                              disabled={!field.value}
-                              className="h-12 w-12"
-                            >
-                              <ExternalLink className="h-5 w-5" />
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormDescription className="flex items-center gap-1">
-                          <ImageIcon className="h-4 w-4" />
-                          <span>
-                            Enter a URL for the project's featured image.
-                          </span>
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </motion.div>
-
+                )}
+                {form.watch("uploadType") === "video" && (
+                  <VideoUpload isLoading={isLoading} />
+                )}
+                {form.watch("uploadType") === "videoUrl" && (
+                  <VideoUrlInput control={form.control} />
+                )}
                 <motion.div
                   variants={buttonVariants}
                   initial="hidden"
@@ -329,10 +366,14 @@ export default function NewProjectPage() {
                     whileHover="hover"
                     whileTap="tap"
                   >
-                    <Button type="submit" size="lg" disabled={isLoading}>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={isLoading || categories.length === 0}
+                    >
                       {isLoading ? (
                         <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />{" "}
                           Creating...
                         </>
                       ) : (

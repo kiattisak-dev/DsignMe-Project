@@ -45,13 +45,6 @@ func AddCategoryHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validate against ValidCategories
-	if !ValidCategories[nameCategory] {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid category. Must be one of: Logo, Advertisement, Product, VisualMotion",
-		})
-	}
-
 	category := models.Category{
 		NameCategory: nameCategory,
 	}
@@ -123,13 +116,6 @@ func UpdateCategoryHandler(c *fiber.Ctx) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	// Validate against ValidCategories
-	if !ValidCategories[nameCategory] {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid category. Must be one of: Logo, Advertisement, Product, VisualMotion",
-		})
-	}
 
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {

@@ -66,13 +66,6 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validate category name against ValidCategories
-	if !ValidCategories[category.NameCategory] {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid category. Must be one of: Logo, Advertisement, Product, VisualMotion",
-		})
-	}
-
 	// Check if category name matches path parameter
 	if category.NameCategory != categoryName {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -157,13 +150,6 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Category not found",
-		})
-	}
-
-	// Validate category name against ValidCategories
-	if !ValidCategories[category.NameCategory] {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid category. Must be one of: Logo, Advertisement, Product, VisualMotion",
 		})
 	}
 
