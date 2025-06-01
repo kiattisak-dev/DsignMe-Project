@@ -16,8 +16,10 @@ func main() {
 	configs.InitDB()
 	defer configs.DisconnectDB()
 
-	// Initialize Fiber app
-	app := fiber.New()
+	// Initialize Fiber app with BodyLimit
+	app := fiber.New(fiber.Config{
+		BodyLimit: 10 * 1024 * 1024, // Set limit to 10 MB
+	})
 
 	// Apply CORS middleware globally
 	app.Use(middleware.CorsMiddleware())

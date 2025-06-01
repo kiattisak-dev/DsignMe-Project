@@ -1,13 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
-  Inbox,
   FolderKanban,
   Settings,
   LogOut,
@@ -16,6 +15,8 @@ import {
   Sun,
   ChevronLeft,
   ChevronRight,
+  Layers,
+  ListOrdered,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Separator } from "@/components/ui/separator";
@@ -26,6 +27,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Cookies from "js-cookie";
+import { useToast } from "@/hooks/use-toast";
+
+interface Category {
+  ID: string;
+  NameCategory: string;
+}
 
 interface SidebarProps {
   className?: string;
@@ -36,6 +44,37 @@ interface SidebarProps {
 export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const token = Cookies.get("auth_token");
+        const response = await fetch(
+          "http://localhost:8081/projects/categories",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data.data || []);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load categories.",
+          variant: "destructive",
+        });
+      }
+    };
+    fetchCategories();
+  }, [toast]);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -53,9 +92,9 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
       icon: FolderKanban,
     },
     {
-      name: "Contacts",
-      href: "/dashboard/contacts",
-      icon: Inbox,
+      name: "Categories",
+      href: "/dashboard/categories",
+      icon: Layers,
     },
   ];
 
@@ -87,7 +126,11 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           )}
           onClick={() => setExpanded((prev) => !prev)}
         >
-          {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          {expanded ? (
+            <ChevronLeft className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
@@ -103,10 +146,11 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground transition-colors hover:text-foreground",
+                      "flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground transition-colors",
                       pathname === item.href &&
-                        "bg-accent text-foreground font-medium",
-                      !expanded && "justify-center px-0"
+                        "bg-muted border border-primary text-primary font-semibold",
+                      !expanded && "justify-center px-0",
+                      "hover:bg-transparent hover:text-muted-foreground"
                     )}
                   >
                     <item.icon
@@ -124,6 +168,53 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
               </Tooltip>
             </TooltipProvider>
           ))}
+          {/* Service-Steps with Categories */}
+          <TooltipProvider delayDuration={expanded ? 1000 : 0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className={cn(
+                    "flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground transition-colors",
+                    pathname.includes("/dashboard/servicesteps") &&
+                      "bg-muted border border-primary text-primary font-semibold",
+                    !expanded && "justify-center px-0",
+                    "hover:bg-transparent hover:text-muted-foreground"
+                  )}
+                >
+                  <ListOrdered
+                    className={cn(
+                      "h-5 w-5",
+                      pathname.includes("/dashboard/servicesteps") &&
+                        "text-primary"
+                    )}
+                  />
+                  {expanded && <span>Service-Steps</span>}
+                </div>
+              </TooltipTrigger>
+              {!expanded && (
+                <TooltipContent side="right">Service-Steps</TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+          {expanded && categories.length > 0 && (
+            <div className="ml-6 grid gap-1">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.ID}
+                  href={`/dashboard/servicesteps/${cat.NameCategory.toLowerCase()}`}
+                  className={cn(
+                    "flex h-8 items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground transition-colors",
+                    pathname ===
+                      `/dashboard/servicesteps/${cat.NameCategory.toLowerCase()}` &&
+                      "bg-muted text-primary font-semibold",
+                    "hover:bg-transparent hover:text-muted-foreground"
+                  )}
+                >
+                  {cat.NameCategory}
+                </Link>
+              ))}
+            </div>
+          )}
         </nav>
       </div>
 
@@ -152,12 +243,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           {expanded && <span className="text-muted-foreground">Theme</span>}
         </div>
 
-        <div
-          className={cn(
-            "flex items-center gap-3",
-            !expanded && "flex-col"
-          )}
-        >
+        <div className={cn("flex items-center gap-3", !expanded && "flex-col")}>
           <Avatar>
             <AvatarImage
               src="https://i.pravatar.cc/150?img=68"
@@ -180,7 +266,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           <Button
             variant="ghost"
             className={cn(
-              "w-full mt-4 text-muted-foreground hover:text-destructive hover:bg-destructive/10",
+              "w-full mt-4 text-muted-foreground hover:bg-transparent hover:text-muted-foreground",
               !expanded && "justify-center px-0"
             )}
           >

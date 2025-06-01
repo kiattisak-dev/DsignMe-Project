@@ -9,14 +9,15 @@
     "lint": "bunx --bun next lint"
   },
   "dependencies": {
-  "@radix-ui/react-toast": "^1.2.11", 
+    "@radix-ui/react-toast": "^1.2.11",
     "daisyui": "^5.0.35",
     "framer-motion": "^12.11.0",
     "js-cookie": "^3.0.5",
-    "next": "14.2.15", 
-    "next-themes": "^0.4.6", 
-    "react": "18.3.1", 
-    "react-dom": "18.3.1"
+    "next": "14.2.15",
+    "next-themes": "^0.4.6",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-quill": "^2.0.0"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.9.0",

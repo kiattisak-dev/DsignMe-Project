@@ -28,10 +28,12 @@ func ProjectRoutes(app *fiber.App) {
 	categoryRoute.Delete("/:id", controllers.DeleteProjectHandler)
 
 	// Service steps routes
-	serviceStepsRoute := categoryRoute.Group("/service-steps")
-	serviceStepsRoute.Get("/", controllers.GetAllServiceStepsHandler)
-	serviceStepsRoute.Get("/:stepId", controllers.GetServiceStepHandler)
-	serviceStepsRoute.Post("/", controllers.AddServiceStepHandler)
-	serviceStepsRoute.Put("/:stepId", controllers.UpdateServiceStepsHandler)
-	serviceStepsRoute.Delete("/:stepId", controllers.DeleteServiceStepHandler)
+	servicestepsRoute := app.Group("/servicesteps", middleware.AuthMiddleware())
+	servicestepsCategoryRoute := servicestepsRoute.Group("/:category")
+	servicestepsServiceStepsRoute := servicestepsCategoryRoute.Group("/service-steps")
+	servicestepsServiceStepsRoute.Get("/", controllers.GetAllServiceStepsHandler)
+	servicestepsServiceStepsRoute.Get("/:stepId", controllers.GetServiceStepHandler)
+	servicestepsServiceStepsRoute.Post("/", controllers.AddServiceStepHandler)
+	servicestepsServiceStepsRoute.Put("/:stepId", controllers.UpdateServiceStepsHandler)
+	servicestepsServiceStepsRoute.Delete("/:stepId", controllers.DeleteServiceStepHandler)
 }

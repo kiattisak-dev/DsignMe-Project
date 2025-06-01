@@ -15,9 +15,9 @@ import { Form } from "@/components/ui/form";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import CategorySelect from "@/components/newProject/CategorySelect";
 import UploadTypeRadio from "@/components/newProject/UploadTypeRadio";
@@ -43,8 +43,8 @@ const formSchema = z
         "Only JPEG or PNG images are allowed"
       )
       .refine(
-        (file) => !file || file.size <= 5 * 1024 * 1024,
-        "Image must be less than 5MB"
+        (file) => !file || file.size <= 10 * 1024 * 1024,
+        "Image must be less than 10MB"
       ),
     videoFile: z
       .instanceof(File)
@@ -111,11 +111,11 @@ export default function NewProjectPage() {
           }
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch categories");
+          throw new Error(`Failed to fetch categories: ${response.statusText}`);
         }
         const data = await response.json();
+        console.log("Categories data:", data);
         setCategories(data.data || []);
-        // Set default category to the first one if available
         if (data.data && data.data.length > 0) {
           form.setValue("category", data.data[0].NameCategory);
         } else {
@@ -126,6 +126,7 @@ export default function NewProjectPage() {
           });
         }
       } catch (error: any) {
+        console.error("Error fetching categories:", error);
         toast({
           title: "Error",
           description: error.message || "Failed to load categories.",
@@ -198,37 +199,55 @@ export default function NewProjectPage() {
 
     try {
       const token = Cookies.get("auth_token");
-      if (!token)
+      if (!token) {
         throw new Error("Authentication token not found. Please log in.");
+      }
 
       const formData = new FormData();
       if (values.uploadType === "image" && values.imageFile) {
+        console.log("Image file size:", values.imageFile.size / 1024 / 1024, "MB");
         formData.append("file", values.imageFile);
         formData.append("type", "image");
       } else if (values.uploadType === "video" && values.videoFile) {
+        console.log("Video file size:", values.videoFile.size / 1024 / 1024, "MB");
         formData.append("file", values.videoFile);
         formData.append("type", "video");
       } else if (values.uploadType === "videoUrl" && values.videoUrl) {
         formData.append("videoUrl", values.videoUrl);
+        formData.append("type", "videoUrl");
+      }
+      formData.append("category", values.category);
+
+      console.log("FormData contents:");
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
       }
 
-      // Use the exact category name from the form (already TitleCase from backend)
       const url = `http://localhost:8081/projects/${encodeURIComponent(
         values.category
       )}`;
+      console.log("Request URL:", url);
+
       const response = await fetch(url, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
-        signal: AbortSignal.timeout(60000),
+        signal: AbortSignal.timeout(30000),
       });
 
       const responseBody = await response.text();
-      if (!response.ok)
-        throw new Error(
-          JSON.parse(responseBody)?.error ||
-            `Failed to create project (status: ${response.status})`
-        );
+      console.log("Response status:", response.status, "Response body:", responseBody);
+
+      if (!response.ok) {
+        const errorData = responseBody ? JSON.parse(responseBody) : {};
+        let errorMessage = errorData.error || `Failed to create project (status: ${response.status})`;
+        if (errorMessage.includes("file too large")) {
+          errorMessage = "File size exceeds server limit (10MB for images). Please use a smaller file.";
+        }
+        throw new Error(errorMessage);
+      }
 
       const responseData = JSON.parse(responseBody);
       toast({
@@ -239,20 +258,20 @@ export default function NewProjectPage() {
     } catch (error: any) {
       console.error("Error in onSubmit:", error);
       let errorMessage = "Failed to create project. Please try again.";
-      if (error.name === "TimeoutError")
-        errorMessage = "Request timed out. Please check your connection.";
-      else if (error.message.includes("token"))
+      if (error.name === "TimeoutError") {
+        errorMessage = "Request timed out. Try a smaller file or check your connection.";
+      } else if (error.message.includes("token")) {
         errorMessage = "Authentication error. Please log in again.";
-      else if (error.message.includes("Category not found"))
-        errorMessage =
-          "Selected category does not exist. Please create it first.";
-      else if (error.message.includes("Invalid response"))
-        errorMessage = "Invalid response from server. Please contact support.";
-      else if (error.message.includes("Failed to create project"))
+        router.push("/login");
+      } else if (error.message.includes("Category not found")) {
+        errorMessage = "Selected category does not exist. Please create it first.";
+      } else if (error.message.includes("Failed to fetch")) {
+        errorMessage = "Cannot connect to the server. Please ensure the server is running at http://localhost:8081.";
+      } else if (error.message.includes("file too large")) {
+        errorMessage = "File size exceeds server limit (10MB for images). Please use a smaller file.";
+      } else if (error.message.includes("Failed to create project")) {
         errorMessage = `Server error: ${error.message}`;
-      else if (error.message.includes("Failed to fetch"))
-        errorMessage =
-          "Cannot connect to the server. Please ensure the server is running and try again.";
+      }
 
       toast({
         title: "Error",

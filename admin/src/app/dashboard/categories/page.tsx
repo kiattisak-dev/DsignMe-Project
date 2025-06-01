@@ -230,7 +230,7 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen space-y-6 p-4 sm:p-6 md:p-8 bg-[#F9FAFB] dark:bg-[#1F2937] transition-colors duration-200">
+    <div className="min-h-screen space-y-6 p-4 sm:p-6 md:p-8 dark:bg-[#1F2937] transition-colors duration-200">
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-[#111827] dark:text-[#D1D5DB]">

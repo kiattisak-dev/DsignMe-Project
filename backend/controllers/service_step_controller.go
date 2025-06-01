@@ -13,13 +13,12 @@ import (
 )
 
 type ServiceStepRequest struct {
-	Categories string   `json:"categories"`
-	Title      string   `json:"title"`
-	Subtitles  []string `json:"subtitles"`
+	Categories string            `json:"categories"`
+	Title      string            `json:"title"`
+	Subtitles  []models.Subtitle `json:"subtitles"`
 }
 
 func AddServiceStepHandler(c *fiber.Ctx) error {
-	// Get category from path parameter (optional, for consistency)
 	categoryName := strings.Title(strings.ToLower(c.Params("category")))
 	if categoryName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -27,7 +26,7 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	var req ServiceStepRequest
@@ -37,7 +36,6 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validate required fields
 	if req.Categories == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Categories field is required",
@@ -48,8 +46,19 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 			"error": "Service step title is required",
 		})
 	}
+	hasContent := false
+	for _, subtitle := range req.Subtitles {
+		if subtitle.Text != "" || len(subtitle.Headings) > 0 {
+			hasContent = true
+			break
+		}
+	}
+	if !hasContent {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "At least one subtitle or heading is required",
+		})
+	}
 
-	// Validate categories as ObjectID
 	categoryObjID, err := primitive.ObjectIDFromHex(req.Categories)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -57,7 +66,6 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check if category exists
 	var category models.Category
 	err = configs.CategoriesColl.FindOne(ctx, bson.M{"_id": categoryObjID}).Decode(&category)
 	if err != nil {
@@ -66,17 +74,34 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check if category name matches path parameter
 	if category.NameCategory != categoryName {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Category ID does not match category name in URL",
 		})
 	}
 
+	// Filter out empty subtitles and headings
+	filteredSubtitles := []models.Subtitle{}
+	for _, subtitle := range req.Subtitles {
+		if subtitle.Text != "" || len(subtitle.Headings) > 0 {
+			// Filter out empty headings
+			filteredHeadings := []string{}
+			for _, heading := range subtitle.Headings {
+				if heading != "" {
+					filteredHeadings = append(filteredHeadings, heading)
+				}
+			}
+			filteredSubtitles = append(filteredSubtitles, models.Subtitle{
+				Text:     subtitle.Text,
+				Headings: filteredHeadings,
+			})
+		}
+	}
+
 	serviceStep := models.ServiceStep{
 		CategoryID: categoryObjID,
 		Title:      req.Title,
-		Subtitles:  req.Subtitles,
+		Subtitles:  filteredSubtitles,
 		CreatedAt:  time.Now(),
 	}
 
@@ -87,7 +112,6 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Get the inserted service step ID
 	serviceStep.ID = result.InsertedID.(primitive.ObjectID)
 
 	return c.JSON(fiber.Map{
@@ -97,7 +121,6 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 }
 
 func UpdateServiceStepsHandler(c *fiber.Ctx) error {
-	// Get stepId from path parameter
 	stepID := c.Params("stepId")
 	if stepID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -105,7 +128,6 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Get category from path parameter
 	categoryName := strings.Title(strings.ToLower(c.Params("category")))
 	if categoryName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -113,10 +135,9 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Parse request body
 	var req ServiceStepRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -124,7 +145,6 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validate required fields
 	if req.Categories == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Categories field is required",
@@ -135,8 +155,19 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 			"error": "Service step title is required",
 		})
 	}
+	hasContent := false
+	for _, subtitle := range req.Subtitles {
+		if subtitle.Text != "" || len(subtitle.Headings) > 0 {
+			hasContent = true
+			break
+		}
+	}
+	if !hasContent {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "At least one subtitle or heading is required",
+		})
+	}
 
-	// Validate categories as ObjectID
 	categoryObjID, err := primitive.ObjectIDFromHex(req.Categories)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -144,7 +175,6 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check if category exists
 	var category models.Category
 	err = configs.CategoriesColl.FindOne(ctx, bson.M{"_id": categoryObjID}).Decode(&category)
 	if err != nil {
@@ -153,14 +183,12 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check if category name matches path parameter
 	if category.NameCategory != categoryName {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Category ID does not match category name in URL",
 		})
 	}
 
-	// Validate stepId as ObjectID
 	stepObjID, err := primitive.ObjectIDFromHex(stepID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -168,7 +196,6 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check if service step exists
 	var existingStep models.ServiceStep
 	err = configs.ServiceStepsColl.FindOne(ctx, bson.M{"_id": stepObjID, "category_id": categoryObjID}).Decode(&existingStep)
 	if err != nil {
@@ -177,11 +204,28 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Update service step
+	// Filter out empty subtitles and headings
+	filteredSubtitles := []models.Subtitle{}
+	for _, subtitle := range req.Subtitles {
+		if subtitle.Text != "" || len(subtitle.Headings) > 0 {
+			// Filter out empty headings
+			filteredHeadings := []string{}
+			for _, heading := range subtitle.Headings {
+				if heading != "" {
+					filteredHeadings = append(filteredHeadings, heading)
+				}
+			}
+			filteredSubtitles = append(filteredSubtitles, models.Subtitle{
+				Text:     subtitle.Text,
+				Headings: filteredHeadings,
+			})
+		}
+	}
+
 	update := bson.M{
 		"$set": bson.M{
 			"title":       req.Title,
-			"subtitles":   req.Subtitles,
+			"subtitles":   filteredSubtitles,
 			"category_id": categoryObjID,
 			"updatedAt":   time.Now(),
 		},
@@ -200,7 +244,6 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Fetch updated service step
 	var updatedStep models.ServiceStep
 	err = configs.ServiceStepsColl.FindOne(ctx, bson.M{"_id": stepObjID}).Decode(&updatedStep)
 	if err != nil {
@@ -223,7 +266,6 @@ func DeleteServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Get category from path parameter
 	categoryName := strings.Title(strings.ToLower(c.Params("category")))
 	if categoryName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -231,10 +273,9 @@ func DeleteServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Find category_id
 	var category models.Category
 	err := configs.CategoriesColl.FindOne(ctx, bson.M{"nameCategory": categoryName}).Decode(&category)
 	if err != nil {
@@ -250,7 +291,6 @@ func DeleteServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Delete service step
 	result, err := configs.ServiceStepsColl.DeleteOne(ctx, bson.M{"_id": stepObjID, "category_id": category.ID})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -270,7 +310,6 @@ func DeleteServiceStepHandler(c *fiber.Ctx) error {
 }
 
 func GetAllServiceStepsHandler(c *fiber.Ctx) error {
-	// Get category from path parameter
 	categoryName := strings.Title(strings.ToLower(c.Params("category")))
 	if categoryName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -278,10 +317,9 @@ func GetAllServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Find category_id
 	var category models.Category
 	err := configs.CategoriesColl.FindOne(ctx, bson.M{"nameCategory": categoryName}).Decode(&category)
 	if err != nil {
@@ -290,7 +328,6 @@ func GetAllServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Fetch all service steps for the category
 	cursor, err := configs.ServiceStepsColl.Find(ctx, bson.M{"category_id": category.ID})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -313,7 +350,6 @@ func GetAllServiceStepsHandler(c *fiber.Ctx) error {
 }
 
 func GetServiceStepHandler(c *fiber.Ctx) error {
-	// Get stepId from path parameter
 	stepID := c.Params("stepId")
 	if stepID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -321,7 +357,6 @@ func GetServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Get category from path parameter
 	categoryName := strings.Title(strings.ToLower(c.Params("category")))
 	if categoryName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -329,10 +364,9 @@ func GetServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Find category_id
 	var category models.Category
 	err := configs.CategoriesColl.FindOne(ctx, bson.M{"nameCategory": categoryName}).Decode(&category)
 	if err != nil {
@@ -341,7 +375,6 @@ func GetServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validate stepId as ObjectID
 	stepObjID, err := primitive.ObjectIDFromHex(stepID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -349,7 +382,6 @@ func GetServiceStepHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Fetch service step
 	var serviceStep models.ServiceStep
 	err = configs.ServiceStepsColl.FindOne(ctx, bson.M{"_id": stepObjID, "category_id": category.ID}).Decode(&serviceStep)
 	if err != nil {

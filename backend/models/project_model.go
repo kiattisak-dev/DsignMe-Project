@@ -10,14 +10,20 @@ type Category struct {
 	NameCategory string             `bson:"nameCategory"`
 }
 
+type Subtitle struct {
+	Text     string   `bson:"text" json:"text"`
+	Headings []string `bson:"headings" json:"headings"` 
+}
+
 type ServiceStep struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	CategoryID primitive.ObjectID `bson:"category_id" json:"category_id"`
 	Title      string             `bson:"title" json:"title"`
-	Subtitles  []string           `bson:"subtitles" json:"subtitles"`
+	Subtitles  []Subtitle         `bson:"subtitles" json:"subtitles"`
 	CreatedAt  time.Time          `bson:"createdAt" json:"createdAt"`
-	UpdatedAt  time.Time          `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	UpdatedAt  *time.Time         `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 }
+
 type Project struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty"`
 	ImageUrl   string             `bson:"imageUrl,omitempty"`

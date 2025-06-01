@@ -54,6 +54,7 @@ export default function ProjectsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
+  const [typeFilter, setTypeFilter] = useState<string>("All"); // New type filter state
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 12;
   const { toast } = useToast();
@@ -163,14 +164,28 @@ export default function ProjectsPage() {
     fetchCategoryName();
   }, [selectedProject, isViewOpen, toast]);
 
-  // Filter projects based on search query
-  const filteredProjects = projects.filter(
-    (project) =>
+  // Reset current page when type filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [typeFilter]);
+
+  // Filter projects based on search query and type
+  const filteredProjects = projects.filter((project) => {
+    const matchesSearch =
       (project.ImageUrl || "")
         .toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
-      (project.VideoUrl || "").toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      (project.VideoUrl || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+    const matchesType =
+      typeFilter === "All" ||
+      (typeFilter === "Image" && project.ImageUrl && !project.VideoUrl) ||
+      (typeFilter === "Video" && project.VideoUrl);
+
+    return matchesSearch && matchesType;
+  });
 
   // Pagination logic
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
@@ -286,7 +301,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="min-h-screen space-y-6 p-4 sm:p-6 md:p-8 bg-[#F9FAFB] dark:bg-[#1F2937] transition-colors duration-200">
+    <div className="min-h-screen space-y-6 p-4 sm:p-6 md:p-8 dark:bg-[#1F2937] transition-colors duration-200">
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:space-x-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-[#111827] dark:text-[#D1D5DB]">
@@ -334,6 +349,16 @@ export default function ProjectsPage() {
                       {category.NameCategory}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-[180px] bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]">
+                  <SelectValue placeholder="Filter by type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#374151] border-[#D1D5DB] dark:border-[#4B5563]">
+                  <SelectItem value="All">All Types</SelectItem>
+                  <SelectItem value="Image">Image</SelectItem>
+                  <SelectItem value="Video">Video</SelectItem>
                 </SelectContent>
               </Select>
             </div>

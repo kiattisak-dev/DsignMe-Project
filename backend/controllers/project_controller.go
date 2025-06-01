@@ -34,7 +34,7 @@ type File struct {
 // uploadToGridFS uploads a file to GridFS and returns the file URL
 func uploadToGridFS(file *multipart.FileHeader, fileType string) (string, error) {
 	// Validate file size
-	maxSize := int64(5 * 1024 * 1024) // 5MB for image
+	maxSize := int64(10 * 1024 * 1024) // 10MB for image
 	if fileType == "video" {
 		maxSize = 50 * 1024 * 1024 // 50MB for video
 	}
@@ -150,13 +150,14 @@ func AddProjectHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second) // เพิ่ม timeout
 	defer cancel()
 
 	// Find category_id
 	var category models.Category
 	err := configs.CategoriesColl.FindOne(ctx, bson.M{"nameCategory": categoryName}).Decode(&category)
 	if err != nil {
+		fmt.Println("Error: Category not found:", categoryName, err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Category not found",
 		})
@@ -165,14 +166,17 @@ func AddProjectHandler(c *fiber.Ctx) error {
 	// Parse multipart form
 	form, err := c.MultipartForm()
 	if err != nil {
+		fmt.Println("Error: Failed to parse form data:", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Failed to parse form data",
 		})
 	}
 
 	uploadType := form.Value["type"]
+	fmt.Println("Upload type:", uploadType)
 	if len(uploadType) == 0 || (uploadType[0] != "image" && uploadType[0] != "video" && uploadType[0] != "videoUrl") {
 		if len(form.Value["videoUrl"]) == 0 {
+			fmt.Println("Error: Invalid or missing upload type or video URL")
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "Invalid or missing upload type or video URL",
 			})
@@ -189,8 +193,10 @@ func AddProjectHandler(c *fiber.Ctx) error {
 	files := form.File["file"]
 	if len(files) > 0 {
 		file := files[0]
+		fmt.Println("File received:", file.Filename, "Size:", file.Size/(1024*1024), "MB")
 		fileUrl, err := uploadToGridFS(file, uploadType[0])
 		if err != nil {
+			fmt.Println("Error: Failed to upload file to GridFS:", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": err.Error(),
 			})
@@ -202,7 +208,9 @@ func AddProjectHandler(c *fiber.Ctx) error {
 		}
 	} else if len(form.Value["videoUrl"]) > 0 {
 		project.VideoUrl = form.Value["videoUrl"][0]
+		fmt.Println("Video URL received:", project.VideoUrl)
 	} else {
+		fmt.Println("Error: No file or video URL provided")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "No file or video URL provided",
 		})
@@ -211,12 +219,14 @@ func AddProjectHandler(c *fiber.Ctx) error {
 	// Insert project into database
 	result, err := configs.ProjectsColl.InsertOne(ctx, project)
 	if err != nil {
+		fmt.Println("Error: Failed to insert project:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to create project",
 		})
 	}
 
 	project.ID = result.InsertedID.(primitive.ObjectID)
+	fmt.Println("Project created with ID:", project.ID.Hex())
 
 	return c.JSON(fiber.Map{
 		"message": "Project created successfully",
