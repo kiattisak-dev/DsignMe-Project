@@ -20,3 +20,29 @@ export interface Contact {
   status: ContactStatus;
   createdAt: string;
 }
+
+export interface ProjectData {
+  name: string;
+  [key: string]: number | string;
+}
+
+export interface CategoryData {
+  name: string;
+  value: number;
+}
+
+export interface Project {
+  ID: string;
+  ImageUrl: string;
+  VideoUrl: string;
+  CategoryID: string;
+  CreatedAt: string;
+  UpdatedAt: string;
+}
+
+export interface Category {
+  ID: string;
+  NameCategory: string;
+  CreatedAt?: string;
+  UpdatedAt?: string;
+}
