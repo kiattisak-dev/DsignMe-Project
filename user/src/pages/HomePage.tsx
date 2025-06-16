@@ -1,7 +1,7 @@
 import React from 'react';
 import Hero from '../components/Hero';
 import Services from '../components/Services';
-import Portfolio from '../components/Portfolio';
+import WhyChoose from '../components/WhyChoose';
 import About from '../components/About';
 import Contact from '../components/Contact';
 
@@ -10,9 +10,9 @@ const HomePage: React.FC = () => {
     <>
       <Hero />
       <Services />
-      <Portfolio />
-      <About />
-      <Contact />
+      <WhyChoose />
+      {/* <About /> */}
+      {/* <Contact /> */}
     </>
   );
 };

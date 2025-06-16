@@ -1,142 +1,74 @@
 import React from 'react';
-import { Palette, Mail, Phone, MapPin, Instagram, Twitter, Linkedin, Dribbble } from 'lucide-react';
+import { Palette, Mail, Phone, MapPin } from 'lucide-react';
+import { FaInstagram, FaFacebookF } from 'react-icons/fa';
+import { FaComment } from 'react-icons/fa';
 
 const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear();
-
   const socialLinks = [
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { icon: Dribbble, href: '#', label: 'Dribbble' }
+    { icon: <FaComment />, href: '#', label: 'Line' },
+    { icon: <FaInstagram />, href: '#', label: 'Instagram' },
+    { icon: <FaFacebookF />, href: '#', label: 'Facebook' },
   ];
 
-  const footerLinks = {
-    services: [
-      { name: 'Logo Design', href: '#' },
-      { name: 'Brand Identity', href: '#' },
-      { name: 'Corporate Materials', href: '#' },
-      { name: 'Brand Strategy', href: '#' }
-    ],
-    company: [
-      { name: 'About Us', href: '#about' },
-      { name: 'Our Work', href: '#portfolio' },
-      { name: 'Process', href: '#' },
-      { name: 'Careers', href: '#' }
-    ],
-    resources: [
-      { name: 'Blog', href: '#' },
-      { name: 'Design Tips', href: '#' },
-      { name: 'Brand Guidelines', href: '#' },
-      { name: 'Case Studies', href: '#' }
-    ]
-  };
+  const policyLinks = [
+    { name: 'นโยบายความเป็นส่วนตัว', href: '#' },
+    { name: 'นโยบายการจัดส่ง', href: '#' },
+    { name: 'ข้อกำหนดในการใช้บริการ', href: '#' },
+    { name: 'นโยบายการคืนเงิน', href: '#' },
+    { name: 'การกำหนดลักษณะคุกกี้', href: '#' },
+  ];
 
   return (
-    <footer className="bg-gray-900 border-t border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Footer Content */}
-        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Company Info */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-                <Palette className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">UpMig</span>
-            </div>
+    <footer className="bg-black text-white border-t border-gray-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-16">
+        {/* Company Info */}
+        <div className="text-center mb-10">
+          <div className="flex justify-center items-center space-x-3 mb-6">
             
-            <p className="text-gray-400 mb-6 leading-relaxed">
-              Creating powerful visual identities that help brands stand out and connect with their audiences.
-            </p>
-
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3 text-gray-400">
-                <Mail className="w-4 h-4" />
-                <span className="text-sm">hello@upmig.com</span>
-              </div>
-              <div className="flex items-center space-x-3 text-gray-400">
-                <Phone className="w-4 h-4" />
-                <span className="text-sm">+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center space-x-3 text-gray-400">
-                <MapPin className="w-4 h-4" />
-                <span className="text-sm">New York, NY 10001</span>
-              </div>
-            </div>
+            <span className="text-4xl font-bold">DsignMe</span>
           </div>
-
-          {/* Services */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Services</h3>
-            <ul className="space-y-3">
-              {footerLinks.services.map((link, index) => (
-                <li key={index}>
-                  <a 
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200 text-sm"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Company</h3>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link, index) => (
-                <li key={index}>
-                  <a 
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200 text-sm"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Resources</h3>
-            <ul className="space-y-3">
-              {footerLinks.resources.map((link, index) => (
-                <li key={index}>
-                  <a 
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200 text-sm"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <p className="text-gray-400 text-base md:text-lg leading-relaxed mb-6 max-w-xl mx-auto">
+            พวกเราคือกราฟิกดีไซน์เนอร์ เชี่ยวชาญด้านการออกแบบ 
+            ที่มีประสบการณ์มากกว่า 4 ปี ที่สามารถช่วยส่งเสริมธุรกิจด้วยการ 
+            ออกแบบที่ดีที่สุดให้กับธุรกิจคุณ
+          </p>
         </div>
 
-        {/* Bottom Footer */}
-        <div className="py-6 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between">
-          <div className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {currentYear} UpMig. All rights reserved.
-          </div>
-
-          {/* Social Links */}
-          <div className="flex items-center space-x-4">
+        {/* Contact and Social */}
+        <div className="text-center mb-8">
+          <p className="mb-6 text-2xl font-bold">ติดต่อเรา</p>
+          <div className="flex justify-center space-x-6 mb-6">
             {socialLinks.map((social, index) => (
               <a
                 key={index}
                 href={social.href}
                 aria-label={social.label}
-                className="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-lg flex items-center justify-center transition-colors duration-300 group"
+                className="w-12 h-12 bg-gray-800 hover:bg-blue-500 rounded-lg flex items-center justify-center transition-colors duration-300"
               >
-                <social.icon className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                {social.icon}
               </a>
             ))}
           </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="text-center text-gray-400 text-base mb-6 max-w-md mx-auto">
+          © 2025 DsignMe
+        </div>
+
+        {/* Policy Links */}
+        <div className="text-center text-gray-400 text-sm max-w-md mx-auto">
+          {policyLinks.map((link, index) => (
+            <React.Fragment key={index}>
+              <a
+                href={link.href}
+                className="hover:text-white transition-colors duration-200"
+              >
+                {link.name}
+              </a>
+              {index < policyLinks.length - 1 && <span className="mx-3 text-gray-600">|</span>}
+            </React.Fragment>
+          ))}
         </div>
       </div>
     </footer>

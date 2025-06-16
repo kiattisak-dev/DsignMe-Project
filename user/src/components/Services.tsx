@@ -1,99 +1,126 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Palette, Megaphone, Package, Eye, ArrowRight } from 'lucide-react';
+import { Palette, Megaphone, Eye, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 
 const Services: React.FC = () => {
   const services = [
     {
       icon: Palette,
-      title: 'Logo Design',
-      description: 'Custom logo designs that capture your brand essence and make a lasting impression.',
-      features: ['Brand Research', 'Multiple Concepts', 'Vector Files', 'Brand Guidelines'],
+      title: 'Logo & Corporate Identity',
+      description: 'ออกแบบโลโก้และอัตลักษณ์องค์กร',
       link: '/services/logo',
-      image: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800'
+      images: [
+        'https://via.placeholder.com/400x300?text=Logo+Design+1',
+        'https://via.placeholder.com/400x300?text=Corporate+Identity+1',
+        'https://via.placeholder.com/400x300?text=Corporate+Identity+2'
+      ]
     },
     {
       icon: Megaphone,
-      title: 'Advertisement',
-      description: 'Eye-catching advertising materials that drive engagement and conversions.',
-      features: ['Digital Ads', 'Print Ads', 'Campaign Design', 'Video Ads'],
+      title: 'AD Content',
+      description: 'ออกแบบเนื้อหาสื่อโฆษณา',
       link: '/services/advertisement',
-      image: 'https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800'
+      images: [
+        'https://via.placeholder.com/400x300?text=AD+Content+1',
+        'https://via.placeholder.com/400x300?text=AD+Content+2',
+        'https://via.placeholder.com/400x300?text=AD+Content+3'
+      ]
+    },
+    {
+      icon: Eye,
+      title: 'Visual & Motion Graphic',
+      description: 'ออกแบบภาพและกราฟิกเคลื่อนไหว',
+      link: '/services/visual',
+      images: [
+        'https://via.placeholder.com/400x300?text=Motion+Graphic+1',
+        'https://via.placeholder.com/400x300?text=Visual+Design+1',
+        'https://via.placeholder.com/400x300?text=Motion+Graphic+2'
+      ]
     },
     {
       icon: Package,
       title: 'Product Design',
-      description: 'Beautiful and functional product designs that users love and businesses succeed with.',
-      features: ['Product Packaging', 'Product Visualization', 'Product Catalog', 'Product Branding'],
+      description: 'ออกแบบผลิตภัณฑ์และบรรจุภัณฑ์',
       link: '/services/product',
-      image: 'https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&cs=tinysrgb&w=800'
-    },
-    {
-      icon: Eye,
-      title: 'Visual Design',
-      description: 'Stunning visual experiences that communicate your message effectively.',
-      features: ['Visual Identity', 'Infographic Design', 'Presentation Design', 'Visual Storytelling'],
-      link: '/services/visual',
-      image: 'https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg?auto=compress&cs=tinysrgb&w=800'
+      images: [
+        'https://via.placeholder.com/400x300?text=Product+Design+1',
+        'https://via.placeholder.com/400x300?text=Product+Packaging+1',
+        'https://via.placeholder.com/400x300?text=Product+Design+2'
+      ]
     }
   ];
 
+  const [slideOffset, setSlideOffset] = useState<{ [key: number]: number }>({});
+
+  const handleSlideLeft = (index: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSlideOffset((prev) => ({
+      ...prev,
+      [index]: Math.min((prev[index] || 0) + 100, 0),
+    }));
+  };
+
+  const handleSlideRight = (index: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSlideOffset((prev) => ({
+      ...prev,
+      [index]: Math.max((prev[index] || 0) - 100, -200), // Adjusted for 3 images
+    }));
+  };
+
   return (
-    <section id="services" className="py-20 bg-gray-900/50">
+    <section id="services" className="py-12 sm:py-16 lg:py-20 bg-white bg-gradient-to-br from-white via-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Services</h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            We offer comprehensive design services to build strong, memorable brands that drive business growth.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {services.map((service, index) => (
-            <Link
-              key={index}
-              to={service.link}
-              className="group bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden hover:bg-gray-800/70 transition-all duration-300 hover:transform hover:scale-105 border border-gray-700/50 hover:border-primary-500/50"
-            >
-              {/* Service Image */}
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={service.image} 
-                  alt={service.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
-                
-                {/* Icon Overlay */}
-                <div className="absolute top-4 left-4 w-12 h-12 bg-primary-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-primary-500/30">
-                  <service.icon className="w-6 h-6 text-primary-500" />
+        {services.map((service, index) => (
+          <div key={index} className="mb-6 sm:mb-8 lg:mb-12 last:mb-0">
+            <Link to={service.link}>
+              <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                <div className="relative w-full h-full">
+                  <div
+                    className="flex w-[300%] h-full transition-transform duration-300"
+                    style={{ transform: `translateX(${slideOffset[index] || 0}%)` }}
+                  >
+                    {service.images.map((img, imgIndex) => (
+                      <div key={imgIndex} className="w-full h-full relative">
+                        <img
+                          src={img}
+                          alt={`${service.title} ${imgIndex + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent"></div>
+                        <div className="absolute inset-0 flex items-end p-4 sm:p-6 text-gray-900">
+                          <div className="w-full">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold">{service.title}</h3>
+                            <p className="text-xs sm:text-sm">{service.description}</p>
+                          </div>
+                        </div>
+                        <div className="absolute top-2 sm:top-4 left-2 sm:left-4 w-8 sm:w-10 h-8 sm:h-10 sm:w-12 sm:h-12 bg-amber-100/50 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                          <service.icon className="w-4 sm:w-5 h-4 sm:h-5 sm:w-6 sm:h-6 text-amber-800" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              {/* Service Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-3 group-hover:text-primary-400 transition-colors duration-300">
-                  {service.title}
-                </h3>
-                <p className="text-gray-400 mb-4 text-sm leading-relaxed">{service.description}</p>
-                
-                <ul className="space-y-2 mb-6">
-                  {service.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="text-sm text-gray-500 flex items-center">
-                      <div className="w-1.5 h-1.5 bg-primary-500 rounded-full mr-2"></div>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
-                  <span className="text-primary-400 font-semibold text-sm">Learn More</span>
-                  <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-400 group-hover:translate-x-1 transition-all duration-300" />
-                </div>
+                <button
+                  onClick={(e) => handleSlideLeft(index, e)}
+                  className="absolute left-1 sm:left-2 top-1/2 transform -translate-y-1/2 bg-amber-100/70 text-amber-800 p-1 sm:p-2 rounded-full hover:bg-amber-200/70"
+                  disabled={slideOffset[index] === 0}
+                >
+                  <ChevronLeft className="w-4 sm:w-5 h-4 sm:h-5" />
+                </button>
+                <button
+                  onClick={(e) => handleSlideRight(index, e)}
+                  className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-amber-100/70 text-amber-800 p-1 sm:p-2 rounded-full hover:bg-amber-200/70"
+                  disabled={slideOffset[index] === -200}
+                >
+                  <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5" />
+                </button>
               </div>
             </Link>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   );
