@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import {  Sparkles } from 'lucide-react';
 
 const Hero: React.FC = () => {
   const scrollToPortfolio = () => {
@@ -29,21 +29,26 @@ const Hero: React.FC = () => {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-gray-800 font-serif">
             Design Your Unique Identity
             <br />
-            <span className="text-blue-600">ออกแบบอัตลักษณ์อย่างมีเอกลักษณ์</span>
+            <span>ออกแบบอัตลักษณ์อย่างมี"เอกลักษณ์"</span>
           </h1>
           
-          <p className="text-base md:text-lg text-gray-600 mb-8 max-w-xl mx-auto leading-relaxed font-sans">
-            พวกเราคือกราฟิกดีไซน์เนอร์ที่เชี่ยวชาญด้านการออกแบบ
-            <br />
-            <strong>มีประสบการณ์มากกว่า 4 ปี</strong>
-            <br />
-            ที่สามารถช่วยส่งเสริมธุรกิจด้วยการออกแบบที่ดีที่สุดให้กับธุรกิจคุณ
-            <br />
-            <hr className="border-t-2 border-black my-4" />
-            เราเป็นทีมกราฟิกดีไซน์เนอร์ที่มีประสบการณ์
-            <br />
-            ช่วยสร้างอัตลักษณ์ที่โดดเด่นให้กับธุรกิจของคุณ
-          </p>
+          <div className="text-base md:text-lg text-gray-600 mb-6 max-w-xl mx-auto leading-relaxed font-sans">
+            <p>
+              พวกเราคือกราฟิกดีไซน์เนอร์ที่เชี่ยวชาญด้านการออกแบบ
+              <br />
+              <strong>มีประสบการณ์มากกว่า 4 ปี</strong>
+              <br />
+              ที่สามารถช่วยส่งเสริมธุรกิจด้วยการออกแบบที่ดีที่สุดให้กับธุรกิจคุณ
+            </p>
+            <div className="my-6">
+              <hr className="border-t-2 border-gray-300" />
+            </div>
+            <p>
+              เราเป็นทีมกราฟิกดีไซน์เนอร์ที่มีประสบการณ์
+              <br />
+              ช่วยสร้างอัตลักษณ์ที่โดดเด่นให้กับธุรกิจของคุณ
+            </p>
+          </div>
         </div>
       </div>
     </section>

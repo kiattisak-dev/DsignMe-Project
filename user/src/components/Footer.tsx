@@ -20,14 +20,16 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="bg-black text-white border-t border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-10">
         {/* Company Info */}
-        <div className="text-center mb-10">
-          <div className="flex justify-center items-center space-x-3 mb-6">
-            
-            <span className="text-4xl font-bold">DsignMe</span>
+        <div className="text-center mb-6">
+          <div className="flex justify-center items-center space-x-3 mb-3">
+            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+              <Palette className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-3xl font-bold">DsignMe</span>
           </div>
-          <p className="text-gray-400 text-base md:text-lg leading-relaxed mb-6 max-w-xl mx-auto">
+          <p className="text-gray-400 text-base md:text-lg leading-relaxed mb-3 max-w-xl mx-auto">
             พวกเราคือกราฟิกดีไซน์เนอร์ เชี่ยวชาญด้านการออกแบบ 
             ที่มีประสบการณ์มากกว่า 4 ปี ที่สามารถช่วยส่งเสริมธุรกิจด้วยการ 
             ออกแบบที่ดีที่สุดให้กับธุรกิจคุณ
@@ -35,9 +37,9 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Contact and Social */}
-        <div className="text-center mb-8">
-          <p className="mb-6 text-2xl font-bold">ติดต่อเรา</p>
-          <div className="flex justify-center space-x-6 mb-6">
+        <div className="text-center mb-4">
+          <p className="text-xl font-bold mb-3">ติดต่อเรา</p>
+          <div className="flex justify-center space-x-6 mb-3">
             {socialLinks.map((social, index) => (
               <a
                 key={index}
@@ -52,7 +54,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Copyright */}
-        <div className="text-center text-gray-400 text-base mb-6 max-w-md mx-auto">
+        <div className="text-center text-gray-400 text-sm mb-3 max-w-md mx-auto">
           © 2025 DsignMe
         </div>
 
@@ -66,7 +68,7 @@ const Footer: React.FC = () => {
               >
                 {link.name}
               </a>
-              {index < policyLinks.length - 1 && <span className="mx-3 text-gray-600">|</span>}
+              {index < policyLinks.length - 1 && <span className="mx-2 text-gray-600">|</span>}
             </React.Fragment>
           ))}
         </div>

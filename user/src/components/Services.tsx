@@ -1,122 +1,173 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Palette, Megaphone, Eye, ChevronLeft, ChevronRight, Package } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Palette, Megaphone, Eye, Package } from "lucide-react";
+
+// Define the interface for each service
+interface Service {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  link: string;
+  images: string[];
+}
 
 const Services: React.FC = () => {
-  const services = [
+  const services: Service[] = [
     {
       icon: Palette,
-      title: 'Logo & Corporate Identity',
-      description: 'ออกแบบโลโก้และอัตลักษณ์องค์กร',
-      link: '/services/logo',
+      title: "Logo & Corporate Identity",
+      description: "ออกแบบโลโก้และอัตลักษณ์องค์กร",
+      link: "/services/logo",
       images: [
-        'https://via.placeholder.com/400x300?text=Logo+Design+1',
-        'https://via.placeholder.com/400x300?text=Corporate+Identity+1',
-        'https://via.placeholder.com/400x300?text=Corporate+Identity+2'
-      ]
+        "https://picsum.photos/400/300?grayscale",
+        "https://picsum.photos/400/300?grayscale",
+        "https://picsum.photos/400/300?grayscale",
+      ],
     },
     {
       icon: Megaphone,
-      title: 'AD Content',
-      description: 'ออกแบบเนื้อหาสื่อโฆษณา',
-      link: '/services/advertisement',
+      title: "AD Content",
+      description: "ออกแบบเนื้อหาสื่อโฆษณา",
+      link: "/services/advertisement",
       images: [
-        'https://via.placeholder.com/400x300?text=AD+Content+1',
-        'https://via.placeholder.com/400x300?text=AD+Content+2',
-        'https://via.placeholder.com/400x300?text=AD+Content+3'
-      ]
+        "https://picsum.photos/400/300?grayscale",
+        "https://picsum.photos/400/300?grayscale",
+        "https://picsum.photos/400/300?grayscale",
+      ],
     },
     {
       icon: Eye,
-      title: 'Visual & Motion Graphic',
-      description: 'ออกแบบภาพและกราฟิกเคลื่อนไหว',
-      link: '/services/visual',
+      title: "Visual & Motion Graphic",
+      description: "ออกแบบภาพและกราฟิกเคลื่อนไหว",
+      link: "/services/visual",
       images: [
-        'https://via.placeholder.com/400x300?text=Motion+Graphic+1',
-        'https://via.placeholder.com/400x300?text=Visual+Design+1',
-        'https://via.placeholder.com/400x300?text=Motion+Graphic+2'
-      ]
+        "https://picsum.photos/400/300?grayscale",
+        "https://picsum.photos/400/300?grayscale",
+        "https://picsum.photos/400/300?grayscale",
+      ],
     },
     {
       icon: Package,
-      title: 'Product Design',
-      description: 'ออกแบบผลิตภัณฑ์และบรรจุภัณฑ์',
-      link: '/services/product',
+      title: "Product Design",
+      description: "ออกแบบผลิตภัณฑ์และบรรจุภัณฑ์",
+      link: "/services/product",
       images: [
-        'https://via.placeholder.com/400x300?text=Product+Design+1',
-        'https://via.placeholder.com/400x300?text=Product+Packaging+1',
-        'https://via.placeholder.com/400x300?text=Product+Design+2'
-      ]
-    }
+        "https://picsum.photos/400/300?grayscale",
+        "https://picsum.photos/400/300?grayscale",
+        "https://picsum.photos/400/300?grayscale",
+      ],
+    },
   ];
 
-  const [slideOffset, setSlideOffset] = useState<{ [key: number]: number }>({});
+  const [currentSlide, setCurrentSlide] = useState<{ [key: number]: number }>(
+    {}
+  );
+  const [isPaused, setIsPaused] = useState(false);
 
-  const handleSlideLeft = (index: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setSlideOffset((prev) => ({
-      ...prev,
-      [index]: Math.min((prev[index] || 0) + 100, 0),
-    }));
-  };
-
-  const handleSlideRight = (index: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setSlideOffset((prev) => ({
-      ...prev,
-      [index]: Math.max((prev[index] || 0) - 100, -200), // Adjusted for 3 images
-    }));
-  };
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (!isPaused) {
+      interval = setInterval(() => {
+        services.forEach((_, index) => {
+          setCurrentSlide((prev) => {
+            const current = prev[index] || 0;
+            const nextSlide = (current + 1) % 3; // Cycle through 0, 1, 2
+            return { ...prev, [index]: nextSlide };
+          });
+        });
+      }, 3000); // Slide every 3 seconds
+    }
+    return () => clearInterval(interval); // Cleanup on unmount or pause
+  }, [isPaused, services]);
 
   return (
-    <section id="services" className="py-12 sm:py-16 lg:py-20 bg-white bg-gradient-to-br from-white via-gray-50 to-white">
+    <section
+      id="services"
+      className="py-12 sm:py-16 lg:py-20 bg-white bg-gradient-to-br from-white via-gray-50 to-white"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {services.map((service, index) => (
           <div key={index} className="mb-6 sm:mb-8 lg:mb-12 last:mb-0">
             <Link to={service.link}>
-              <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                <div className="relative w-full h-full">
+              <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden bg-gray-800/50 backdrop-blur-sm border border-gray-700/50">
+                {service.images.map((img, imgIndex) => (
                   <div
-                    className="flex w-[300%] h-full transition-transform duration-300"
-                    style={{ transform: `translateX(${slideOffset[index] || 0}%)` }}
+                    key={imgIndex}
+                    className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                      (currentSlide[index] || 0) === imgIndex
+                        ? "opacity-100 scale-100"
+                        : "opacity-0 scale-105"
+                    }`}
                   >
-                    {service.images.map((img, imgIndex) => (
-                      <div key={imgIndex} className="w-full h-full relative">
-                        <img
-                          src={img}
-                          alt={`${service.title} ${imgIndex + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent"></div>
-                        <div className="absolute inset-0 flex items-end p-4 sm:p-6 text-gray-900">
-                          <div className="w-full">
-                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold">{service.title}</h3>
-                            <p className="text-xs sm:text-sm">{service.description}</p>
-                          </div>
+                    <img
+                      src={img}
+                      alt={`${service.title} ${imgIndex + 1}`}
+                      className="w-full h-full object-contain max-w-full max-h-full"
+                      loading="lazy"
+                      onError={(e) => {
+                        console.log(
+                          `Image failed to load for ${service.title} ${
+                            imgIndex + 1
+                          }`
+                        );
+                        (e.target as HTMLImageElement).src =
+                          "https://placehold.co/400x300";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+                    <div className="absolute bottom-6 left-6 right-6">
+                      <div className="p-2">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <span className="px-3 py-1 bg-primary-500/20 text-primary-400 text-xs rounded-full border border-primary-500/30">
+                            {service.title}
+                          </span>
                         </div>
-                        <div className="absolute top-2 sm:top-4 left-2 sm:left-4 w-8 sm:w-10 h-8 sm:h-10 sm:w-12 sm:h-12 bg-amber-100/50 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                          <service.icon className="w-4 sm:w-5 h-4 sm:h-5 sm:w-6 sm:h-6 text-amber-800" />
-                        </div>
+                        <h3 className="text-xl font-semibold text-white mb-2">
+                          {service.title}
+                        </h3>
+                        <p className="text-gray-300 text-sm">
+                          {service.description}
+                        </p>
                       </div>
-                    ))}
+                    </div>
                   </div>
+                ))}
+
+                {/* Slide Indicators */}
+                <div className="absolute bottom-6 right-6 flex space-x-2">
+                  {service.images.map((_, imgIndex) => (
+                    <button
+                      key={imgIndex}
+                      onClick={() => {
+                        setIsPaused(true);
+                        setCurrentSlide((prev) => ({
+                          ...prev,
+                          [index]: imgIndex,
+                        }));
+                        setTimeout(() => setIsPaused(false), 5000);
+                      }}
+                      className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                        (currentSlide[index] || 0) === imgIndex
+                          ? "bg-primary-500 scale-110"
+                          : "bg-gray-600 hover:bg-gray-500"
+                      }`}
+                    />
+                  ))}
                 </div>
-                <button
-                  onClick={(e) => handleSlideLeft(index, e)}
-                  className="absolute left-1 sm:left-2 top-1/2 transform -translate-y-1/2 bg-amber-100/70 text-amber-800 p-1 sm:p-2 rounded-full hover:bg-amber-200/70"
-                  disabled={slideOffset[index] === 0}
-                >
-                  <ChevronLeft className="w-4 sm:w-5 h-4 sm:h-5" />
-                </button>
-                <button
-                  onClick={(e) => handleSlideRight(index, e)}
-                  className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-amber-100/70 text-amber-800 p-1 sm:p-2 rounded-full hover:bg-amber-200/70"
-                  disabled={slideOffset[index] === -200}
-                >
-                  <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5" />
-                </button>
+
+                {/* Progress Bar */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-gray-800/50">
+                  <div
+                    className="h-full bg-primary-500 transition-all duration-300 ease-linear"
+                    style={{
+                      width: `${
+                        (((currentSlide[index] || 0) + 1) /
+                          service.images.length) *
+                        100
+                      }%`,
+                    }}
+                  />
+                </div>
               </div>
             </Link>
           </div>

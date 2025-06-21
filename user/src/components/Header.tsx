@@ -19,7 +19,6 @@ const Header: React.FC = () => {
 
   const scrollToSection = (sectionId: string) => {
     if (location.pathname !== '/') {
-      // If not on home page, navigate to home first
       window.location.href = `/#${sectionId}`;
       return;
     }
@@ -40,8 +39,8 @@ const Header: React.FC = () => {
 
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
-    }`}>
+      isScrolled ? 'bg-white/80 backdrop-blur-md shadow-md' : 'bg-white/80 backdrop-blur-md'
+    } border-b border-gray-200/30`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
@@ -49,14 +48,14 @@ const Header: React.FC = () => {
             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
               <Palette className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">UpMig</span>
+            <span className="text-xl font-bold text-gray-900">DsignMe</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               to="/"
-              className="text-gray-700 hover:text-gray-900 transition-colors duration-200"
+              className="text-gray-800 hover:text-blue-600 transition-colors duration-200"
             >
               Home
             </Link>
@@ -67,7 +66,7 @@ const Header: React.FC = () => {
               onMouseEnter={() => setIsServicesOpen(true)}
               onMouseLeave={() => setIsServicesOpen(false)}
             >
-              <button className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors duration-200">
+              <button className="flex items-center space-x-1 text-gray-800 hover:text-blue-600 transition-colors duration-200">
                 <span>Services</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
                   isServicesOpen ? 'rotate-180' : ''
@@ -76,12 +75,12 @@ const Header: React.FC = () => {
               
               {/* Dropdown Menu */}
               {isServicesOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-gray-200/50 py-2">
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white/90 backdrop-blur-md rounded-lg shadow-lg border border-gray-200/30 py-2">
                   {serviceLinks.map((service, index) => (
                     <Link
                       key={index}
                       to={service.path}
-                      className="block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100/50 transition-colors duration-200"
+                      className="block px-4 py-2 text-gray-800 hover:text-blue-600 hover:bg-gray-100/80 transition-colors duration-200"
                     >
                       {service.name}
                     </Link>
@@ -92,19 +91,19 @@ const Header: React.FC = () => {
 
             <button 
               onClick={() => scrollToSection('portfolio')}
-              className="text-gray-700 hover:text-gray-900 transition-colors duration-200"
+              className="text-gray-800 hover:text-blue-600 transition-colors duration-200"
             >
               Portfolio
             </button>
             <button 
               onClick={() => scrollToSection('about')}
-              className="text-gray-700 hover:text-gray-900 transition-colors duration-200"
+              className="text-gray-800 hover:text-blue-600 transition-colors duration-200"
             >
               About
             </button>
             <button 
               onClick={() => scrollToSection('contact')}
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200"
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm"
             >
               Contact
             </button>
@@ -121,11 +120,11 @@ const Header: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200">
+          <div className="md:hidden absolute top-full left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200/30">
             <nav className="flex flex-col space-y-4 p-4">
               <Link 
                 to="/"
-                className="text-left text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                className="text-left text-gray-800 hover:text-blue-600 transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
@@ -135,7 +134,7 @@ const Header: React.FC = () => {
               <div>
                 <button 
                   onClick={() => setIsServicesOpen(!isServicesOpen)}
-                  className="flex items-center justify-between w-full text-left text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                  className="flex items-center justify-between w-full text-left text-gray-800 hover:text-blue-600 transition-colors duration-200"
                 >
                   <span>Services</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
@@ -149,7 +148,7 @@ const Header: React.FC = () => {
                       <Link
                         key={index}
                         to={service.path}
-                        className="block text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                        className="block text-gray-800 hover:text-blue-600 transition-colors duration-200"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         {service.name}
@@ -161,19 +160,19 @@ const Header: React.FC = () => {
 
               <button 
                 onClick={() => scrollToSection('portfolio')}
-                className="text-left text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                className="text-left text-gray-800 hover:text-blue-600 transition-colors duration-200"
               >
                 Portfolio
               </button>
               <button 
                 onClick={() => scrollToSection('about')}
-                className="text-left text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                className="text-left text-gray-800 hover:text-blue-600 transition-colors duration-200"
               >
                 About
               </button>
               <button 
                 onClick={() => scrollToSection('contact')}
-                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 w-fit"
+                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 w-fit shadow-sm"
               >
                 Contact
               </button>
