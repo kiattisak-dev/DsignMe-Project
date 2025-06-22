@@ -7,13 +7,18 @@ import {
   Award,
   ArrowRight,
   ArrowLeft,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { FaFacebook, FaInstagram, FaLine } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 const LogoPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showAll, setShowAll] = useState(false);
   const itemsPerPage = 10;
+  const [expandedService, setExpandedService] = useState<number | null>(null);
+  const [expandedProcess, setExpandedProcess] = useState<number | null>(null);
 
   const portfolioImages = [
     {
@@ -100,7 +105,6 @@ const LogoPage: React.FC = () => {
         "Vector Files (AI, EPS, SVG)",
         "Brand Guidelines Document",
       ],
-      price: "Starting from $299",
       timeline: "5-7 business days",
       revisions: "3 rounds included",
     },
@@ -108,14 +112,13 @@ const LogoPage: React.FC = () => {
       icon: Zap,
       title: "Logo Redesign",
       description:
-        "Modernize and refresh your existing logo while maintaining brand recognition and-finished customer loyalty.",
+        "Modernize and refresh your existing logo while maintaining brand recognition and customer loyalty.",
       features: [
         "Current Logo Analysis",
         "Modern Design Updates",
         "Brand Consistency Check",
         "All File Formats",
       ],
-      price: "Starting from $199",
       timeline: "3-5 business days",
       revisions: "2 rounds included",
     },
@@ -130,7 +133,6 @@ const LogoPage: React.FC = () => {
         "Monochrome Variations",
         "Responsive Sizes",
       ],
-      price: "Starting from $149",
       timeline: "2-3 business days",
       revisions: "2 rounds included",
     },
@@ -145,7 +147,6 @@ const LogoPage: React.FC = () => {
         "Typography Selection",
         "Detailed Usage Guidelines",
       ],
-      price: "Starting from $499",
       timeline: "7-10 business days",
       revisions: "5 rounds included",
     },
@@ -180,19 +181,19 @@ const LogoPage: React.FC = () => {
 
   const contactInfo = [
     {
-      icon: Phone,
-      title: "Phone",
-      detail: "+66 123 456 789",
+      icon: FaLine,
+      title: "Line",
+      detail: "@YourBrandLine",
     },
     {
-      icon: Mail,
-      title: "Email",
-      detail: "contact@logodesign.com",
+      icon: FaInstagram,
+      title: "Instagram",
+      detail: "@YourBrandIG",
     },
     {
-      icon: MapPin,
-      title: "Address",
-      detail: "123 Design Street, Bangkok, Thailand",
+      icon: FaFacebook,
+      title: "Facebook",
+      detail: "facebook.com/YourBrandFB",
     },
   ];
 
@@ -202,22 +203,31 @@ const LogoPage: React.FC = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = totalItems.slice(startIndex, startIndex + itemsPerPage);
 
+  // Toggle service expansion
+  const toggleService = (index: number) => {
+    setExpandedService(expandedService === index ? null : index);
+  };
+
+  // Toggle process expansion
+  const toggleProcess = (index: number) => {
+    setExpandedProcess(expandedProcess === index ? null : index);
+  };
+
   return (
     <div>
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-100 via-white to-gray-100 relative overflow-hidden">
+      <section className="pt-28 pb-16 bg-gradient-to-br from-gray-200 via-white to-gray-300 relative overflow-hidden flex items-center justify-center min-h-screen">
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute top-20 left-10 w-72 h-72 bg-gray-400/30 rounded-full blur-3xl animate-float"></div>
           <div
-            className="absolute bottom-20 right-10 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl animate-float"
+            className="absolute bottom-20 right-10 w-96 h-96 bg-gray-500/30 rounded-full blur-3xl animate-float"
             style={{ animationDelay: "2s" }}
           ></div>
         </div>
-        <div className="relative z-10 mt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-gray-800">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl md:text-6xl font-bold mb-5 text-gray-800">
               Logo & Corporate Identity
-              <br />
             </h1>
             <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               การสื่อสารผ่าน อัตลักษณ์ หรือ โลโก้มีผลต่อภาพลักษณ์
@@ -230,22 +240,22 @@ const LogoPage: React.FC = () => {
           </div>
 
           {/* Steps & Services Section */}
-          <div className="text-center">
-            <h2 className="text-2xl md:text-3xl font-medium text-gray-900 font-sans tracking-tight">
+          <div className="text-center mb-4 mt-2 bg-black py-5 rounded-xl mx-auto max-w-sm">
+            <h2 className="text-xl md:text-2xl font-medium text-white font-sans tracking-tight">
               ขั้นตอน & บริการ
             </h2>
           </div>
 
           {/* Contact Us Section */}
-          <div className="text-center mb-6 mt-2 bg-white/10 py-8 rounded-lg backdrop-blur-lg border border-white/20">
-            <h2 className="text-2xl md:text-3xl font-medium mb-6 text-gray-900 font-sans tracking-tight">
+          <div className="text-center mb-4 mt-2 bg-black py-5 rounded-lg mx-auto max-w-4xl border border-white/20">
+            <h2 className="text-xl md:text-2xl font-medium mb-4 text-white font-sans tracking-tight">
               ติดต่อเรา
             </h2>
-            <div className="flex flex-row justify-center items-center gap-10 mx-auto max-w-lg">
+            <div className="flex flex-row justify-center items-center gap-8 mx-auto max-w-md">
               {contactInfo.slice(0, 3).map((info, index) => (
                 <button
                   key={index}
-                  className="flex items-center justify-center w-12 h-12 bg-white/10 rounded-full border border-white/20 shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300"
+                  className="flex items-center justify-center w-12 h-12 bg-white rounded-full border border-black shadow-md hover:bg-gray-200 hover:scale-105 transition-all duration-300"
                 >
                   <info.icon className="w-6 h-6 text-black" />
                 </button>
@@ -268,12 +278,12 @@ const LogoPage: React.FC = () => {
             {currentItems.map((image) => (
               <div
                 key={image.id}
-                className="relative rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300"
+                className="relative overflow-hidden bg-gray-100 border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 aspect-square"
               >
                 <img
                   src={image.url}
                   alt={image.title}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-full object-cover absolute inset-0"
                 />
               </div>
             ))}
@@ -346,8 +356,10 @@ const LogoPage: React.FC = () => {
               การบริการและค่าบริการ
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              ค่าบริการโดยทั่วไป จะมีเรทราคาที่แตกต่างกันออกไป ทั้งนี้ขึ้นอยู่กับรายละเอียดของงาน
-              แต่ละประเภท โดยคิดค่าบริการจากราคาเริ่มต้น - สูงสุดของงาน ประเภทนั้นๆ และไม่เกินไปกว่านั้น
+              ค่าบริการโดยทั่วไป จะมีเรทราคาที่แตกต่างกันออกไป
+              ทั้งนี้ขึ้นอยู่กับรายละเอียดของงาน แต่ละประเภท
+              โดยคิดค่าบริการจากราคาเริ่มต้น - สูงสุดของงาน ประเภทนั้นๆ
+              และไม่เกินไปกว่านั้น
               ซึ่งจะประเมินจากรายละเอียดที่ลูกค้าแจ้งตามต้องการ และผู้ประเมิน
               จะคิดค่าบริการตามความยาก - ง่าย อย่างเหมาะสม
             </p>
@@ -360,31 +372,36 @@ const LogoPage: React.FC = () => {
                 className="border border-gray-200 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow duration-300"
               >
                 <button
-                  onClick={() => {
-                    const content = document.getElementById(`content-${index}`);
-                    if (content) {
-                      content.style.display =
-                        content.style.display === "none" ? "block" : "none";
-                    }
-                  }}
+                  onClick={() => toggleService(index)}
                   className="w-full text-left p-4 font-semibold text-gray-900 flex justify-between items-center"
                 >
                   <span>{service.title}</span>
-                  <span>{service.price}</span>
+                  {expandedService === index ? (
+                    <ChevronUp className="w-5 h-5" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5" />
+                  )}
                 </button>
-                <div
-                  id={`content-${index}`}
-                  className="p-4 text-gray-600 border-t border-gray-200 hidden"
-                >
-                  <p className="mb-2">{service.description}</p>
-                  <ul className="list-disc pl-5 mb-2">
-                    {service.features.map((feature, i) => (
-                      <li key={i}>{feature}</li>
-                    ))}
-                  </ul>
-                  <p>Timeline: {service.timeline}</p>
-                  <p>Revisions: {service.revisions}</p>
-                </div>
+                <AnimatePresence>
+                  {expandedService === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="p-4 text-gray-600 border-t border-gray-200 overflow-hidden"
+                    >
+                      <p className="mb-2">{service.description}</p>
+                      <ul className="list-disc pl-5 mb-2">
+                        {service.features.map((feature, i) => (
+                          <li key={i}>{feature}</li>
+                        ))}
+                      </ul>
+                      <p>Timeline: {service.timeline}</p>
+                      <p>Revisions: {service.revisions}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ))}
           </div>
@@ -407,23 +424,29 @@ const LogoPage: React.FC = () => {
                 className="border border-gray-200 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow duration-300"
               >
                 <button
-                  onClick={() => {
-                    const content = document.getElementById(`process-${index}`);
-                    if (content) {
-                      content.style.display =
-                        content.style.display === "none" ? "block" : "none";
-                    }
-                  }}
-                  className="w-full text-left p-4 font-semibold text-gray-900"
+                  onClick={() => toggleProcess(index)}
+                  className="w-full text-left p-4 font-semibold text-gray-900 flex justify-between items-center"
                 >
-                  Step {step.step}: {step.title}
+                  <span>Step {step.step}: {step.title}</span>
+                  {expandedProcess === index ? (
+                    <ChevronUp className="w-5 h-5" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5" />
+                  )}
                 </button>
-                <div
-                  id={`process-${index}`}
-                  className="p-4 text-gray-600 border-t border-gray-200 hidden"
-                >
-                  <p>{step.description}</p>
-                </div>
+                <AnimatePresence>
+                  {expandedProcess === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="p-4 text-gray-600 border-t border-gray-200 overflow-hidden"
+                    >
+                      <p>{step.description}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ))}
           </div>
