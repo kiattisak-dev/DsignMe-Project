@@ -225,7 +225,7 @@ const LogoPage: React.FC = () => {
           ></div>
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-center mb-10">
+          <div className="text-center mt-10 mb-10">
             <h1 className="text-4xl md:text-6xl font-bold mb-5 text-gray-800">
               Logo & Corporate Identity
             </h1>
@@ -240,15 +240,15 @@ const LogoPage: React.FC = () => {
           </div>
 
           {/* Steps & Services Section */}
-          <div className="text-center mb-4 mt-2 bg-black py-5 rounded-xl mx-auto max-w-sm">
+          <div className="text-center mb-4 mt-2 bg-black py-4 rounded-xl mx-auto max-w-sm">
             <h2 className="text-xl md:text-2xl font-medium text-white font-sans tracking-tight">
               ขั้นตอน & บริการ
             </h2>
           </div>
 
           {/* Contact Us Section */}
-          <div className="text-center mb-4 mt-2 bg-black py-5 rounded-lg mx-auto max-w-4xl border border-white/20">
-            <h2 className="text-xl md:text-2xl font-medium mb-4 text-white font-sans tracking-tight">
+          <div className="text-center mb-4 mt-2  py-5 rounded-lg mx-auto max-w-4xl border border-white/20">
+            <h2 className="text-xl md:text-2xl font-medium mb-4 text-black">
               ติดต่อเรา
             </h2>
             <div className="flex flex-row justify-center items-center gap-8 mx-auto max-w-md">
