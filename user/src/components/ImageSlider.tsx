@@ -1,57 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 
 const ImageSlider: React.FC = () => {
   const categories = [
     {
-      name: 'Logo Design',
+      name: "Logo Design",
       images: [
-        'https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/1667088/pexels-photo-1667088.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/1667071/pexels-photo-1667071.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184297/pexels-photo-3184297.jpeg?auto=compress&cs=tinysrgb&w=800',
+        "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/1667088/pexels-photo-1667088.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/1667071/pexels-photo-1667071.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184297/pexels-photo-3184297.jpeg?auto=compress&cs=tinysrgb&w=800",
       ],
+      link: "/services/logo",
     },
     {
-      name: 'Advertisement',
+      name: "Advertisement",
       images: [
-        'https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184294/pexels-photo-3184294.jpeg?auto=compress&cs=tinysrgb&w=800',
+        "https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184294/pexels-photo-3184294.jpeg?auto=compress&cs=tinysrgb&w=800",
       ],
+      link: "/services/advertisement",
     },
     {
-      name: 'Visual Graphics',
+      name: "Visual Graphics",
       images: [
-        'https://images.pexels.com/photos/3184297/pexels-photo-3184297.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/1667088/pexels-photo-1667088.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/1667071/pexels-photo-1667071.jpeg?auto=compress&cs=tinysrgb&w=800',
+        "https://images.pexels.com/photos/3184297/pexels-photo-3184297.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/1667088/pexels-photo-1667088.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/1667071/pexels-photo-1667071.jpeg?auto=compress&cs=tinysrgb&w=800",
       ],
+      link: "/services/visual",
     },
     {
-      name: 'Product Design',
+      name: "Product Design",
       images: [
-        'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184294/pexels-photo-3184294.jpeg?auto=compress&cs=tinysrgb&w=800',
+        "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184294/pexels-photo-3184294.jpeg?auto=compress&cs=tinysrgb&w=800",
       ],
+      link: "/services/product",
     },
     {
-      name: 'UX/UI & Develop',
+      name: "UX/UI & Develop",
       images: [
-        'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=800',
-        'https://images.pexels.com/photos/3184294/pexels-photo-3184294.jpeg?auto=compress&cs=tinysrgb&w=800',
+        "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/3184294/pexels-photo-3184294.jpeg?auto=compress&cs=tinysrgb&w=800",
       ],
+      link: "/services/web",
     },
   ];
 
@@ -59,33 +65,45 @@ const ImageSlider: React.FC = () => {
   const logoImages = categories[0].images;
   const totalSlides = logoImages.length;
 
+  // Reference for the section to detect visibility
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
+
+  // Auto-slide for left side (Logo Design)
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % totalSlides);
     }, 3000);
-
     return () => clearInterval(interval);
   }, [totalSlides]);
 
   return (
     <section
       id="image-slider"
-      className="h-screen bg-gradient-to-br from-gray-200 via-white to-gray-300 w-full flex items-center"
+      className="min-h-screen bg-white w-full flex flex-col items-center py-8 lg:flex-row lg:items-center lg:py-0"
     >
-      <div className="max-w-full mx-auto px-4 w-full flex-1">
-        <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 w-full h-full relative">
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, y: 50 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 w-full"
+      >
+        <div className="grid grid-cols-1 gap-2 w-full lg:grid-cols-6">
           <AnimatePresence mode="wait">
-            {/* Sliding left large image (Logo Design only) */}
-            <div className="col-span-4 row-span-full relative flex items-center">
-              <div className="relative overflow-hidden w-full h-[calc(100%-2rem)] flex flex-1">
+            {/* Large sliding image (Logo Design) */}
+            <Link
+              to={categories[0].link}
+              className="relative lg:col-span-4 w-full h-full flex items-center"
+            >
+              <div className="relative overflow-hidden w-full h-[50vh] sm:h-[60vh] md:h-[80vh] lg:h-screen">
                 <motion.div
                   key={`large-${currentSlide}`}
                   initial={{ opacity: 0, x: 100 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -100 }}
                   transition={{ duration: 0.5 }}
-                  className="w-full h-full flex"
-                  style={{ aspectRatio: '16 / 9' }}
+                  className="w-full h-full"
                 >
                   <img
                     src={logoImages[currentSlide]}
@@ -93,104 +111,59 @@ const ImageSlider: React.FC = () => {
                     className="w-full h-full object-cover"
                     loading="lazy"
                     onError={(e) => {
-                      console.log(`Image failed to load: ${logoImages[currentSlide]}`);
-                      (e.target as HTMLImageElement).src = 'https://placehold.co/400x400';
+                      console.log(
+                        `Image failed to load: ${logoImages[currentSlide]}`
+                      );
+                      (e.target as HTMLImageElement).src =
+                        "https://placehold.co/800x600";
                     }}
                   />
                 </motion.div>
-                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-gray-900/30 hover:bg-gray-900/50 transition-all duration-300"></div>
-                <div className="absolute inset-0 shadow-lg hover:shadow-xl transition-shadow duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               </div>
-              {/* Text box for large image */}
               <motion.div
                 key={`text-${currentSlide}`}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                exit={{ opacity: 0, y: -50 }}
                 transition={{ duration: 0.5 }}
-                className="absolute bottom-4 left-4 bg-black bg-opacity-75 text-white px-4 py-2 rounded-md text-xl font-bold z-20"
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold z-20"
               >
                 Logo Design
               </motion.div>
-            </div>
+            </Link>
           </AnimatePresence>
-          {/* Static right side with smaller images for each category */}
-          <div className="col-span-2 row-span-full grid grid-cols-1 grid-rows-2 gap-4 sm:grid-cols-2 sm:grid-rows-2">
-            {/* Small image 1: Advertisement */}
-            <div className="relative overflow-hidden w-full h-full flex">
-              <img
-                src={categories[1].images[0]}
-                alt="Advertisement Image 1"
-                className="w-full h-full object-cover flex-1"
-                loading="lazy"
-                onError={(e) => {
-                  console.log(`Image failed to load: ${categories[1].images[0]}`);
-                  (e.target as HTMLImageElement).src = 'https://placehold.co/400x400';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent to-gray-900/30 hover:bg-gray-900/50 transition-all duration-300"></div>
-              <div className="absolute inset-0 shadow-lg hover:shadow-xl transition-shadow duration-300"></div>
-              <div className="absolute bottom-4 left-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded-md text-base font-semibold z-20">
-                Advertisement
-              </div>
-            </div>
-            {/* Small image 2: Visual Graphics */}
-            <div className="relative overflow-hidden w-full h-full flex">
-              <img
-                src={categories[2].images[0]}
-                alt="Visual Graphics Image 1"
-                className="w-full h-full object-cover flex-1"
-                loading="lazy"
-                onError={(e) => {
-                  console.log(`Image failed to load: ${categories[2].images[0]}`);
-                  (e.target as HTMLImageElement).src = 'https://placehold.co/400x400';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent to-gray-900/30 hover:bg-gray-900/50 transition-all duration-300"></div>
-              <div className="absolute inset-0 shadow-lg hover:shadow-xl transition-shadow duration-300"></div>
-              <div className="absolute bottom-4 left-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded-md text-base font-semibold z-20">
-                Visual Graphics
-              </div>
-            </div>
-            {/* Small image 3: Product Design */}
-            <div className="relative overflow-hidden w-full h-full flex">
-              <img
-                src={categories[3].images[0]}
-                alt="Product Design Image 1"
-                className="w-full h-full object-cover flex-1"
-                loading="lazy"
-                onError={(e) => {
-                  console.log(`Image failed to load: ${categories[3].images[0]}`);
-                  (e.target as HTMLImageElement).src = 'https://placehold.co/400x400';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent to-gray-900/30 hover:bg-gray-900/50 transition-all duration-300"></div>
-              <div className="absolute inset-0 shadow-lg hover:shadow-xl transition-shadow duration-300"></div>
-              <div className="absolute bottom-4 left-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded-md text-base font-semibold z-20">
-                Product Design
-              </div>
-            </div>
-            {/* Small image 4: UX/UI & Develop */}
-            <div className="relative overflow-hidden w-full h-full flex">
-              <img
-                src={categories[4].images[0]}
-                alt="UX/UI & Develop Image 1"
-                className="w-full h-full object-cover flex-1"
-                loading="lazy"
-                onError={(e) => {
-                  console.log(`Image failed to load: ${categories[4].images[0]}`);
-                  (e.target as HTMLImageElement).src = 'https://placehold.co/400x400';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent to-gray-900/30 hover:bg-gray-900/50 transition-all duration-300"></div>
-              <div className="absolute inset-0 shadow-lg hover:shadow-xl transition-shadow duration-300"></div>
-              <div className="absolute bottom-4 left-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded-md text-base font-semibold z-20">
-                UX/UI & Develop
-              </div>
-            </div>
+          {/* Smaller static images */}
+          <div className="grid grid-cols-1 gap-2 lg:col-span-2 lg:grid-cols-1 lg:items-center lg:justify-center">
+            {categories.slice(1).map((category, catIndex) => (
+              <Link key={category.name} to={category.link}>
+                <div className="relative overflow-hidden w-full h-[20vh] sm:h-[25vh] md:h-[30vh] lg:h-[calc(25vh-1rem)] aspect-square cursor-pointer">
+                  <div className="w-full h-full">
+                    <img
+                      src={category.images[0]}
+                      alt={`${category.name} Image 1`}
+                      className="w-full h-full object-cover rounded-lg"
+                      loading="lazy"
+                      onError={(e) => {
+                        console.log(
+                          `Image failed to load: ${category.images[0]}`
+                        );
+                        (e.target as HTMLImageElement).src =
+                          "https://placehold.co/400x400";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg"></div>
+                  </div>
+                  {/* Static text */}
+                  <div className="absolute bottom-2 left-2 text-white text-xs sm:text-sm md:text-base lg:text-lg font-semibold z-20">
+                    {category.name}
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

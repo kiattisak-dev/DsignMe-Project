@@ -19,6 +19,7 @@ function App() {
           <Route path="/services/advertisement" element={<AdvertisementPage />} />
           <Route path="/services/product" element={<ProductPage />} />
           <Route path="/services/visual" element={<VisualPage />} />
+          <Route path="/services/website" element={<VisualPage />} />
         </Routes>
       </main>
       <Footer />

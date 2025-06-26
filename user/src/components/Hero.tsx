@@ -1,5 +1,5 @@
 import React from 'react';
-import {  Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 const Hero: React.FC = () => {
   const scrollToPortfolio = () => {
@@ -10,18 +10,24 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-blue-100 via-white to-gray-100">
+    <section
+      id="home"
+      className="pt-28 pb-16 bg-gradient-to-br from-gray-200 via-white to-gray-300 relative overflow-hidden flex items-center justify-center min-h-screen"
+    >
       {/* Animated background elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gray-400/30 rounded-full blur-3xl animate-float"></div>
+        <div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-gray-500/30 rounded-full blur-3xl animate-float"
+          style={{ animationDelay: '2s' }}
+        ></div>
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
         <div className="animate-fade-in py-12">
           <div className="flex items-center justify-center mb-6">
             <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 border border-gray-200">
-              <Sparkles className="w-4 h-4 text-blue-500" />
+              <Sparkles className="w-4 h-4 text-black" />
               <span className="text-sm text-gray-700 font-sans">Premium Design Agency</span>
             </div>
           </div>
