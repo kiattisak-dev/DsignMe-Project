@@ -2,13 +2,6 @@ import React from 'react';
 import { Sparkles } from 'lucide-react';
 
 const Hero: React.FC = () => {
-  const scrollToPortfolio = () => {
-    const element = document.getElementById('portfolio');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <section
       id="home"

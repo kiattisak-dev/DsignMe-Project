@@ -57,7 +57,7 @@ const ImageSlider: React.FC = () => {
         "https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=800",
         "https://images.pexels.com/photos/3184294/pexels-photo-3184294.jpeg?auto=compress&cs=tinysrgb&w=800",
       ],
-      link: "/services/web",
+      link: "/services/website-develop",
     },
   ];
 

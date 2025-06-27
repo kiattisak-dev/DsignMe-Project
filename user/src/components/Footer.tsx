@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Mail, Phone, MapPin } from 'lucide-react';
+import { Palette } from 'lucide-react';
 import { FaInstagram, FaFacebookF } from 'react-icons/fa';
 import { FaComment } from 'react-icons/fa';
 
@@ -24,10 +24,11 @@ const Footer: React.FC = () => {
         {/* Company Info */}
         <div className="text-center mb-6">
           <div className="flex justify-center items-center space-x-3 mb-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <Palette className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-3xl font-bold">DsignMe</span>
+            <img
+              src="/Logo-White.svg"
+              alt="DsignMe Logo"
+              className="w-15 h-10"
+            />
           </div>
           <p className="text-gray-400 text-base md:text-lg leading-relaxed mb-3 max-w-xl mx-auto">
             พวกเราคือกราฟิกดีไซน์เนอร์ เชี่ยวชาญด้านการออกแบบ 
@@ -45,7 +46,7 @@ const Footer: React.FC = () => {
                 key={index}
                 href={social.href}
                 aria-label={social.label}
-                className="w-12 h-12 bg-gray-800 hover:bg-blue-500 rounded-lg flex items-center justify-center transition-colors duration-300"
+                className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center transition-colors duration-300 hover:filter hover:grayscale"
               >
                 {social.icon}
               </a>

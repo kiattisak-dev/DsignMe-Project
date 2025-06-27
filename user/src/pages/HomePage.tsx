@@ -11,8 +11,6 @@ const HomePage: React.FC = () => {
       <Hero />
       <Services />
       <WhyChoose />
-      {/* <About /> */}
-      {/* <Contact /> */}
     </>
   );
 };
