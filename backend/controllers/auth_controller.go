@@ -163,7 +163,7 @@ func ResetPasswordHandler(c *fiber.Ctx) error {
 	// Update password in database
 	update := fiber.Map{
 		"$set": fiber.Map{
-			"password": string(hashedPassword),
+			"password":  string(hashedPassword),
 			"updatedAt": time.Now(),
 		},
 	}

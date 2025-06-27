@@ -12,7 +12,7 @@ type Category struct {
 
 type Subtitle struct {
 	Text     string   `bson:"text" json:"text"`
-	Headings []string `bson:"headings" json:"headings"` 
+	Headings []string `bson:"headings" json:"headings"`
 }
 
 type ServiceStep struct {
