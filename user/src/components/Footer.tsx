@@ -1,5 +1,4 @@
 import React from 'react';
-import { Palette } from 'lucide-react';
 import { FaInstagram, FaFacebookF } from 'react-icons/fa';
 import { FaComment } from 'react-icons/fa';
 

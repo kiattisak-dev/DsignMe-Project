@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Collapsible from './Collapsible';
 import { Service } from '../../types/types';
 
@@ -13,35 +14,83 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     setExpandedService(expandedService === index ? null : index);
   };
 
+  // Animation variants for the section header
+  const headerVariants = {
+    hidden: { opacity: 0, y: -50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+  };
+
+  // Animation variants for collapsible items
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, delay: i * 0.2, ease: 'easeOut' },
+    }),
+  };
+
   return (
     <section className="py-10 bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <motion.div
+          className="text-center mb-12"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={headerVariants}
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">การบริการและค่าบริการ</h2>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
             ค่าบริการโดยทั่วไปจะมีเรทราคาที่แตกต่างกันออกไป ทั้งนี้ขึ้นอยู่กับรายละเอียดของงานแต่ละประเภท
             โดยคิดค่าบริการจากราคาเริ่มต้น - สูงสุดของงานประเภทนั้นๆ และไม่เกินไปกว่านั้น
             ซึ่งจะประเมินจากรายละเอียดที่ลูกค้าแจ้งตามต้องการ และผู้ประเมินจะคิดค่าบริการตามความยาก - ง่าย อย่างเหมาะสม
           </p>
-        </div>
+        </motion.div>
         <div className="space-y-6">
           {services.map((service, index) => (
-            <Collapsible
+            <motion.div
               key={index}
-              title={service.title}
-              isOpen={expandedService === index}
-              onToggle={() => toggleService(index)}
-              icon={service.icon}
+              custom={index}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={itemVariants}
             >
-              <p className="mb-2">{service.description}</p>
-              <ul className="list-disc pl-5 mb-2">
-                {service.features.map((feature, i) => (
-                  <li key={i}>{feature}</li>
-                ))}
-              </ul>
-              <p>Timeline: {service.timeline}</p>
-              <p>Revisions: {service.revisions}</p>
-            </Collapsible>
+              <Collapsible
+                title={service.title}
+                isOpen={expandedService === index}
+                onToggle={() => toggleService(index)}
+                icon={service.icon}
+              >
+                <AnimatePresence>
+                  {expandedService === index && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                    >
+                      <p className="mb-2">{service.description}</p>
+                      <ul className="list-disc pl-5 mb-2">
+                        {service.features.map((feature, i) => (
+                          <motion.li
+                            key={i}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.3, delay: i * 0.1 }}
+                          >
+                            {feature}
+                          </motion.li>
+                        ))}
+                      </ul>
+                      <p>Timeline: {service.timeline}</p>
+                      <p>Revisions: {service.revisions}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </Collapsible>
+            </motion.div>
           ))}
         </div>
       </div>
