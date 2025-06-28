@@ -17,11 +17,6 @@ const LogoPage: React.FC = () => {
       <PortfolioSection portfolioImages={logoPageData.portfolioImages} />
       <ServicesSection services={logoPageData.services} />
       <ProcessSection process={logoPageData.process} />
-      <CTASection
-        title={logoPageData.ctaTitle}
-        description={logoPageData.ctaDescription}
-        buttonText={logoPageData.ctaButtonText}
-      />
     </div>
   );
 };

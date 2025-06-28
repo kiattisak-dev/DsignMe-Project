@@ -91,14 +91,14 @@ const Services: React.FC = () => {
   return (
     <section
       id="services"
-      className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-100 via-white to-gray-100"
+      className="py-10 sm:py-14 lg:py-15 bg-gradient-to-br from-gray-100 via-white to-gray-100"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-12">
+        <div className="grid grid-cols-1 gap-0 sm:gap-0 lg:grid-cols-2 lg:gap-6">
           {/* First four cards in 2x2 grid */}
           {services.slice(0, 4).map((service, index) => (
-            <div key={index} className="mb-6 sm:mb-8 lg:mb-0">
-              <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden bg-gray-900/80 backdrop-blur-md border border-gray-300/50">
+            <div key={index} className={`mb-6 sm:mb-8 lg:mb-0 ${index > 0 ? 'border-t-2 border-gray-400' : ''}`}>
+              <div className="relative w-full h-[100vw] sm:h-[50vw] md:h-[50vw] lg:h-96 !aspect-square sm:!aspect-square md:!aspect-square lg:aspect-auto overflow-hidden bg-gray-900/80 backdrop-blur-md border-2 border-gray-400">
                 {service.images.map((img, imgIndex) => (
                   <div
                     key={imgIndex}
@@ -124,26 +124,11 @@ const Services: React.FC = () => {
                       }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <div className="p-2">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <span className="px-3 py-1 bg-gray-800/30 text-gray-200 text-xs rounded-full border border-gray-500/50">
-                            {service.title}
-                          </span>
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-2">
-                          {service.title}
-                        </h3>
-                        <p className="text-gray-300 text-sm">
-                          {service.description}
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 ))}
 
                 {/* Slide Indicators */}
-                <div className="absolute bottom-6 right-6 flex space-x-2">
+                <div className="absolute bottom-4  ml-2 left-8 flex space-x-2">
                   {service.images.map((_, imgIndex) => (
                     <button
                       key={imgIndex}
@@ -177,13 +162,26 @@ const Services: React.FC = () => {
                     }}
                   />
                 </div>
+
+                {/* Fixed Text Content with Vertical Line */}
+                <div className="absolute bottom-8 left-6 right-6 z-10">
+                  <div className="relative p-2">
+                    <div className="absolute left-0 top-4 h-[calc(100%-1px)] w-0.5 bg-white z-20" />
+                    <p className="text-gray-300 text-sm ml-2 mb-2">
+                      {service.description}
+                    </p>
+                    <h3 className="text-xl font-semibold ml-2 text-white">
+                      {service.title}
+                    </h3>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
         </div>
         {/* Fifth card in full-width row */}
-        <div className="mt-6 sm:mt-8 lg:mt-12">
-          <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden bg-gray-900/80 backdrop-blur-md border border-gray-300/50">
+        <div className="mt-6 sm:mt-8 lg:mt-12 lg:mx-auto lg:max-w-[50%]">
+          <div className="relative w-full h-[100vw] sm:h-[50vw] md:h-[50vw] lg:h-96 !aspect-square sm:!aspect-square md:!aspect-square lg:aspect-auto overflow-hidden bg-gray-900/80 backdrop-blur-md border-2 border-gray-400">
             {services[4].images.map((img, imgIndex) => (
               <div
                 key={imgIndex}
@@ -209,26 +207,11 @@ const Services: React.FC = () => {
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                <div className="absolute bottom-6 left-6 right-6">
-                  <div className="p-2">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <span className="px-3 py-1 bg-gray-800/30 text-gray-200 text-xs rounded-full border border-gray-500/50">
-                        {services[4].title}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">
-                      {services[4].title}
-                    </h3>
-                    <p className="text-gray-300 text-sm">
-                      {services[4].description}
-                    </p>
-                  </div>
-                </div>
               </div>
             ))}
 
             {/* Slide Indicators */}
-            <div className="absolute bottom-6 right-6 flex space-x-2">
+            <div className="absolute bottom-4 ml-2 left-8 flex space-x-2">
               {services[4].images.map((_, imgIndex) => (
                 <button
                   key={imgIndex}
@@ -260,6 +243,19 @@ const Services: React.FC = () => {
                   }%`,
                 }}
               />
+            </div>
+
+            {/* Fixed Text Content with Vertical Line */}
+            <div className="absolute bottom-6 left-6 right-6 z-10">
+              <div className="relative p-2">
+                <div className="absolute left-0 top-4 h-[calc(100%-8px)] w-0.5 bg-white z-20" />
+                <p className="text-gray-300 text-sm ml-2 mb-2">
+                  {services[4].description}
+                </p>
+                <h3 className="text-xl font-semibold ml-2 mb-2 text-white">
+                  {services[4].title}
+                </h3>
+              </div>
             </div>
           </div>
         </div>

@@ -80,23 +80,23 @@ const ImageSlider: React.FC = () => {
   return (
     <section
       id="image-slider"
-      className="min-h-screen bg-white w-full flex flex-col items-center py-8 lg:flex-row lg:items-center lg:py-0"
+      className="min-h-screen bg-white w-full flex flex-col items-stretch py-0 lg:flex-row lg:items-stretch lg:py-0"
     >
       <motion.div
         ref={ref}
         initial={{ opacity: 0, y: 50 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 w-full"
+        className="w-full h-full"
       >
-        <div className="grid grid-cols-1 gap-2 w-full lg:grid-cols-6">
+        <div className="grid grid-cols-1 gap-0 w-full lg:grid-cols-2 h-full">
           <AnimatePresence mode="wait">
             {/* Large sliding image (Logo Design) */}
             <Link
               to={categories[0].link}
-              className="relative lg:col-span-4 w-full h-full flex items-center"
+              className="relative lg:col-span-1 w-full h-full flex items-center"
             >
-              <div className="relative overflow-hidden w-full h-[50vh] sm:h-[60vh] md:h-[80vh] lg:h-screen">
+              <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[50vh] md:h-[60vh] lg:h-screen !aspect-square sm:aspect-auto lg:aspect-auto">
                 <motion.div
                   key={`large-${currentSlide}`}
                   initial={{ opacity: 0, x: 100 }}
@@ -120,29 +120,23 @@ const ImageSlider: React.FC = () => {
                   />
                 </motion.div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                {/* Static text */}
+                <div className="absolute bottom-2 left-8 text-center text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-bold z-20">
+                  Logo Design
+                </div>
               </div>
-              <motion.div
-                key={`text-${currentSlide}`}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -50 }}
-                transition={{ duration: 0.5 }}
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold z-20"
-              >
-                Logo Design
-              </motion.div>
             </Link>
           </AnimatePresence>
-          {/* Smaller static images */}
-          <div className="grid grid-cols-1 gap-2 lg:col-span-2 lg:grid-cols-1 lg:items-center lg:justify-center">
+          {/* Smaller static images in grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 lg:col-span-1 lg:grid-cols-2 lg:items-center lg:justify-center h-full">
             {categories.slice(1).map((category, catIndex) => (
               <Link key={category.name} to={category.link}>
-                <div className="relative overflow-hidden w-full h-[20vh] sm:h-[25vh] md:h-[30vh] lg:h-[calc(25vh-1rem)] aspect-square cursor-pointer">
+                <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[25vh] md:h-[30vh] lg:h-[calc(50vh)] !aspect-square sm:aspect-square lg:aspect-square cursor-pointer">
                   <div className="w-full h-full">
                     <img
                       src={category.images[0]}
                       alt={`${category.name} Image 1`}
-                      className="w-full h-full object-cover rounded-lg"
+                      className="w-full h-full object-cover"
                       loading="lazy"
                       onError={(e) => {
                         console.log(
@@ -152,10 +146,9 @@ const ImageSlider: React.FC = () => {
                           "https://placehold.co/400x400";
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-lg"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                   </div>
-                  {/* Static text */}
-                  <div className="absolute bottom-2 left-2 text-white text-xs sm:text-sm md:text-base lg:text-lg font-semibold z-20">
+                  <div className="absolute bottom-2 left-2 text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-semibold z-20">
                     {category.name}
                   </div>
                 </div>

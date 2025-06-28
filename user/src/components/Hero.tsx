@@ -1,5 +1,5 @@
-import React from 'react';
-import { Sparkles } from 'lucide-react';
+import React from "react";
+import { Sparkles } from "lucide-react";
 
 const Hero: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ const Hero: React.FC = () => {
         <div className="absolute top-20 left-10 w-72 h-72 bg-gray-400/30 rounded-full blur-3xl animate-float"></div>
         <div
           className="absolute bottom-20 right-10 w-96 h-96 bg-gray-500/30 rounded-full blur-3xl animate-float"
-          style={{ animationDelay: '2s' }}
+          style={{ animationDelay: "2s" }}
         ></div>
       </div>
 
@@ -21,32 +21,36 @@ const Hero: React.FC = () => {
           <div className="flex items-center justify-center mb-6">
             <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 border border-gray-200">
               <Sparkles className="w-4 h-4 text-black" />
-              <span className="text-sm text-gray-700 font-sans">Premium Design Agency</span>
+              <span className="text-sm text-gray-700 font-sans">
+                Premium Design Agency
+              </span>
             </div>
           </div>
-          
+          {/* เปลี่ยนเป็น font Kanit */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-gray-800 font-serif">
             Design Your Unique Identity
             <br />
             <span>ออกแบบอัตลักษณ์อย่างมี"เอกลักษณ์"</span>
           </h1>
-          
-          <div className="text-base md:text-lg text-gray-600 mb-6 max-w-xl mx-auto leading-relaxed font-sans">
-            <p>
-              พวกเราคือกราฟิกดีไซน์เนอร์ที่เชี่ยวชาญด้านการออกแบบ
-              <br />
-              <strong>มีประสบการณ์มากกว่า 4 ปี</strong>
-              <br />
-              ที่สามารถช่วยส่งเสริมธุรกิจด้วยการออกแบบที่ดีที่สุดให้กับธุรกิจคุณ
-            </p>
-            <div className="my-6">
-              <hr className="border-t-2 border-gray-300" />
+
+          <div className="bg-black backdrop-blur-sm p-6">
+            <div className="text-base md:text-lg  mb-6 max-w-xl mx-auto leading-relaxed font-sans">
+              <p>
+                พวกเราคือกราฟิกดีไซน์เนอร์ที่เชี่ยวชาญด้านการออกแบบ
+                <br />
+                <strong>มีประสบการณ์มากกว่า 4 ปี</strong>
+                <br />
+                ที่สามารถช่วยส่งเสริมธุรกิจด้วยการออกแบบที่ดีที่สุดให้กับธุรกิจคุณ
+              </p>
+              <div className="my-6">
+                <hr className="border-t-2 border-gray-300" />
+              </div>
+              <p className="mb-[-1.5rem]">
+                เราเป็นทีมกราฟิกดีไซน์เนอร์ที่มีประสบการณ์
+                <br />
+                ช่วยสร้างอัตลักษณ์ที่โดดเด่นให้กับธุรกิจของคุณ
+              </p>
             </div>
-            <p>
-              เราเป็นทีมกราฟิกดีไซน์เนอร์ที่มีประสบการณ์
-              <br />
-              ช่วยสร้างอัตลักษณ์ที่โดดเด่นให้กับธุรกิจของคุณ
-            </p>
           </div>
         </div>
       </div>
