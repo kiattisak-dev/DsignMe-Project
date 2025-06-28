@@ -28,6 +28,9 @@ func main() {
 	routers.AuthRoutes(app)
 	routers.ProjectRoutes(app)
 
+	// **เพิ่มตรงนี้เพื่อใช้ protected routes เช่น /me**
+	routers.ProtectedRoutes(app)
+
 	// Start server
 	port := configs.EnvPort()
 	log.Printf("Server running on port %s", port)
