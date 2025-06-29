@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Collapsible from './Collapsible';
-import { Service } from '../../types/types';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Collapsible from "./Collapsible";
+import { Service } from "../../types/types";
 
 interface ServicesSectionProps {
   services: Service[];
@@ -17,7 +17,11 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
   // Animation variants for the section header
   const headerVariants = {
     hidden: { opacity: 0, y: -50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
   };
 
   // Animation variants for collapsible items
@@ -26,7 +30,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, delay: i * 0.2, ease: 'easeOut' },
+      transition: { duration: 0.5, delay: i * 0.2, ease: "easeOut" },
     }),
   };
 
@@ -40,11 +44,16 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
           viewport={{ once: true }}
           variants={headerVariants}
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">การบริการและค่าบริการ</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+            การบริการและค่าบริการ
+          </h2>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            ค่าบริการโดยทั่วไปจะมีเรทราคาที่แตกต่างกันออกไป ทั้งนี้ขึ้นอยู่กับรายละเอียดของงานแต่ละประเภท
-            โดยคิดค่าบริการจากราคาเริ่มต้น - สูงสุดของงานประเภทนั้นๆ และไม่เกินไปกว่านั้น
-            ซึ่งจะประเมินจากรายละเอียดที่ลูกค้าแจ้งตามต้องการ และผู้ประเมินจะคิดค่าบริการตามความยาก - ง่าย อย่างเหมาะสม
+            ค่าบริการโดยทั่วไปจะมีเรทราคาที่แตกต่างกันออกไป
+            ทั้งนี้ขึ้นอยู่กับรายละเอียดของงานแต่ละประเภท
+            โดยคิดค่าบริการจากราคาเริ่มต้น - สูงสุดของงานประเภทนั้นๆ
+            และไม่เกินไปกว่านั้น
+            ซึ่งจะประเมินจากรายละเอียดที่ลูกค้าแจ้งตามต้องการ
+            และผู้ประเมินจะคิดค่าบริการตามความยาก - ง่าย อย่างเหมาะสม
           </p>
         </motion.div>
         <div className="space-y-6">
@@ -61,31 +70,33 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
                 title={service.title}
                 isOpen={expandedService === index}
                 onToggle={() => toggleService(index)}
-                icon={service.icon}
               >
                 <AnimatePresence>
                   {expandedService === index && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                      layout
+                      initial={{ opacity: 0, maxHeight: 0 }}
+                      animate={{ opacity: 1, maxHeight: 1000 }}
+                      exit={{ opacity: 0, maxHeight: 0 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="overflow-visible"
                     >
-                      <p className="mb-2">{service.description}</p>
-                      <ul className="list-disc pl-5 mb-2">
-                        {service.features.map((feature, i) => (
-                          <motion.li
-                            key={i}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3, delay: i * 0.1 }}
-                          >
-                            {feature}
-                          </motion.li>
-                        ))}
-                      </ul>
-                      <p>Timeline: {service.timeline}</p>
-                      <p>Revisions: {service.revisions}</p>
+                      <div className="p-1 text-gray-700">
+                        <p className="mb-2 mt-[-0.5rem] whitespace-normal break-words">{service.description}</p>
+                        <p className="font-bold">รายละเอียด :</p>
+                        <ul className="list-disc pl-5 mt-2 mb-2">
+                          {service.features.map((feature, i) => (
+                            <motion.li
+                              key={i}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.3, delay: i * 0.1 }}
+                            >
+                              {feature}
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

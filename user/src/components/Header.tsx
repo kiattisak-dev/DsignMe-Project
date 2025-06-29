@@ -1,4 +1,4 @@
-import React, {  useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -62,7 +62,7 @@ const Header: React.FC = () => {
   return (
     <motion.header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isHomePage && !isScrolled ? 'bg-transparent' : 'bg-white/80 backdrop-blur-md shadow-md'
+        isHomePage && !isScrolled ? 'bg-black/30' : 'bg-white/80 shadow-md'
       }`}
       initial="hidden"
       animate="visible"
@@ -118,7 +118,7 @@ const Header: React.FC = () => {
                 {isServicesOpen && (
                   <motion.div
                     className={`absolute top-full left-0 mt-2 w-48 rounded-lg shadow-lg border border-gray-200/30 py-2 ${
-                      isHomePage && !isScrolled ? 'bg-white/90' : 'bg-white/90 backdrop-blur-md'
+                      isHomePage && !isScrolled ? 'bg-white/90' : 'bg-white/90'
                     }`}
                     variants={dropdownVariants}
                     initial="hidden"
@@ -177,7 +177,7 @@ const Header: React.FC = () => {
           {isMenuOpen && (
             <motion.div
               className={`md:hidden absolute top-full left-0 w-full border-t border-gray-200/30 ${
-                isHomePage && !isScrolled ? 'bg-white/90' : 'bg-white/90 backdrop-blur-md'
+                isHomePage && !isScrolled ? 'bg-white/90' : 'bg-white/90'
               }`}
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
