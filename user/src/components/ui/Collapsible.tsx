@@ -67,7 +67,7 @@ const Collapsible: React.FC<CollapsibleProps> = ({
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
+    <div className="bg-gray-100 border-b-2 hover:shadow-lg transition-shadow duration-300">
       {isCollapsible ? (
         <button
           onClick={onToggle}

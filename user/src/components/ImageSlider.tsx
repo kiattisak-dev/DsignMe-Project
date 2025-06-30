@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 const ImageSlider: React.FC = () => {
   const categories = [
     {
-      name: "Logo Design",
+      name: "Logo & Corporate Identity",
       images: [
         "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&cs=tinysrgb&w=800",
         "https://images.pexels.com/photos/1667088/pexels-photo-1667088.jpeg?auto=compress&cs=tinysrgb&w=800",
@@ -38,7 +38,7 @@ const ImageSlider: React.FC = () => {
       link: "/services/visual",
     },
     {
-      name: "Product Design",
+      name: "Products Retouch",
       images: [
         "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
         "https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800",
@@ -49,7 +49,7 @@ const ImageSlider: React.FC = () => {
       link: "/services/product",
     },
     {
-      name: "UX/UI & Develop",
+      name: "UX/UI & Development",
       images: [
         "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800",
         "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
@@ -122,7 +122,7 @@ const ImageSlider: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                 {/* Static text */}
                 <div className="absolute bottom-2 left-8 text-center text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-bold z-20">
-                  Logo Design
+                 Logo & Corporate Identity
                 </div>
               </div>
             </Link>

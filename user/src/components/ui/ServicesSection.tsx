@@ -35,7 +35,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
   };
 
   return (
-    <section className="py-10 bg-gray-100">
+    <section className="py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="text-center mb-12"
@@ -44,10 +44,10 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
           viewport={{ once: true }}
           variants={headerVariants}
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-black">
             การบริการและค่าบริการ
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-700 text-lg max-w-2xl mx-auto">
             ค่าบริการโดยทั่วไปจะมีเรทราคาที่แตกต่างกันออกไป
             ทั้งนี้ขึ้นอยู่กับรายละเอียดของงานแต่ละประเภท
             โดยคิดค่าบริการจากราคาเริ่มต้น - สูงสุดของงานประเภทนั้นๆ
@@ -56,7 +56,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
             และผู้ประเมินจะคิดค่าบริการตามความยาก - ง่าย อย่างเหมาะสม
           </p>
         </motion.div>
-        <div className="space-y-6">
+        <div>
           {services.map((service, index) => (
             <motion.div
               key={index}

@@ -39,14 +39,8 @@ interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ title, description, contactInfo }) => {
   return (
-    <section className="pt-28 pb-16 bg-gradient-to-br from-gray-200 via-white to-gray-300 relative overflow-hidden flex items-center justify-center min-h-screen">
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gray-400/30 rounded-full blur-3xl animate-float"></div>
-        <div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-gray-500/30 rounded-full blur-3xl animate-float"
-          style={{ animationDelay: '2s' }}
-        ></div>
-      </div>
+    <section className="pt-28 pb-16 bg-white relative overflow-hidden flex items-center justify-center min-h-screen">
+     
       <motion.div
         className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
         variants={containerVariants}
@@ -54,20 +48,21 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, description, contactIn
         animate="visible"
       >
         <motion.div className="text-center mt-10 mb-10" variants={itemVariants}>
-          <motion.h1 className="text-4xl md:text-6xl font-bold mb-5 text-gray-800" variants={itemVariants}>
+          <motion.h1 className="text-4xl md:text-6xl font-bold mb-5 text-black" variants={itemVariants}>
             {title}
           </motion.h1>
-          <motion.p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed" variants={itemVariants}>
+          <motion.p className="text-lg md:text-xl text-black mb-8 max-w-3xl mx-auto leading-relaxed" variants={itemVariants}>
             {description}
           </motion.p>
         </motion.div>
-        <motion.div className="text-center mb-4 mt-2 bg-black py-4 mx-auto max-w-sm" variants={itemVariants}>
+        <motion.div className="text-center rounded-3xl mb-4 mt-2 bg-black py-4 mx-auto max-w-sm border-t border-black" variants={itemVariants}>
           <h2 className="text-xl md:text-2xl font-medium text-white font-sans tracking-tight">
             ขั้นตอน & บริการ
           </h2>
         </motion.div>
-        <motion.div className="text-center mb-4 mt-2 py-5 rounded-lg mx-auto max-w-4xl border border-white/20" variants={itemVariants}>
-          <h2 className="text-xl md:text-2xl font-medium mb-4 text-black">ติดต่อเรา</h2>
+         <hr className="border-t-2 border-black" />
+        <motion.div className="text-center mb-4 py-5 mx-auto max-w-sm border border-black bg-black border-t border-black" variants={itemVariants}>
+          <h2 className="text-xl md:text-2xl font-medium mb-4 text-white">ติดต่อเรา</h2>
           <div className="flex flex-row justify-center items-center gap-8 mx-auto max-w-md">
             {contactInfo.map((info, index) => (
               <motion.a
@@ -79,7 +74,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, description, contactIn
                 variants={buttonVariants}
                 aria-label={`Contact via ${info.title}`}
               >
-                <info.icon className="w-6 h-6 text-black" />
+                <info.icon className="w-10 h-8 text-black" />
               </motion.a>
             ))}
           </div>

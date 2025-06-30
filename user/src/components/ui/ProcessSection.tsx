@@ -25,7 +25,7 @@ const ProcessSection: React.FC<ProcessSectionProps> = ({ process }) => {
   };
 
   return (
-    <section className="py-10 bg-gray-50">
+    <section className="py-10 bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="text-center mb-12"
@@ -34,9 +34,9 @@ const ProcessSection: React.FC<ProcessSectionProps> = ({ process }) => {
           viewport={{ once: true }}
           variants={headerVariants}
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">ขั้นตอนการให้บริการ</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-black">ขั้นตอนการให้บริการ</h2>
         </motion.div>
-        <div className="space-y-6">
+        <div>
           {process.map((step, index) => (
             <motion.div
               key={index}

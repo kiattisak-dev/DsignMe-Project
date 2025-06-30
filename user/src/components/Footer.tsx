@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 
 const Footer: React.FC = () => {
   const socialLinks = [
-    { icon: <FaLine className="w-10 h-10" />, href: "#", label: "Line" },
-    { icon: <FaInstagram className="w-8 h-8" />, href: "#", label: "Instagram" },
-    { icon: <FaFacebookF className="w-8 h-8" />, href: "#", label: "Facebook" },
+    { icon: <FaLine className="w-10 h-10" />, href: "https://lin.ee/c2HxJS1", label: "Line" },
+    { icon: <FaInstagram className="w-8 h-8" />, href: "https://www.instagram.com/dee_signme?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==", label: "Instagram" },
+    { icon: <FaFacebookF className="w-8 h-8" />, href: "https://www.facebook.com/profile.php?id=61561907601448&mibextid=ZbWKwL", label: "Facebook" },
   ];
 
   const policyLinks = [

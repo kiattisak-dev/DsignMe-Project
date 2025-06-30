@@ -1,40 +1,36 @@
 import React from "react";
-import { Sparkles } from "lucide-react";
 
 const Hero: React.FC = () => {
   return (
     <section
       id="home"
-      className="pt-28 pb-16 bg-gradient-to-br from-gray-200 via-white to-gray-300 relative overflow-hidden flex items-center justify-center min-h-screen"
+      className=" pb-16 bg-white relative overflow-hidden flex items-center justify-center min-h-screen"
     >
       {/* Animated background elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gray-400/30 rounded-full blur-3xl animate-float"></div>
-        <div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-gray-500/30 rounded-full blur-3xl animate-float"
-          style={{ animationDelay: "2s" }}
-        ></div>
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
-        <div className="animate-fade-in py-12">
-          <div className="flex items-center justify-center mb-6">
-            <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 border border-gray-200">
-              <Sparkles className="w-4 h-4 text-black" />
-              <span className="text-sm text-gray-700 font-sans">
-                Premium Design Agency
-              </span>
-            </div>
+        <div className="animate-fade-in py-1">
+           <div className="flex items-center justify-center mb-10 pt-10 mt-3 mt-[-2rem]">
+            <img className="w-60 h-40" src="/Logo D.svg" />
           </div>
+          <div className="flex items-center justify-center mb-6">
+          </div>
+         
           {/* เปลี่ยนเป็น font Kanit */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-gray-800 font-serif">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl mt-[-2rem] font-bold text-black">
             Design Your Unique Identity
             <br />
-            <span>ออกแบบอัตลักษณ์อย่างมี"เอกลักษณ์"</span>
+            <br />
           </h1>
-
+          <div className="mb-10 mt-[-1rem]">
+          <span className="text-xl md:text-3xl lg:text-4xl font-bold text-black">ออกแบบอัตลักษณ์อย่างมี"เอกลักษณ์"</span>
+          </div>
+          
           <div className="bg-black backdrop-blur-sm p-6">
-            <div className="text-base md:text-lg  mb-6 max-w-xl mx-auto leading-relaxed font-sans">
+            
+            <div className="text-base md:text-lg mb-6 max-w-xl mx-auto leading-relaxed font-sans">
               <p>
                 พวกเราคือกราฟิกดีไซน์เนอร์ที่เชี่ยวชาญด้านการออกแบบ
                 <br />
