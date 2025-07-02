@@ -44,7 +44,7 @@ const Header: React.FC = () => {
     { name: 'Advertisement', path: '/services/advertisement' },
     { name: 'Product Design', path: '/services/product' },
     { name: 'Visual Design', path: '/services/visual' },
-     { name: 'UX/UI & Develop', path: '/services/website-develop' },
+    { name: 'UX/UI & Develop', path: '/services/website-develop' },
   ];
 
   // Animation variants for header
@@ -155,12 +155,12 @@ const Header: React.FC = () => {
             >
               ขั้นตอน & การให้บริการ
             </button>
-            <button
-              onClick={() => scrollToSection('contact')}
+            <Link
+              to="/contact"
               className="bg-black text-white px-6 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-all duration-200 shadow-sm"
             >
               ติดต่อเรา
-            </button>
+            </Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -239,14 +239,15 @@ const Header: React.FC = () => {
                   onClick={() => scrollToSection('about')}
                   className="text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
                 >
-                   ขั้นตอน & การให้บริการ
+                  ขั้นตอน & การให้บริการ
                 </button>
-                <button
-                  onClick={() => scrollToSection('contact')}
+                <Link
+                  to="/contact"
                   className="bg-black text-white px-6 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-all duration-200 w-fit shadow-sm"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   ติดต่อเรา
-                </button>
+                </Link>
               </nav>
             </motion.div>
           )}
