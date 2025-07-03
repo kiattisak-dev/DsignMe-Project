@@ -102,7 +102,7 @@ func LoginHandler(c *fiber.Ctx) error {
 	var user models.User
 	err := configs.UsersColl.FindOne(ctx, fiber.Map{"email": req.Email}).Decode(&user)
 	if err != nil {
-		log.Printf("Login}')
+		log.Printf("LoginHandler: User not found with email %s: %v", req.Email, err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Invalid email or password",
 		})
@@ -209,7 +209,7 @@ func ResetPasswordHandler(c *fiber.Ctx) error {
 	// Update password in database
 	update := fiber.Map{
 		"$set": fiber.Map{
-			"password": string(hashedPassword),
+			"password":  string(hashedPassword),
 			"updatedAt": time.Now(),
 		},
 	}
