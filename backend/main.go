@@ -37,9 +37,6 @@ func main() {
 	routers.AuthRoutes(app)
 	routers.ProjectRoutes(app)
 
-	// **เพิ่มตรงนี้เพื่อใช้ protected routes เช่น /me**
-	routers.ProtectedRoutes(app)
-
 	// Handle 404 for undefined routes
 	app.Use(func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
