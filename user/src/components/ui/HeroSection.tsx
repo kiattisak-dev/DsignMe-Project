@@ -60,7 +60,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, description, contactIn
             ขั้นตอน & บริการ
           </h2>
         </motion.div>
-         <hr className="border-t-2 border-black" />
+         <hr className="border-t-2 border-black mt-10" />
         <motion.div className="text-center mb-4 py-5 mx-auto max-w-sm border border-black bg-black border-t border-black" variants={itemVariants}>
           <h2 className="text-xl md:text-2xl font-medium mb-4 text-white">ติดต่อเรา</h2>
           <div className="flex flex-row justify-center items-center gap-8 mx-auto max-w-md">
