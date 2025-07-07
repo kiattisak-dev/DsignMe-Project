@@ -25,7 +25,7 @@ const Services: React.FC = () => {
     },
     {
       icon: Megaphone,
-      title: "AD Content",
+      title: "Advertisement",
       description: "ออกแบบเนื้อหาสื่อโฆษณา",
       link: "/services/advertisement",
       images: [
@@ -47,7 +47,7 @@ const Services: React.FC = () => {
     },
     {
       icon: Package,
-      title: "Product Design",
+      title: "Product Retouch",
       description: "ออกแบบผลิตภัณฑ์และบรรจุภัณฑ์",
       link: "/services/product",
       images: [
@@ -58,7 +58,7 @@ const Services: React.FC = () => {
     },
     {
       icon: Globe,
-      title: "Web Design",
+      title: "UX/UI & Development",
       description: "ออกแบบเว็บไซต์ที่ทันสมัยและใช้งานง่าย",
       link: "/services/web",
       images: [

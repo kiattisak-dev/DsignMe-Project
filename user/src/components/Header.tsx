@@ -42,9 +42,9 @@ const Header: React.FC = () => {
   const serviceLinks = [
     { name: 'Logo Design', path: '/services/logo' },
     { name: 'Advertisement', path: '/services/advertisement' },
-    { name: 'Product Design', path: '/services/product' },
+    { name: 'Product Retouch', path: '/services/product' },
     { name: 'Visual Design', path: '/services/visual' },
-    { name: 'UX/UI & Develop', path: '/services/website-develop' },
+    { name: 'UX/UI & Development', path: '/services/website-develop' },
   ];
 
   // Animation variants for header
