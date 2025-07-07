@@ -51,16 +51,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, description, contactIn
           <motion.h1 className="text-4xl md:text-6xl font-bold mb-5 text-black" variants={itemVariants}>
             {title}
           </motion.h1>
-          <motion.p className="text-lg md:text-xl text-black mb-8 max-w-3xl mx-auto leading-relaxed" variants={itemVariants}>
+          <motion.p className="text-lg md:text-xl text-black max-w-3xl mx-auto leading-relaxed" variants={itemVariants}>
             {description}
           </motion.p>
         </motion.div>
-        <motion.div className="text-center rounded-3xl mb-4 mt-2 bg-black py-4 mx-auto max-w-sm border-t border-black" variants={itemVariants}>
+        <motion.div className="text-center rounded-3xl bg-black py-4 mx-auto max-w-sm border-t border-black" variants={itemVariants}>
           <h2 className="text-xl md:text-2xl font-medium text-white font-sans tracking-tight">
             ขั้นตอน & บริการ
           </h2>
         </motion.div>
-         <hr className="border-t-2 border-black" />
+         <hr className="border-t-2 border-black mt-12" />
         <motion.div className="text-center mb-4 py-5 mx-auto max-w-sm border border-black bg-black border-t border-black" variants={itemVariants}>
           <h2 className="text-xl md:text-2xl font-medium mb-4 text-white">ติดต่อเรา</h2>
           <div className="flex flex-row justify-center items-center gap-8 mx-auto max-w-md">
