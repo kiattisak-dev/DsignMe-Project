@@ -39,12 +39,6 @@ export function CategoryStatsCard({ projects, categories }: CategoryStatsCardPro
           <CardTitle>Project Categories</CardTitle>
           <CardDescription>Projects by category</CardDescription>
         </div>
-        <Link href="/dashboard/servicesteps">
-          <Button variant="outline" size="sm">
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Details
-          </Button>
-        </Link>
       </CardHeader>
       <CardContent>
         <div className="h-[240px] w-full pt-4">
