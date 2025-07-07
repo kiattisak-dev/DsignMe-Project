@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FolderKanban, Layers, PieChart, Clock } from "lucide-react";
 import {
@@ -9,7 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getProjects, getCategories } from "../../../services/api"; // ปรับ path
+import { useToast } from "@/hooks/use-toast";
 
 interface Project {
   ID: string;
@@ -27,28 +27,13 @@ interface Category {
   UpdatedAt?: string;
 }
 
-export function DashboardStats() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+interface DashboardStatsProps {
+  projects: Project[];
+  categories: Category[];
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const projectsData = await getProjects();
-        const categoriesData = await getCategories();
-        setProjects(projectsData);
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
+export function DashboardStats({ projects, categories }: DashboardStatsProps) {
+  const { toast } = useToast();
 
   const totalProjects = projects.length;
   const projectCategories = categories.length;

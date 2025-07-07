@@ -24,21 +24,24 @@ export default function DashboardPage() {
         const token = Cookies.get("auth_token");
         if (!token) throw new Error("Please sign in");
 
-        const projectResponse = await fetch("http://localhost:8081/projects", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!projectResponse.ok) throw new Error("Failed to fetch projects");
-        const projectData = await projectResponse.json();
-        setProjects(projectData.data || []);
-
-        const categoryResponse = await fetch(
-          "http://localhost:8081/projects/categories",
-          {
+        const [projectResponse, categoryResponse] = await Promise.all([
+          fetch("http://localhost:8081/projects", {
             headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (!categoryResponse.ok) throw new Error("Failed to fetch categories");
-        const categoryData = await categoryResponse.json();
+          }),
+          fetch("http://localhost:8081/projects/categories", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        if (!projectResponse.ok) throw new Error(`Failed to fetch projects: ${projectResponse.status}`);
+        if (!categoryResponse.ok) throw new Error(`Failed to fetch categories: ${categoryResponse.status}`);
+
+        const [projectData, categoryData] = await Promise.all([
+          projectResponse.json(),
+          categoryResponse.json(),
+        ]);
+
+        setProjects(projectData.data || []);
         setCategories(categoryData.data || []);
       } catch (error: any) {
         toast({

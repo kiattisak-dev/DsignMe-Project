@@ -108,7 +108,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
     >
       <div className="flex items-center h-16 px-4 border-b relative">
         {expanded ? (
-          <div className="flex items-center gap-2 text-primary">
+          <div className="flex items-center gap-2">
             <ShieldIcon className="h-6 w-6" />
             <span className="font-bold text-lg">DsignMe Admin</span>
           </div>

@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type CategoryRequest struct {
@@ -279,67 +280,75 @@ func DeleteCategoryHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// Increase timeout to handle large deletions
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	// Check if category exists
-	var category models.Category
-	err = configs.CategoriesColl.FindOne(ctx, bson.M{"_id": objID}).Decode(&category)
+	// Start a MongoDB session for transaction
+	session, err := configs.Client.StartSession()
 	if err != nil {
-		log.Printf("DeleteCategoryHandler: Category ID %s not found: %v", id, err)
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Category not found",
-		})
-	}
-
-	// Check if category is used in projects
-	projectCount, err := configs.ProjectsColl.CountDocuments(ctx, bson.M{"category_id": objID})
-	if err != nil {
-		log.Printf("DeleteCategoryHandler: Failed to check associated projects for category ID %s: %v", id, err)
+		log.Printf("DeleteCategoryHandler: Failed to start session: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to check associated projects",
+			"error": "Failed to start transaction",
 		})
 	}
-	if projectCount > 0 {
-		log.Printf("DeleteCategoryHandler: Category ID %s has %d associated projects", id, projectCount)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Cannot delete category with associated projects",
-		})
-	}
+	defer session.EndSession(ctx)
 
-	// Check if category is used in service steps
-	serviceStepCount, err := configs.ServiceStepsColl.CountDocuments(ctx, bson.M{"category_id": objID})
+	// Execute transaction
+	_, err = session.WithTransaction(ctx, func(sessionContext mongo.SessionContext) (interface{}, error) {
+		// Check if category exists
+		var category models.Category
+		err = configs.CategoriesColl.FindOne(sessionContext, bson.M{"_id": objID}).Decode(&category)
+		if err != nil {
+			log.Printf("DeleteCategoryHandler: Category ID %s not found: %v", id, err)
+			return nil, err
+		}
+
+		// Delete associated projects
+		projectsResult, err := configs.ProjectsColl.DeleteMany(sessionContext, bson.M{"category_id": objID})
+		if err != nil {
+			log.Printf("DeleteCategoryHandler: Failed to delete projects for category ID %s: %v", id, err)
+			return nil, err
+		}
+		log.Printf("DeleteCategoryHandler: Deleted %d projects for category ID %s", projectsResult.DeletedCount, id)
+
+		// Delete associated service steps
+		serviceStepsResult, err := configs.ServiceStepsColl.DeleteMany(sessionContext, bson.M{"category_id": objID})
+		if err != nil {
+			log.Printf("DeleteCategoryHandler: Failed to delete service steps for category ID %s: %v", id, err)
+			return nil, err
+		}
+		log.Printf("DeleteCategoryHandler: Deleted %d service steps for category ID %s", serviceStepsResult.DeletedCount, id)
+
+		// Delete the category
+		result, err := configs.CategoriesColl.DeleteOne(sessionContext, bson.M{"_id": objID})
+		if err != nil {
+			log.Printf("DeleteCategoryHandler: Failed to delete category ID %s: %v", id, err)
+			return nil, err
+		}
+
+		if result.DeletedCount == 0 {
+			log.Printf("DeleteCategoryHandler: No category matched for ID %s", id)
+			return nil, mongo.ErrNoDocuments
+		}
+
+		return nil, nil
+	})
+
 	if err != nil {
-		log.Printf("DeleteCategoryHandler: Failed to check associated service steps for category ID %s: %v", id, err)
+		if err == mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "Category not found",
+			})
+		}
+		log.Printf("DeleteCategoryHandler: Transaction failed for category ID %s: %v", id, err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to check associated service steps",
-		})
-	}
-	if serviceStepCount > 0 {
-		log.Printf("DeleteCategoryHandler: Category ID %s has %d associated service steps", id, serviceStepCount)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Cannot delete category with associated service steps",
+			"error": "Failed to delete category and associated data",
 		})
 	}
 
-	// Delete category
-	result, err := configs.CategoriesColl.DeleteOne(ctx, bson.M{"_id": objID})
-	if err != nil {
-		log.Printf("DeleteCategoryHandler: Failed to delete category ID %s: %v", id, err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to delete category",
-		})
-	}
-
-	if result.DeletedCount == 0 {
-		log.Printf("DeleteCategoryHandler: No category matched for ID %s", id)
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Category not found",
-		})
-	}
-
-	log.Printf("DeleteCategoryHandler: Category ID %s deleted successfully by user %s", id, userEmail)
+	log.Printf("DeleteCategoryHandler: Category ID %s and associated data deleted successfully by user %s", id, userEmail)
 	return c.JSON(fiber.Map{
-		"message": "Category deleted successfully",
+		"message": "Category and associated data deleted successfully",
 	})
 }

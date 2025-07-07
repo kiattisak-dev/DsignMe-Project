@@ -23,7 +23,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import Cookies from "js-cookie";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Table,
@@ -34,6 +33,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
+import { addCategory, deleteCategory, getCategories, updateCategory } from "../../../../services/api";
 
 interface Category {
   ID: string;
@@ -57,24 +57,13 @@ export default function CategoriesPage() {
     const fetchCategories = async () => {
       try {
         setIsLoading(true);
-        const token = Cookies.get("auth_token");
-        const response = await fetch(
-          "http://localhost:8081/projects/categories",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch categories");
-        }
-        const data = await response.json();
+        const data = await getCategories();
+        console.log("Categories response:", data); // Debug
         setCategories(data.data || []);
-      } catch (error) {
+      } catch (error: any) {
         toast({
           title: "Error",
-          description: "Failed to load categories.",
+          description: error.message || "Failed to load categories.",
           variant: "destructive",
         });
       } finally {
@@ -92,42 +81,11 @@ export default function CategoriesPage() {
   // Handle create/edit category
   const handleSaveCategory = async () => {
     try {
-      const token = Cookies.get("auth_token");
       const body = { nameCategory: formName };
-      let response;
-
+      let data;
       if (formCategory) {
         // Edit category
-        response = await fetch(
-          `http://localhost:8081/projects/categories/${formCategory.ID}`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-          }
-        );
-      } else {
-        // Create category
-        response = await fetch("http://localhost:8081/projects/categories", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        });
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save category");
-      }
-
-      const data = await response.json();
-      if (formCategory) {
+        data = await updateCategory(formCategory.ID, body);
         setCategories(
           categories.map((c) => (c.ID === formCategory.ID ? data.data : c))
         );
@@ -136,6 +94,8 @@ export default function CategoriesPage() {
           description: "The category has been successfully updated.",
         });
       } else {
+        // Create category
+        data = await addCategory(body);
         setCategories([...categories, data.data]);
         toast({
           title: "Category created",
@@ -158,28 +118,13 @@ export default function CategoriesPage() {
   const handleDeleteCategory = async () => {
     if (categoryToDelete !== null) {
       try {
-        const token = Cookies.get("auth_token");
-        const response = await fetch(
-          `http://localhost:8081/projects/categories/${categoryToDelete}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to delete category");
-        }
-
+        await deleteCategory(categoryToDelete);
         setCategories(
           categories.filter((category) => category.ID !== categoryToDelete)
         );
         toast({
           title: "Category deleted",
-          description: "The category has been successfully deleted.",
+          description: "The category and associated projects and service steps have been deleted.",
         });
       } catch (error: any) {
         toast({
@@ -191,16 +136,6 @@ export default function CategoriesPage() {
         setCategoryToDelete(null);
       }
     }
-  };
-
-  // Format date (kept in case needed elsewhere)
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   // Animation variants
@@ -358,10 +293,7 @@ export default function CategoriesPage() {
                                           Are you absolutely sure?
                                         </AlertDialogTitle>
                                         <AlertDialogDescription className="text-[#6B7280] dark:text-[#9CA3AF]">
-                                          This action cannot be undone. This
-                                          will permanently delete the category
-                                          if it has no associated projects or
-                                          service steps.
+                                          This action cannot be undone. This will permanently delete the category and all associated projects and service steps.
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
                                       <AlertDialogFooter>

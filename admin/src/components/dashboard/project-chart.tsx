@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -9,48 +9,36 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { getProjects, getCategories } from "../../../services/api"; // ปรับ path
-import { Category } from "@/lib/types";
+import { Category, Project } from "@/lib/types";
 
 interface ProjectData {
   name: string;
-  [key: string]: number | string;
+  count: number;
 }
 
-export function ProjectChart() {
-  const [projects, setProjects] = useState<any[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ProjectChartProps {
+  projects: Project[];
+  categories: Category[];
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const projectsData = await getProjects();
-        const categoriesData = await getCategories();
-        setProjects(projectsData);
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-
+export function ProjectChart({ projects, categories }: ProjectChartProps) {
   // Prepare data for chart (count projects per category)
   const projectData: ProjectData[] = [];
-  categories.forEach((category) => {
+
+  // Ensure categories is an array
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  safeCategories.forEach((category) => {
     const count = projects.filter((p) => p.CategoryID === category.ID).length;
     if (count > 0) {
-      projectData.push({ name: category.NameCategory, [category.NameCategory]: count });
+      projectData.push({ name: category.NameCategory, count });
     }
   });
-  const uncategorizedCount = projects.filter((p) => !categories.some(c => c.ID === p.CategoryID)).length;
+
+  const uncategorizedCount = projects.filter(
+    (p) => !safeCategories.some((c) => c.ID === p.CategoryID)
+  ).length;
   if (uncategorizedCount > 0) {
-    projectData.push({ name: "Uncategorized", Uncategorized: uncategorizedCount });
+    projectData.push({ name: "Uncategorized", count: uncategorizedCount });
   }
 
   const COLORS = [
@@ -61,6 +49,11 @@ export function ProjectChart() {
     "hsl(var(--chart-5))",
   ];
 
+  // If no data, show a message
+  if (projectData.length === 0) {
+    return <div className="text-center py-10">No project data available</div>;
+  }
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
@@ -70,21 +63,23 @@ export function ProjectChart() {
         <XAxis dataKey="name" axisLine={false} tickLine={false} />
         <YAxis axisLine={false} tickLine={false} />
         <Tooltip />
-        {categories.map((category, index) => (
+        {safeCategories.map((category, index) => (
           <Bar
             key={category.ID}
-            dataKey={category.NameCategory}
-            stackId="a"
+            dataKey="count"
+            name={category.NameCategory}
             fill={COLORS[index % COLORS.length]}
-            radius={index === categories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+            radius={index === safeCategories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
           />
         ))}
-        <Bar
-          dataKey="Uncategorized"
-          stackId="a"
-          fill={COLORS[categories.length % COLORS.length]}
-          radius={[4, 4, 0, 0]}
-        />
+        {uncategorizedCount > 0 && (
+          <Bar
+            dataKey="count"
+            name="Uncategorized"
+            fill={COLORS[safeCategories.length % COLORS.length]}
+            radius={[4, 4, 0, 0]}
+          />
+        )}
       </BarChart>
     </ResponsiveContainer>
   );

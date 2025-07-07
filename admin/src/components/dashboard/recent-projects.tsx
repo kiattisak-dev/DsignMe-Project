@@ -1,51 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getProjects, getCategories } from "../../../services/api"; // ปรับ path
+import { Category, Project } from "@/lib/types";
 
-interface Project {
-  ID: string;
-  ImageUrl: string;
-  VideoUrl: string;
-  CategoryID: string;
-  CreatedAt: string;
-  UpdatedAt: string;
+interface RecentProjectsProps {
+  projects: Project[];
+  categories: Category[];
 }
 
-interface Category {
-  ID: string;
-  NameCategory: string;
-  CreatedAt?: string;
-  UpdatedAt?: string;
-}
-
-export function RecentProjects() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const projectsData = await getProjects();
-        const categoriesData = await getCategories();
-        setProjects(projectsData);
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-
+export function RecentProjects({ projects, categories }: RecentProjectsProps) {
   const recentProjects = projects
     .sort((a, b) => new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime())
     .slice(0, 5);

@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { CategoryChart } from "./category-chart";
-import { getCategories, getProjects } from "../../../services/api"; // Import API service
 import { Category, Project } from "@/lib/types";
 
 interface CategoryData {
@@ -14,27 +13,12 @@ interface CategoryData {
   value: number;
 }
 
-export function CategoryStatsCard() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+interface CategoryStatsCardProps {
+  projects: Project[];
+  categories: Category[];
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const projectsData = await getProjects();
-        const categoriesData = await getCategories();
-        setProjects(projectsData);
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
+export function CategoryStatsCard({ projects, categories }: CategoryStatsCardProps) {
   const getCategoryStats = (): CategoryData[] => {
     const categoryCounts: { [key: string]: number } = {};
     projects.forEach((project) => {
@@ -47,8 +31,6 @@ export function CategoryStatsCard() {
       value,
     }));
   };
-
-  if (loading) return <div>Loading...</div>;
 
   return (
     <Card className="col-span-1 border border-border">

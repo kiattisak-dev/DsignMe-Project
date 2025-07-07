@@ -1,4 +1,5 @@
-import { useState } from "react";
+"use client";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,20 +7,21 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LockIcon, LogInIcon } from "lucide-react";
-import { authLogin } from "../../../services/api"; // Import API service
-import { useRouter } from "next/navigation";
 
+
+
+// Define the form schema
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
 interface LoginFormProps {
-  onSubmit?: (values: z.infer<typeof formSchema>) => void;
+  onSubmit: (values: z.infer<typeof formSchema>) => void;
   isLoading: boolean;
 }
 
-export function LoginForm({ onSubmit: propOnSubmit, isLoading }: LoginFormProps) {
+export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -28,22 +30,9 @@ export function LoginForm({ onSubmit: propOnSubmit, isLoading }: LoginFormProps)
     },
   });
 
-  const router = useRouter();
-
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      const data = await authLogin(values);
-      localStorage.setItem('token', data.token); // สมมติ API ส่ง token กลับมา
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Login failed:', error);
-      form.setError("root.serverError", { message: "Invalid credentials" });
-    }
-  };
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"
