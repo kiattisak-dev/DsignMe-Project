@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FolderKanban, Layers, PieChart, Clock } from "lucide-react";
 import {
@@ -7,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getProjects, getCategories } from "../../../services/api"; // ปรับ path
 
 interface Project {
   ID: string;
@@ -24,13 +27,29 @@ interface Category {
   UpdatedAt?: string;
 }
 
-export function DashboardStats({
-  projects,
-  categories,
-}: {
-  projects: Project[];
-  categories: Category[];
-}) {
+export function DashboardStats() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const projectsData = await getProjects();
+        const categoriesData = await getCategories();
+        setProjects(projectsData);
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
   const totalProjects = projects.length;
   const projectCategories = categories.length;
 
@@ -53,24 +72,17 @@ export function DashboardStats({
   const now = new Date();
   const recentProjects = projects.filter((p) => {
     const createdDate = new Date(p.CreatedAt);
-    return (
-      (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24) <= 30
-    );
+    return (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24) <= 30;
   }).length;
 
   // Calculate new projects and categories in the last 30 days
   const newProjectsLast30Days = projects.filter((p) => {
     const createdDate = new Date(p.CreatedAt);
-    return (
-      (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24) <= 30
-    );
+    return (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24) <= 30;
   }).length;
   const newCategoriesLast30Days = categories.filter((c) => {
     const createdDate = c.CreatedAt ? new Date(c.CreatedAt) : null;
-    return (
-      createdDate &&
-      (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24) <= 30
-    );
+    return createdDate && (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24) <= 30;
   }).length;
 
   const stats = [

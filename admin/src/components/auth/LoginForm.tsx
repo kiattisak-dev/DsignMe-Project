@@ -6,6 +6,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LockIcon, LogInIcon } from "lucide-react";
+import { authLogin } from "../../../services/api"; // Import API service
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -13,11 +15,11 @@ const formSchema = z.object({
 });
 
 interface LoginFormProps {
-  onSubmit: (values: z.infer<typeof formSchema>) => void;
+  onSubmit?: (values: z.infer<typeof formSchema>) => void;
   isLoading: boolean;
 }
 
-export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
+export function LoginForm({ onSubmit: propOnSubmit, isLoading }: LoginFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -26,9 +28,22 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
     },
   });
 
+  const router = useRouter();
+
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const data = await authLogin(values);
+      localStorage.setItem('token', data.token); // สมมติ API ส่ง token กลับมา
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Login failed:', error);
+      form.setError("root.serverError", { message: "Invalid credentials" });
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"
@@ -92,6 +107,9 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
             </span>
           )}
         </Button>
+        {form.formState.errors.root?.serverError && (
+          <FormMessage>{form.formState.errors.root.serverError.message}</FormMessage>
+        )}
       </form>
     </Form>
   );

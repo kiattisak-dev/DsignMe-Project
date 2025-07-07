@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getProjects, getCategories } from "../../../services/api"; // ปรับ path
 
 interface Project {
   ID: string;
@@ -22,7 +23,29 @@ interface Category {
   UpdatedAt?: string;
 }
 
-export function RecentProjects({ projects, categories }: { projects: Project[]; categories: Category[] }) {
+export function RecentProjects() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const projectsData = await getProjects();
+        const categoriesData = await getCategories();
+        setProjects(projectsData);
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
   const recentProjects = projects
     .sort((a, b) => new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime())
     .slice(0, 5);
@@ -54,7 +77,6 @@ export function RecentProjects({ projects, categories }: { projects: Project[]; 
                       {project.ID.substring(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                       <div>

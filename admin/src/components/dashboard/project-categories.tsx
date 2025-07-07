@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Folder } from "lucide-react";
+import { getProjects, getCategories } from "../../../services/api"; // ปรับ path
 
 interface ProjectCategory {
   id: string;
@@ -30,13 +31,29 @@ interface Category {
   UpdatedAt?: string;
 }
 
-export function ProjectCategories({
-  categories,
-  projects,
-}: {
-  categories: Category[];
-  projects: Project[];
-}) {
+export function ProjectCategories() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const projectsData = await getProjects();
+        const categoriesData = await getCategories();
+        setProjects(projectsData);
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
   const projectCategories: ProjectCategory[] = categories.map((category) => ({
     id: category.ID,
     name: category.NameCategory,
@@ -83,8 +100,7 @@ export function ProjectCategories({
                   variant="secondary"
                   className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-1.5 w-fit sm:min-w-[100px] text-center flex items-center justify-center"
                 >
-                  {category.projectCount} Project
-                  {category.projectCount !== 1 ? "s" : ""}
+                  {category.projectCount} Project{category.projectCount !== 1 ? "s" : ""}
                 </Badge>
               </div>
             ))
