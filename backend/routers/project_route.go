@@ -7,37 +7,40 @@ import (
 )
 
 func ProjectRoutes(app *fiber.App) {
-	// Apply AuthMiddleware to all project routes except file download
+	// Public routes (no authentication required)
+	app.Get("/projects", controllers.GetAllProjectsHandler)
+	// Move /projects/categories before /projects/:category
+	app.Get("/projects/categories", controllers.GetCategoriesHandler)
+	app.Get("/projects/:category", controllers.GetProjectsByCategoryHandler)
+	app.Get("/servicesteps/:category/service-steps", controllers.GetAllServiceStepsHandler)
+
+	// Authenticated routes
 	route := app.Group("/projects", middleware.AuthMiddleware())
-	route.Get("/", controllers.GetAllProjectsHandler)
 
 	// Route for file upload
 	route.Post("/files", controllers.UploadFileHandler)
 
-	// Route GridFS (no AuthMiddleware for file access)
-	app.Get("/files/:id", controllers.GetFileHandler)
-
-	// Categories routes
+	// Categories routes (authenticated CRUD operations)
 	route.Post("/categories", controllers.AddCategoryHandler)
-	route.Get("/categories", controllers.GetCategoriesHandler)
 	route.Put("/categories/:id", controllers.UpdateCategoryHandler)
 	route.Delete("/categories/:id", controllers.DeleteCategoryHandler)
 
-	// Dynamic category routes for projects
+	// Dynamic category routes for projects (authenticated CRUD operations)
 	categoryRoute := route.Group("/:category")
-	categoryRoute.Get("/", controllers.GetProjectsByCategoryHandler)
 	categoryRoute.Post("/", controllers.AddProjectHandler)
 	categoryRoute.Put("/:id", controllers.UpdateProjectHandler)
 	categoryRoute.Delete("/:id", controllers.DeleteProjectHandler)
 
-	// Service steps routes
+	// Service steps routes (authenticated)
 	serviceStepsRoute := app.Group("/servicesteps", middleware.AuthMiddleware())
 	serviceStepsCategoryRoute := serviceStepsRoute.Group("/:category")
-	serviceStepsCategoryRoute.Get("/service-steps", controllers.GetAllServiceStepsHandler)
 	serviceStepsCategoryRoute.Get("/service-steps/:stepId", controllers.GetServiceStepHandler)
 	serviceStepsCategoryRoute.Post("/service-steps", controllers.AddServiceStepHandler)
 	serviceStepsCategoryRoute.Put("/service-steps/:stepId", controllers.UpdateServiceStepsHandler)
 	serviceStepsCategoryRoute.Delete("/service-steps/:stepId", controllers.DeleteServiceStepHandler)
+
+	// Route for file download (no authentication required)
+	app.Get("/files/:id", controllers.GetFileHandler)
 
 	// Handle 404 for /projects routes
 	route.Use(func(c *fiber.Ctx) error {

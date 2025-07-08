@@ -518,6 +518,74 @@ func DeleteProjectHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	// Fetch project to get associated file URLs
+	var project models.Project
+	err = configs.ProjectsColl.FindOne(ctx, bson.M{"_id": objID, "category_id": category.ID}).Decode(&project)
+	if err != nil {
+		log.Printf("DeleteProjectHandler: Project ID %s not found in category %s: %v", id, categoryName, err)
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Project not found or category does not match",
+		})
+	}
+
+	// Initialize GridFS bucket
+	db := configs.Client.Database("ProjectsDB")
+	bucket, err := gridfs.NewBucket(db)
+	if err != nil {
+		log.Printf("DeleteProjectHandler: Failed to initialize GridFS: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to initialize GridFS",
+		})
+	}
+
+	// Function to delete a file from GridFS if it exists
+	deleteGridFSFile := func(fileUrl string) error {
+		if fileUrl == "" {
+			return nil
+		}
+		// Extract file ID from URL (e.g., http://localhost:8081/files/{fileID})
+		parts := strings.Split(fileUrl, "/")
+		if len(parts) < 5 {
+			log.Printf("DeleteProjectHandler: Invalid file URL format: %s", fileUrl)
+			return nil // Skip invalid URLs
+		}
+		fileIDStr := parts[len(parts)-1]
+		fileID, err := primitive.ObjectIDFromHex(fileIDStr)
+		if err != nil {
+			log.Printf("DeleteProjectHandler: Invalid file ID in URL %s: %v", fileUrl, err)
+			return nil // Skip invalid file IDs
+		}
+
+		// Delete file from GridFS (automatically deletes associated chunks)
+		err = bucket.Delete(fileID)
+		if err != nil {
+			log.Printf("DeleteProjectHandler: Failed to delete file ID %s from GridFS: %v", fileID.Hex(), err)
+			return fmt.Errorf("failed to delete file from GridFS: %v", err)
+		}
+
+		// Delete file metadata from FilesColl
+		_, err = configs.Client.Database("ProjectsDB").Collection("FilesColl").DeleteOne(ctx, bson.M{"_id": fileID})
+		if err != nil {
+			log.Printf("DeleteProjectHandler: Failed to delete file metadata for file ID %s: %v", fileID.Hex(), err)
+			return fmt.Errorf("failed to delete file metadata: %v", err)
+		}
+
+		log.Printf("DeleteProjectHandler: File ID %s deleted successfully from GridFS and FilesColl", fileID.Hex())
+		return nil
+	}
+
+	// Delete associated files from GridFS
+	if err := deleteGridFSFile(project.ImageUrl); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	if err := deleteGridFSFile(project.VideoUrl); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
 	// Delete associated service steps
 	_, err = configs.ServiceStepsColl.DeleteMany(ctx, bson.M{"project_id": objID})
 	if err != nil {

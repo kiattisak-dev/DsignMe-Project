@@ -13,7 +13,7 @@ interface ProjectStatsCardProps {
 
 export function ProjectStatsCard({ projects, categories }: ProjectStatsCardProps) {
   return (
-    <Card className="col-span-1 border border-border">
+    <Card className="col-span-1">
       <CardHeader>
         <CardTitle>Project Statistics</CardTitle>
       </CardHeader>

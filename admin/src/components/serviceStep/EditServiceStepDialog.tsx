@@ -222,12 +222,12 @@ export default function EditServiceStepDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 sm:max-w-2xl">
+      <AlertDialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 w-[95vw] max-w-lg sm:max-w-2xl max-h-[80vh] overflow-y-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-gray-900 dark:text-gray-100">
+          <AlertDialogTitle className="text-gray-900 dark:text-gray-100 text-lg sm:text-xl">
             Edit Service Step
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-gray-500 dark:text-gray-400">
+          <AlertDialogDescription className="text-gray-500 dark:text-gray-400 text-sm">
             Modify the details of the service step.
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -240,25 +240,25 @@ export default function EditServiceStepDialog({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter title"
-              className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700"
+              className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 w-full max-w-md"
               disabled={isLoading}
             />
           </div>
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              Subtitles
+              Details
             </label>
             {subtitles.map((subtitle, subtitleIndex) => (
               <div
                 key={subtitleIndex}
-                className="mt-2 p-4 border rounded-md bg-gray-50 dark:bg-gray-800"
+                className="mt-2 p-4 border rounded-md bg-gray-50 dark:bg-gray-800 space-y-3"
               >
-                <div className="flex flex-col sm:flex-row items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                   <Input
                     value={subtitle.text}
                     onChange={(e) => handleSubtitleChange(subtitleIndex, e.target.value)}
                     placeholder={`Subtitle ${subtitleIndex + 1}`}
-                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600"
+                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 w-full max-w-md"
                     disabled={isLoading}
                   />
                   {subtitles.length > 1 && (
@@ -268,29 +268,35 @@ export default function EditServiceStepDialog({
                       size="sm"
                       onClick={() => removeSubtitle(subtitleIndex)}
                       disabled={isLoading}
+                      className="w-full sm:w-auto mt-2 sm:mt-0"
                     >
                       Remove Subtitle
                     </Button>
                   )}
                 </div>
-                <div className="mt-2">
+                <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Headings
+                    Sub-details
                   </label>
                   {subtitle.headings.map((heading, headingIndex) => (
                     <div
                       key={headingIndex}
-                      className="flex flex-col sm:flex-row items-center gap-2 mt-1 ml-4"
+                      className="flex flex-col sm:flex-row items-start sm:items-center gap-2 ml-4"
                     >
-                      <Input
-                        value={heading}
-                        onChange={(e) =>
-                          handleHeadingChange(subtitleIndex, headingIndex, e.target.value)
-                        }
-                        placeholder={`Heading ${headingIndex + 1}`}
-                        className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600"
-                        disabled={isLoading}
-                      />
+                      <div className="flex items-center gap-2 w-full">
+                        <span className="w-6 text-sm text-gray-900 dark:text-gray-100">
+                          {headingIndex + 1}.
+                        </span>
+                        <Input
+                          value={heading}
+                          onChange={(e) =>
+                            handleHeadingChange(subtitleIndex, headingIndex, e.target.value)
+                          }
+                          placeholder={`Sub-detail ${headingIndex + 1}`}
+                          className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 flex-1 max-w-md"
+                          disabled={isLoading}
+                        />
+                      </div>
                       {subtitle.headings.length > 1 && (
                         <Button
                           type="button"
@@ -298,8 +304,9 @@ export default function EditServiceStepDialog({
                           size="sm"
                           onClick={() => removeHeading(subtitleIndex, headingIndex)}
                           disabled={isLoading}
+                          className="w-full sm:w-auto mt-2 sm:mt-0"
                         >
-                          Remove Heading
+                          Remove Sub-detail
                         </Button>
                       )}
                     </div>
@@ -308,11 +315,11 @@ export default function EditServiceStepDialog({
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="mt-2 ml-4"
+                    className="mt-2 ml-4 w-full sm:w-auto"
                     onClick={() => addHeading(subtitleIndex)}
                     disabled={isLoading}
                   >
-                    Add Heading
+                    Add Sub-detail
                   </Button>
                 </div>
               </div>
@@ -320,21 +327,25 @@ export default function EditServiceStepDialog({
             <Button
               type="button"
               variant="outline"
-              className="mt-4"
+              className="mt-4 w-full sm:w-auto"
               onClick={addSubtitle}
               disabled={isLoading}
             >
               Add Subtitle
             </Button>
           </div>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="flex flex-col sm:flex-row sm:gap-2">
             <AlertDialogCancel
               onClick={() => onOpenChange(false)}
-              className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600"
+              className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 w-full sm:w-auto"
             >
               Cancel
             </AlertDialogCancel>
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full sm:w-auto "
+            >
               {isLoading ? "Updating..." : "Update Service Step"}
             </Button>
           </AlertDialogFooter>

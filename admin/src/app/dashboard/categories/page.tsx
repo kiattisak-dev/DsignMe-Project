@@ -33,7 +33,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { addCategory, deleteCategory, getCategories, updateCategory } from "../../../../services/api";
+import {
+  addCategory,
+  deleteCategory,
+  getCategories,
+  updateCategory,
+} from "../../../../services/api";
 
 interface Category {
   ID: string;
@@ -124,7 +129,8 @@ export default function CategoriesPage() {
         );
         toast({
           title: "Category deleted",
-          description: "The category and associated projects and service steps have been deleted.",
+          description:
+            "The category and associated projects and service steps have been deleted.",
         });
       } catch (error: any) {
         toast({
@@ -178,8 +184,9 @@ export default function CategoriesPage() {
             setFormName("");
             setIsFormOpen(true);
           }}
+          className="bg-black text-white border border-gray-300 hover:bg-gray-800 hover:border-gray-400 dark:bg-black dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 flex items-center justify-center w-full sm:w-auto"
         >
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="mr-2 h-4 w-4 text-white" />
           Add Category
         </Button>
       </div>
@@ -293,7 +300,10 @@ export default function CategoriesPage() {
                                           Are you absolutely sure?
                                         </AlertDialogTitle>
                                         <AlertDialogDescription className="text-[#6B7280] dark:text-[#9CA3AF]">
-                                          This action cannot be undone. This will permanently delete the category and all associated projects and service steps.
+                                          This action cannot be undone. This
+                                          will permanently delete the category
+                                          and all associated projects and
+                                          service steps.
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
                                       <AlertDialogFooter>

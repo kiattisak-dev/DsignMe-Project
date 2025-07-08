@@ -397,22 +397,6 @@ func DeleteServiceStepHandler(c *fiber.Ctx) error {
 }
 
 func GetAllServiceStepsHandler(c *fiber.Ctx) error {
-	// Get user email from JWT token
-	claims, ok := c.Locals("user").(jwt.MapClaims)
-	if !ok {
-		log.Printf("GetAllServiceStepsHandler: Failed to get user claims from token")
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Invalid token claims",
-		})
-	}
-	userEmail, ok := claims["email"].(string)
-	if !ok {
-		log.Printf("GetAllServiceStepsHandler: Email not found in token claims")
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Invalid token claims",
-		})
-	}
-
 	categoryName := strings.Title(strings.ToLower(c.Params("category")))
 	if categoryName == "" {
 		log.Printf("GetAllServiceStepsHandler: Category is missing")
@@ -421,7 +405,7 @@ func GetAllServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	log.Printf("GetAllServiceStepsHandler: User %s requested to fetch service steps in category %s", userEmail, categoryName)
+	log.Printf("GetAllServiceStepsHandler: Fetching service steps in category %s", categoryName)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -452,7 +436,7 @@ func GetAllServiceStepsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	log.Printf("GetAllServiceStepsHandler: Retrieved %d service steps for category %s by user %s", len(serviceSteps), categoryName, userEmail)
+	log.Printf("GetAllServiceStepsHandler: Retrieved %d service steps for category %s", len(serviceSteps), categoryName)
 	return c.JSON(fiber.Map{
 		"message": "Service steps retrieved successfully",
 		"data":    serviceSteps,

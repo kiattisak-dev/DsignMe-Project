@@ -50,11 +50,13 @@ export function ProjectChart({ projects, categories }: ProjectChartProps) {
 
   // Define colors for bars
   const COLORS = [
-    "hsl(var(--chart-1))",
-    "hsl(var(--chart-2))",
-    "hsl(var(--chart-3))",
-    "hsl(var(--chart-4))",
-    "hsl(var(--chart-5))",
+    "#f87171", // red-400
+    "#60a5fa", // blue-400
+    "#34d399", // green-400
+    "#fbbf24", // yellow-400
+    "#a78bfa", // purple-400
+    "#fb7185", // rose-400
+    "#5eead4", // teal-300
   ];
 
   return (

@@ -190,7 +190,7 @@ export default function ServiceStepsPage() {
           Service Steps - {category}
         </h1>
         <Link href={`/dashboard/servicesteps/${category}/new`}>
-          <Button>
+          <Button  className="bg-black text-white border border-gray-300 hover:bg-gray-800 hover:border-gray-400 dark:bg-black dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 flex items-center justify-center w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Add Service Step
           </Button>
@@ -235,8 +235,8 @@ export default function ServiceStepsPage() {
                       setIsViewOpen(true);
                     }}
                     onEdit={() => {
-                    setSelectedStep(step);
-                    setIsEditOpen(true);
+                      setSelectedStep(step);
+                      setIsEditOpen(true);
                     }}
                     onDelete={() => setStepToDelete(step._id)}
                   />
@@ -247,7 +247,7 @@ export default function ServiceStepsPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="col-span-full text-center py-10 text-gray-900 dark:text-gray-100"
+              className=" col-span-full text-center py-10 text-gray-900 dark:text-gray-100"
             >
               No service steps found.
             </motion.div>
@@ -323,7 +323,7 @@ export default function ServiceStepsPage() {
                 </h3>
                 <div className="mt-2">
                   <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    Subtitles
+                    Details
                   </h4>
                   {selectedStep?.subtitles.length ? (
                     selectedStep.subtitles.map((subtitle, index) => (
@@ -332,17 +332,20 @@ export default function ServiceStepsPage() {
                           {subtitle.text || "No subtitle text"}
                         </p>
                         {subtitle.headings.length > 0 && (
-                          <ul className="text-sm text-gray-500 dark:text-gray-400 list-disc list-inside ml-4">
+                          <div className="text-sm text-gray-500 dark:text-gray-400 ml-4">
                             {subtitle.headings.map((heading, hIndex) => (
-                              <li key={hIndex}>{heading}</li>
+                              <div key={hIndex} className="flex items-center gap-2">
+                                <span className="w-6">{hIndex + 1}.</span>
+                                <span>{heading}</span>
+                              </div>
                             ))}
-                          </ul>
+                          </div>
                         )}
                       </div>
                     ))
                   ) : (
                     <p className="text-sm text-gray-500 dark:text-gray-400 ml-4">
-                      No subtitles
+                      No details
                     </p>
                   )}
                 </div>

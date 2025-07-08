@@ -148,7 +148,7 @@ export default function AddServiceStepPage() {
     if (!hasContent) {
       toast({
         title: "Error",
-        description: "At least one subtitle or heading is required",
+        description: "At least one subtitle or detail is required",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -242,7 +242,7 @@ export default function AddServiceStepPage() {
                 disabled={isLoading}
               >
                 <SelectTrigger className="mt-1 bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]">
-                  <SelectValue placeholder="เลือก category" />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#374151] border-[#D1D5DB] dark:border-[#4B5563]">
                   {categories.map((cat) => (
@@ -260,14 +260,14 @@ export default function AddServiceStepPage() {
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="fill title"
+                placeholder="Enter title"
                 className="mt-1 bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
                 disabled={isLoading}
               />
             </div>
             <div>
               <label className="text-sm font-medium text-[#111827] dark:text-[#D1D5DB]">
-                Subtitles
+                Details
               </label>
               {subtitles.map((subtitle, subtitleIndex) => (
                 <div
@@ -298,13 +298,16 @@ export default function AddServiceStepPage() {
                   </div>
                   <div className="mt-2">
                     <label className="text-sm font-medium text-[#666666] dark:text-[#9CA3AF]">
-                      Headings
+                      Sub-details
                     </label>
                     {subtitle.headings.map((heading, headingIndex) => (
                       <div
                         key={headingIndex}
                         className="flex items-center gap-2 mt-1 ml-4"
                       >
+                        <span className="text-sm text-[#111827] dark:text-[#D1D5DB] w-6">
+                          {headingIndex + 1}.
+                        </span>
                         <Input
                           value={heading}
                           onChange={(e) =>
@@ -314,7 +317,7 @@ export default function AddServiceStepPage() {
                               e.target.value
                             )
                           }
-                          placeholder={`Heading ${headingIndex + 1}`}
+                          placeholder={`Sub-detail ${headingIndex + 1}`}
                           className="bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
                           disabled={isLoading}
                         />
@@ -328,7 +331,7 @@ export default function AddServiceStepPage() {
                             }
                             disabled={isLoading}
                           >
-                            Remove Heading
+                            Remove Sub-detail
                           </Button>
                         )}
                       </div>
@@ -341,7 +344,7 @@ export default function AddServiceStepPage() {
                       onClick={() => addHeading(subtitleIndex)}
                       disabled={isLoading}
                     >
-                      Add Heading
+                      Add Sub-detail
                     </Button>
                   </div>
                 </div>
@@ -349,7 +352,7 @@ export default function AddServiceStepPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="mt-4"
+                className="mt-4 "
                 onClick={addSubtitle}
                 disabled={isLoading}
               >

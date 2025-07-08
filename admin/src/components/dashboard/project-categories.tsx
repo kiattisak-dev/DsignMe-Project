@@ -29,13 +29,17 @@ export function ProjectCategories({ projects, categories }: ProjectCategoriesPro
   }));
 
   return (
-    <Card className="h-full w-full max-w-4xl mx-auto border border-border">
+    <Card className="h-full w-full max-w-4xl mx-auto bg-white dark:bg-black">
       <CardHeader className="flex flex-row items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
-        <CardTitle className="text-lg sm:text-xl md:text-2xl">
+        <CardTitle className="text-lg sm:text-xl md:text-2xl text-black dark:text-white">
           Project Categories
         </CardTitle>
         <Link href="/dashboard/categories">
-          <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs sm:text-sm bg-white dark:bg-black text-black dark:text-white hover:bg-green-600 hover:text-white dark:hover:bg-green-700 dark:hover:text-white transition-colors duration-200"
+          >
             View All
           </Button>
         </Link>
@@ -46,33 +50,33 @@ export function ProjectCategories({ projects, categories }: ProjectCategoriesPro
             projectCategories.map((category) => (
               <div
                 key={category.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border p-3 sm:p-4 gap-3 sm:gap-0"
+                className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg p-3 sm:p-4 gap-3 sm:gap-0 bg-white dark:bg-black"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="rounded-full p-2 bg-blue-50 dark:bg-blue-900/20 flex-shrink-0">
-                    <Folder className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                  <div className="rounded-full p-2 bg-blue-100 dark:bg-blue-900/30 flex-shrink-0">
+                    <Folder className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 dark:text-blue-400" />
                   </div>
                   <div className="min-w-0">
                     <Link href={`/dashboard/servicesteps/${category.name}`}>
-                      <p className="font-medium hover:underline text-sm sm:text-base truncate">
+                      <p className="font-medium text-sm sm:text-base text-black dark:text-white hover:bg-green-600 hover:text-white dark:hover:bg-green-700 dark:hover:text-white transition-colors duration-200 rounded px-1">
                         {category.name}
                       </p>
                     </Link>
-                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
                       {category.description}
                     </p>
                   </div>
                 </div>
                 <Badge
                   variant="secondary"
-                  className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-1.5 w-fit sm:min-w-[100px] text-center flex items-center justify-center"
+                  className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-1.5 w-fit sm:min-w-[100px] text-center flex items-center justify-center bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 hover:text-white dark:hover:bg-green-700 dark:hover:text-white transition-colors duration-200"
                 >
                   {category.projectCount} Project{category.projectCount !== 1 ? "s" : ""}
                 </Badge>
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-center py-4">
               No categories available.
             </p>
           )}
@@ -80,4 +84,4 @@ export function ProjectCategories({ projects, categories }: ProjectCategoriesPro
       </CardContent>
     </Card>
   );
-};
+}

@@ -38,7 +38,8 @@ export default function ProjectCard({
   handleDeleteProject,
 }: ProjectCardProps) {
   const getYouTubeEmbedUrl = (url: string) => {
-    const regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/;
+    const regExp =
+      /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/;
     const match = url.match(regExp);
     return match ? `https://www.youtube.com/embed/${match[1]}` : undefined;
   };
@@ -52,9 +53,9 @@ export default function ProjectCard({
   };
 
   return (
-    <Card className="border-[#D1D5DB] dark:border-[#4B5563] hover:shadow-lg transition-shadow duration-200">
+    <Card className="dark:border-white bg-white dark:bg-black hover:shadow-[0_4px_6px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_4px_6px_rgba(255,255,255,0.2)] transition-shadow duration-200">
       <CardHeader className="p-4 relative">
-        <CardTitle className="text-lg text-[#111827] dark:text-[#D1D5DB] pr-8">
+        <CardTitle className="text-lg text-black dark:text-white pr-8">
           {project.ImageUrl ? "Image" : project.VideoUrl ? "Video" : "No Media"}
         </CardTitle>
         <DropdownMenu>
@@ -62,9 +63,9 @@ export default function ProjectCard({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-2 right-2 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-full"
+              className="absolute top-2 right-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full"
             >
-              <MoreHorizontal className="h-5 w-5 text-[#111827] dark:text-[#D1D5DB]" />
+              <MoreHorizontal className="h-5 w-5 text-black dark:text-white" />
               <span className="sr-only">Actions</span>
             </Button>
           </DropdownMenuTrigger>
@@ -72,7 +73,11 @@ export default function ProjectCard({
             <motion.div
               variants={{
                 hidden: { opacity: 0, y: -10 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: "easeOut" } },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.2, ease: "easeOut" },
+                },
                 exit: { opacity: 0, y: -10, transition: { duration: 0.15 } },
               }}
               initial="hidden"
@@ -81,19 +86,19 @@ export default function ProjectCard({
             >
               <DropdownMenuContent
                 align="end"
-                className="bg-white dark:bg-[#1F2937] border-[#D1D5DB] dark:border-[#4B5563]"
+                className="bg-white dark:bg-black border-black dark:border-white"
               >
                 <DropdownMenuItem
                   onSelect={() => {
                     setSelectedProject(project);
                     setIsViewOpen(true);
                   }}
-                  className="text-[#111827] dark:text-[#D1D5DB]"
+                  className="text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
                 >
                   <Eye className="mr-2 h-4 w-4" />
                   <span>View</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[#D1D5DB] dark:bg-[#4B5563]" />
+                <DropdownMenuSeparator className="bg-black dark:bg-white" />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <DropdownMenuItem
@@ -101,31 +106,32 @@ export default function ProjectCard({
                         e.preventDefault();
                         setProjectToDelete(project.ID);
                       }}
-                      className="text-[#111827] dark:text-[#D1D5DB]"
+                      className="text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
                     >
-                      <Trash2 className="mr-2 h-4 w-4 text-red-600 dark:text-red-400" />
+                      <Trash2 className="mr-2 h-4 w-4 text-gray-600 dark:text-gray-400" />
                       <span>Delete</span>
                     </DropdownMenuItem>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="bg-white dark:bg-[#1F2937] border-[#D1D5DB] dark:border-[#4B5563]">
+                  <AlertDialogContent className="bg-white dark:bg-black border-black dark:border-white">
                     <AlertDialogHeader>
-                      <AlertDialogTitle className="text-[#111827] dark:text-[#D1D5DB]">
+                      <AlertDialogTitle className="text-black dark:text-white">
                         Are you absolutely sure?
                       </AlertDialogTitle>
-                      <AlertDialogDescription className="text-[#6B7280] dark:text-[#9CA3AF]">
-                        This action cannot be undone. This will permanently delete the project.
+                      <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
+                        This action cannot be undone. This will permanently
+                        delete the project.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel
                         onClick={() => setProjectToDelete(null)}
-                        className="bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
+                        className="bg-white dark:bg-black text-black dark:text-white border-black dark:border-white hover:bg-gray-200 dark:hover:bg-gray-800"
                       >
                         Cancel
                       </AlertDialogCancel>
                       <AlertDialogAction
                         onClick={handleDeleteProject}
-                        className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+                        className="bg-red-500 text-white hover:bg-white hover:text-red-500 border border-black dark:bg-white dark:text-red-500 dark:hover:bg-black dark:hover:text-red-500 dark:border-white"
                       >
                         Delete
                       </AlertDialogAction>
@@ -144,7 +150,7 @@ export default function ProjectCard({
               <img
                 src={project.ImageUrl}
                 alt="Project image"
-                className="h-48 w-full object-cover rounded-md border border-[#D1D5DB] dark:border-[#4B5563] hover:opacity-90 transition-opacity"
+                className="h-48 w-full object-cover rounded-md border border-black dark:border-white hover:opacity-90 transition-opacity"
               />
             ) : getYouTubeEmbedUrl(project.VideoUrl) ? (
               <iframe
@@ -153,21 +159,23 @@ export default function ProjectCard({
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                className="h-48 w-full rounded-md border border-[#D1D5DB] dark:border-[#4B5563] hover:opacity-90 transition-opacity"
+                className="h-48 w-full rounded-md border border-black dark:border-white hover:opacity-90 transition-opacity"
               />
             ) : project.VideoUrl ? (
               <video
                 src={project.VideoUrl}
-                className="h-48 w-full object-cover rounded-md border border-[#D1D5DB] dark:border-[#4B5563] hover:opacity-90 transition-opacity"
+                className="h-48 w-full object-cover rounded-md border border-black dark:border-white hover:opacity-90 transition-opacity"
                 controls
               />
             ) : (
-              <div className="h-48 w-full bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center border border-[#D1D5DB] dark:border-[#4B5563]">
-                <span className="text-gray-500 dark:text-gray-400">No Media</span>
+              <div className="h-48 w-full bg-gray-200 dark:bg-gray-800 rounded-md flex items-center justify-center border border-black dark:border-white">
+                <span className="text-gray-600 dark:text-gray-400">
+                  No Media
+                </span>
               </div>
             )}
           </div>
-          <p className="text-sm text-[#6B7280] dark:text-[#9CA3AF]">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Created: {formatDate(project.CreatedAt)}
           </p>
         </div>

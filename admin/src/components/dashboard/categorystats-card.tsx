@@ -33,7 +33,7 @@ export function CategoryStatsCard({ projects, categories }: CategoryStatsCardPro
   };
 
   return (
-    <Card className="col-span-1 border border-border">
+    <Card className="col-span-1">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="space-y-1">
           <CardTitle>Project Categories</CardTitle>

@@ -52,6 +52,9 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
     const fetchCategories = async () => {
       try {
         const token = Cookies.get("auth_token");
+        if (!token) {
+          throw new Error("No auth token found");
+        }
         const response = await fetch(
           "http://localhost:8081/projects/categories",
           {
@@ -61,11 +64,12 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           }
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch categories");
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         const data = await response.json();
         setCategories(data.data || []);
       } catch (error) {
+        console.error("Fetch Categories Error:", error);
         toast({
           title: "Error",
           description: "Failed to load categories.",
