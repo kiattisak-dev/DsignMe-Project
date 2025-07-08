@@ -88,7 +88,6 @@ const ImageSlider: React.FC = () => {
                 alt={`Logo Design Image ${currentSlide + 1}`}
                 className="w-full h-full object-cover"
                 loading="eager" // Prioritize loading for active slide
-                fetchPriority="high"
                 onError={(e) => {
                   console.log(`Image failed to load: ${logoImages[currentSlide]}`);
                   (e.target as HTMLImageElement).src = "https://placehold.co/800x600";
@@ -129,7 +128,6 @@ const ImageSlider: React.FC = () => {
                     alt={`${category.name} Image 1`}
                     className="w-full h-full object-cover"
                     loading="lazy"
-                    fetchPriority="low"
                     onError={(e) => {
                       console.log(`Image failed to load: ${category.images[0]}`);
                       (e.target as HTMLImageElement).src = "https://placehold.co/400x400";
