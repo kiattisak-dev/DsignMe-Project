@@ -225,7 +225,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
       <Separator />
 
       <div className="p-4">
-        <div
+        {/* <div
           className={cn(
             "flex items-center gap-3 pb-4",
             !expanded && "justify-center"
@@ -245,7 +245,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           </Button>
 
           {expanded && <span className="text-muted-foreground">Theme</span>}
-        </div>
+        </div> */}
 
         <div className={cn("flex items-center gap-3", !expanded && "flex-col")}>
           <Avatar>
