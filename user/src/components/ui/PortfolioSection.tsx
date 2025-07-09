@@ -85,7 +85,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
               >
                 <motion.img
                   src={image.url}
-                  alt={`${image.title}: ${image.description}`}
+                  alt={`${image.title}: ${image.category}`}
                   className="w-full h-full object-cover absolute inset-0"
                   loading="lazy"
                   variants={imageHoverVariants}
