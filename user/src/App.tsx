@@ -11,6 +11,7 @@ import WebsiteDevelopPage from "./pages/WebsiteDevelopPage";
 import ContactPage from "./pages/ContactPage";
 import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose } from "./components/ui/toast";
 import { useToast } from "./hooks/use-toast";
+import AboutPage from "./pages/AboutPage";
 
 function App() {
   const { toasts, dismiss } = useToast();
@@ -27,6 +28,7 @@ function App() {
             <Route path="/services/product" element={<ProductPage />} />
             <Route path="/services/visual" element={<VisualPage />} />
             <Route path="/services/website-develop" element={<WebsiteDevelopPage />} />
+             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
           </Routes>
         </main>

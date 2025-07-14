@@ -139,14 +139,14 @@ const Header: React.FC = () => {
               </AnimatePresence>
             </div>
 
-            <button
-              onClick={() => scrollToSection('portfolio')}
+            <Link
+              to="/about"
               className={`${
                 isHomePage && !isScrolled ? 'text-white' : 'text-black'
               } hover:text-gray-500 transition-colors duration-200 drop-shadow-sm`}
             >
               เกี่ยวกับเรา
-            </button>
+            </Link>
             <button
               onClick={() => scrollToSection('about')}
               className={`${
@@ -229,12 +229,13 @@ const Header: React.FC = () => {
                   )}
                 </div>
 
-                <button
-                  onClick={() => scrollToSection('portfolio')}
+                <Link
+                  to="/about"
                   className="text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   เกี่ยวกับเรา
-                </button>
+                </Link>
                 <button
                   onClick={() => scrollToSection('about')}
                   className="text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
