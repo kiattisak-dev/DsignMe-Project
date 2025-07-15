@@ -3,17 +3,23 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LockIcon, LogInIcon } from "lucide-react";
 
-
-
-// Define the form schema
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
 });
 
 interface LoginFormProps {
@@ -32,7 +38,10 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 text-black"
+      >
         <FormField
           control={form.control}
           name="email"
@@ -40,7 +49,12 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="admin@example.com" type="email" {...field} className="h-11" />
+                <Input
+                  placeholder="admin@example.com"
+                  type="email"
+                  {...field}
+                  className="h-11 border border-black bg-white text-black"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -55,8 +69,13 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Input placeholder="••••••••" type="password" {...field} className="h-11" />
-                  <LockIcon className="absolute right-3 top-3 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    placeholder="••••••••"
+                    type="password"
+                    {...field}
+                    className="h-11 border border-black bg-white text-black pr-10"
+                  />
+                  <LockIcon className="absolute right-3 top-3 h-5 w-5 text-black" />
                 </div>
               </FormControl>
               <FormMessage />
@@ -64,11 +83,15 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
           )}
         />
 
-        <Button type="submit" className="w-full h-11" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full h-11 border border-black text-black bg-white hover:bg-black hover:text-white"
+          disabled={isLoading}
+        >
           {isLoading ? (
             <span className="flex items-center gap-2">
               <svg
-                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                className="animate-spin -ml-1 mr-2 h-4 w-4 text-black"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -96,8 +119,11 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
             </span>
           )}
         </Button>
+
         {form.formState.errors.root?.serverError && (
-          <FormMessage>{form.formState.errors.root.serverError.message}</FormMessage>
+          <FormMessage>
+            {form.formState.errors.root.serverError.message}
+          </FormMessage>
         )}
       </form>
     </Form>

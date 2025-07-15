@@ -73,7 +73,6 @@ export default function LoginPage() {
         <LogoHeader />
         <AuthCard
           title="Admin Login"
-          description="Enter your credentials to access the dashboard"
           footer={
             <p className="w-full">Please use your registered credentials</p>
           }

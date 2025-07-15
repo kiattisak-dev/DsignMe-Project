@@ -126,7 +126,8 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           size="icon"
           className={cn(
             "absolute top-3 h-8 w-8 rounded-full border shadow-md bg-background z-50 transition-all duration-500 ease-in-out",
-            expanded ? "right-2" : "right-[-12px]"
+            expanded ? "right-2" : "right-[-12px]",
+            "hover:bg-black hover:text-white"
           )}
           onClick={() => setExpanded((prev) => !prev)}
         >
@@ -247,7 +248,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           {expanded && <span className="text-muted-foreground">Theme</span>}
         </div> */}
 
-        <div className={cn("flex items-center gap-3", !expanded && "flex-col")}>
+        {/* <div className={cn("flex items-center gap-3", !expanded && "flex-col")}>
           <Avatar>
             <AvatarImage
               src="https://i.pravatar.cc/150?img=68"
@@ -264,7 +265,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
               </span>
             </div>
           )}
-        </div>
+        </div> */}
 
         <Link href="/login">
           <Button

@@ -63,7 +63,6 @@ export default function CategoriesPage() {
       try {
         setIsLoading(true);
         const data = await getCategories();
-        console.log("Categories response:", data); // Debug
         setCategories(data.data || []);
       } catch (error: any) {
         toast({
