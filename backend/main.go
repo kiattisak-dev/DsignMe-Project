@@ -44,8 +44,13 @@ func main() {
 		})
 	})
 
+	// Get port from environment (Render provides PORT automatically)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // fallback for local development
+	}
+
 	// Start server with graceful shutdown
-	port := configs.EnvPort()
 	server := make(chan struct{})
 	go func() {
 		log.Printf("Server running on port %s", port)

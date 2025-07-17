@@ -1,41 +1,41 @@
 package configs
 
 import (
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
-func LoadEnv() {
+func init() {
+	// Load .env file only if exists (useful for local development)
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Warning: No .env file found, make sure to set environment variables")
+		log.Println("⚠️ .env file not found. Using system environment variables.")
 	}
 }
 
 func EnvMongoURI() string {
-	LoadEnv()
 	mongoURI := os.Getenv("MONGOURL")
 	if mongoURI == "" {
-		log.Fatal("❌ MONGOURL is not set in the environment")
+		log.Fatal("❌ MONGOURL is not set")
 	}
 	return mongoURI
 }
 
 func EnvSecret() string {
-	LoadEnv()
 	secret := os.Getenv("SECRET")
 	if secret == "" {
-		log.Fatal("❌ SECRET is not set in the environment")
+		log.Fatal("❌ SECRET is not set")
 	}
 	return secret
 }
 
 func EnvPort() string {
-	LoadEnv()
 	port := os.Getenv("PORT")
 	if port == "" {
-		log.Fatal("❌ PORT is not set in the environment")
+		log.Println("⚠️ PORT not set, using default 8080")
+		return "8080"
 	}
 	return port
 }
