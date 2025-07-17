@@ -13,8 +13,9 @@ const Header: React.FC = () => {
   const isHomePage = location.pathname === '/';
 
   useEffect(() => {
-    // Only add scroll listener if on homepage
+    // Reset isScrolled to false when navigating to homepage
     if (isHomePage) {
+      setIsScrolled(false);
       const handleScroll = () => {
         setIsScrolled(window.scrollY > 50);
       };
@@ -24,7 +25,7 @@ const Header: React.FC = () => {
       // Ensure header is opaque on other pages
       setIsScrolled(true);
     }
-  }, [isHomePage]);
+  }, [isHomePage, location]); // Add location to dependency array to trigger on route change
 
   const scrollToSection = (sectionId: string) => {
     if (!isHomePage) {
@@ -147,14 +148,6 @@ const Header: React.FC = () => {
             >
               เกี่ยวกับเรา
             </Link>
-            <button
-              onClick={() => scrollToSection('about')}
-              className={`${
-                isHomePage && !isScrolled ? 'text-white' : 'text-black'
-              } hover:text-gray-500 transition-colors duration-200 drop-shadow-sm`}
-            >
-              ขั้นตอน & การให้บริการ
-            </button>
             <Link
               to="/contact"
               className="bg-black text-white px-6 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-all duration-200 shadow-sm"
@@ -236,12 +229,6 @@ const Header: React.FC = () => {
                 >
                   เกี่ยวกับเรา
                 </Link>
-                <button
-                  onClick={() => scrollToSection('about')}
-                  className="text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
-                >
-                  ขั้นตอน & การให้บริการ
-                </button>
                 <Link
                   to="/contact"
                   className="bg-black text-white px-6 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-all duration-200 w-fit shadow-sm"
