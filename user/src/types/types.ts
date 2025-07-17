@@ -13,6 +13,7 @@ export interface Service {
   features: string[];
   timeline: string;
   revisions: string;
+  subtitles?: { text: string }[];
 }
 
 export interface ProcessStep {

@@ -34,6 +34,15 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     }),
   };
 
+  // Function to render description with proper line breaks
+  const renderDescription = (description: string) => {
+    return description.split('\n').map((line, index) => (
+      <p key={index} className={`${index > 0 ? 'mt-2' : ''} whitespace-normal break-words`}>
+        {line || '\u00A0'} {/* ใช้ &nbsp; สำหรับบรรทัดว่าง */}
+      </p>
+    ));
+  };
+
   return (
     <section className="py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -82,7 +91,9 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
                       className="overflow-visible"
                     >
                       <div className="p-1 text-gray-700">
-                        <p className="mb-2 mt-[-0.5rem] whitespace-normal break-words">{service.description}</p>
+                        <div className="mb-2 mt-[-0.5rem]">
+                          {renderDescription(service.description)}
+                        </div>
                         <p className="font-bold">รายละเอียด :</p>
                         <ul className="list-disc pl-5 mt-2 mb-2">
                           {service.features.map((feature, i) => (
