@@ -15,8 +15,7 @@ import (
 )
 
 func main() {
-	// Load environment variables
-	configs.LoadEnv()
+	// Environment variables are loaded via init() in configs/env.go
 
 	// Initialize database
 	configs.InitDB()
