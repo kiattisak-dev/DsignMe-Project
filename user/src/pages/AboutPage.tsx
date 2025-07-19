@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 // Animation variants for section
 const sectionVariants = {
@@ -8,7 +8,7 @@ const sectionVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' },
+    transition: { duration: 0.6, ease: "easeOut" },
   },
 };
 
@@ -18,7 +18,7 @@ const textVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: 'easeOut', delay: 0.2 },
+    transition: { duration: 0.5, ease: "easeOut", delay: 0.2 },
   },
 };
 
@@ -28,7 +28,7 @@ const imageVariants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.5, ease: 'easeOut', delay: 0.3 },
+    transition: { duration: 0.5, ease: "easeOut", delay: 0.3 },
   },
 };
 
@@ -38,7 +38,7 @@ const quoteVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: 'easeOut', delay: 0.4 },
+    transition: { duration: 0.5, ease: "easeOut", delay: 0.4 },
   },
 };
 
@@ -53,30 +53,46 @@ const AboutPage: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
-          {/* Left Side: About Content and Button */}
+          {/* Logo: Positioned above content on mobile and iPad */}
           <motion.div
-            className="space-y-6 sm:space-y-8 max-w-lg mx-auto lg:mx-0"
+            className="flex justify-center lg:justify-start lg:pl-8 order-first lg:order-last"
+            variants={imageVariants}
+          >
+            <img
+              src="/Logo D.svg"
+              alt="DsignMe Logo"
+              className="w-full max-w-[120px] sm:max-w-[160px] md:max-w-[220px] lg:max-w-[280px] xl:max-w-[350px] h-auto object-contain"
+              loading="lazy"
+              onError={() => console.warn("Failed to load logo image")}
+            />
+          </motion.div>
+
+          {/* About Content and Button */}
+          <motion.div
+            className="space-y-6 sm:space-y-8 max-w-lg mx-auto lg:mx-0 order-last lg:order-first"
             variants={textVariants}
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 border-b-4 border-gray-900 w-full pb-2">
-              เกี่ยวกับเรา
+              DsignMe Studio
             </h1>
             <div className="space-y-4 text-base sm:text-lg text-gray-600">
               <p>
-                สมบูรณ์แบบ เอ็นเตอร์ไพรส์ เป็นบริษัทออกแบบกราฟิกที่มีความตั้งใจที่จะเป็นพลังสนับสนุนธุรกิจขนาดเล็กด้วยการออกแบบ โดยมีทัศนคติว่า
-                ‘ทุกธุรกิจขนาดเล็กจะต้องสามารถเข้าถึงการออกแบบที่ดีได้’ เราเชื่อว่าการออกแบบช่วยให้ธุรกิจดีขึ้นได้ในหลาย ๆ ด้าน
-                ทั้งในแง่ของภาพลักษณ์และยอดขาย
+                ทีมนักออกแบบและสาขาอาชีพที่เกี่ยวข้องกับกาตลาดและธุรกิจ
+                โดยคัดเลือกจากประสบการณ์ด้วยความเชี่ยวชาญ
+                เพื่อส่งเสริมผู้ประกอบการ และธุรกิจ
+                ด้วยสาขาอาชีพการสื่อสารแบรนด์ที่ช่วย
+                ให้ประกอบธุรกิจในทุกอุตสาหกรรมได้อย่าง “ไร้ความกังวล”
               </p>
               <p>
-                พวกเราเป็นทีมงานคนรุ่นใหม่ นำทีมโดยกราฟิกดีไซเนอร์ที่มีประสบการณ์ด้านการออกแบบกราฟิกมามากกว่า 5 ปี
-                พวกเราพร้อมที่จะซัพพอร์ตธุรกิจของคุณด้วยงานออกแบบ ไม่ว่าคุณจะทำธุรกิจอะไร งานของคุณจะได้รับการออกแบบอย่างดีที่สุด
-                เพราะการออกแบบที่สมบูรณ์เริ่มต้นที่สมบูรณ์แบบ
+                พวกเราทำงานผ่านแนวคิดจาก ”คนรุ่นใหม่”
+                ใส่ใจความต้องการของแบรนด์ธุรกิจเป็นส่วนสำคัญ ด้วยประสบการณ์กว่า
+                3 ปี ในด้านการออกแบบกราฟิก
               </p>
               <motion.blockquote
                 className="border-l-4 border-gray-900 pl-4 italic text-gray-700"
                 variants={quoteVariants}
               >
-                “พวกเราทำงานกันเป็นทีม โดยทีมกราฟิกของเราจะช่วยกันระดมความคิด เพื่อให้งานของคุณได้รับการออกแบบอย่างดีที่สุด”
+                “เพื่อให้อัตลักษณ์ของแบรนด์คุณ ถูกเผยให้จดจำด้วยเอกลักษณ์”
               </motion.blockquote>
             </div>
             <div className="text-center lg:text-left">
@@ -87,20 +103,6 @@ const AboutPage: React.FC = () => {
                 ติดต่อเรา
               </Link>
             </div>
-          </motion.div>
-
-          {/* Right Side: Logo */}
-          <motion.div
-            className="flex justify-center lg:justify-end"
-            variants={imageVariants}
-          >
-            <img
-              src="/Logo-Black.svg"
-              alt="สมบูรณ์แบบ เอ็นเตอร์ไพรส์ Logo"
-              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg h-auto object-contain"
-              loading="lazy"
-              onError={() => console.warn('Failed to load logo image')}
-            />
           </motion.div>
         </div>
       </div>

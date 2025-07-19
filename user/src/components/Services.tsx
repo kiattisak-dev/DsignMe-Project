@@ -18,9 +18,10 @@ const Services: React.FC = () => {
       description: "ออกแบบโลโก้และอัตลักษณ์องค์กร",
       link: "/services/logo",
       images: [
-        "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/1667088/pexels-photo-1667088.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "Home-Picture/Logo/LOGO1.jpg",
+        "Home-Picture/Logo/LOGO2.jpg",
+        "Home-Picture/Logo/LOGO3.jpg",
+        "Home-Picture/Logo/LOGO4.jpg",
       ],
     },
     {
@@ -29,9 +30,10 @@ const Services: React.FC = () => {
       description: "ออกแบบเนื้อหาสื่อโฆษณา",
       link: "/services/advertisement",
       images: [
-        "https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "Home-Picture/Advertisement/ADS1.jpg",
+        "Home-Picture/Advertisement/ADS2.jpg",
+        "Home-Picture/Advertisement/ADS3.jpg",
+        "Home-Picture/Advertisement/ADS4.jpg",
       ],
     },
     {
@@ -40,9 +42,10 @@ const Services: React.FC = () => {
       description: "ออกแบบภาพและกราฟิกเคลื่อนไหว",
       link: "/services/visual",
       images: [
-        "https://images.pexels.com/photos/3184297/pexels-photo-3184297.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/1667071/pexels-photo-1667071.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "Home-Picture/Visual/VISUAL1.jpg",
+        "Home-Picture/Visual/VISUAL2.jpg",
+        "Home-Picture/Visual/VISUAL3.jpg",
+        "Home-Picture/Visual/VISUAL4.jpg",
       ],
     },
     {
@@ -51,9 +54,10 @@ const Services: React.FC = () => {
       description: "ออกแบบผลิตภัณฑ์และบรรจุภัณฑ์",
       link: "/services/product",
       images: [
-        "https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3184294/pexels-photo-3184294.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "Home-Picture/Product/Product1.jpg",
+        "Home-Picture/Product/Product2.jpg",
+        "Home-Picture/Product/Product3.jpg",
+        "Home-Picture/Product/Product4.jpg",
       ],
     },
     {
@@ -62,14 +66,17 @@ const Services: React.FC = () => {
       description: "ออกแบบเว็บไซต์ที่ทันสมัยและใช้งานง่าย",
       link: "/services/web",
       images: [
-        "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=800",
-        "https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "Home-Picture/UXUI/UXUI1.jpg",
+        "Home-Picture/UXUI/UXUI2.jpg",
+        "Home-Picture/UXUI/UXUI3.jpg",
+        "Home-Picture/UXUI/UXUI4.jpg",
       ],
     },
   ];
 
-  const [currentSlide, setCurrentSlide] = useState<{ [key: number]: number }>({});
+  const [currentSlide, setCurrentSlide] = useState<{ [key: number]: number }>(
+    {}
+  );
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
@@ -79,7 +86,7 @@ const Services: React.FC = () => {
         services.forEach((_, index) => {
           setCurrentSlide((prev) => {
             const current = prev[index] || 0;
-            const nextSlide = (current + 1) % 3; // Cycle through 0, 1, 2
+            const nextSlide = (current + 1) % 4; // Cycle through 0, 1, 2
             return { ...prev, [index]: nextSlide };
           });
         });
@@ -97,7 +104,12 @@ const Services: React.FC = () => {
         <div className="grid grid-cols-1 gap-0 sm:gap-0 lg:grid-cols-2 lg:gap-6">
           {/* First four cards in 2x2 grid */}
           {services.slice(0, 4).map((service, index) => (
-            <div key={index} className={`mb-6 sm:mb-8 lg:mb-0 ${index > 0 ? 'border-t-2 border-gray-400' : ''}`}>
+            <div
+              key={index}
+              className={`mb-6 sm:mb-8 lg:mb-0 ${
+                index > 0 ? "border-t-2 border-gray-400" : ""
+              }`}
+            >
               <div className="relative w-full h-[100vw] sm:h-[50vw] md:h-[50vw] lg:h-96 !aspect-square sm:!aspect-square md:!aspect-square lg:aspect-auto overflow-hidden bg-gray-900/80 backdrop-blur-md border-2 border-gray-400">
                 {service.images.map((img, imgIndex) => (
                   <div
