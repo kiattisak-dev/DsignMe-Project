@@ -33,34 +33,73 @@ const AdvertisementPage: React.FC = () => {
         const projectsData = await projectsResponse.json();
         const projects = projectsData.data || [];
 
-        // Map projects to portfolioImages with all possible media fields
-        const mappedPortfolioImages: PortfolioItem[] = projects.map(
-          (project: any) => ({
-            id: project.ID || project.id,
-            url: project.url || project.ImageUrl || project.ImageURL || "",
-            videoUrl: project.videoUrl || project.VideoUrl || project.VideoURL || "",
-            videoLink: project.videoLink || project.VideoLink || "",
-            title: project.title || "Advertisement Project",
-            category: project.category || "advertisement",
-            description: project.description || "",
+        // Map projects to portfolioImages
+        const mappedPortfolioImages: PortfolioItem[] = projects
+          .map((project: any, index: number) => {
+            const id = project._id || project.ID || `fallback-${index}`;
+            const imageUrl = project.imageUrl || project.ImageUrl || project.ImageURL || "";
+            const title = project.title || "Advertisement Project";
+            return {
+              id,
+              url: imageUrl,
+              videoUrl: project.videoUrl || project.VideoUrl || project.VideoURL || "",
+              videoLink: project.videoLink || project.VideoLink || "",
+              title,
+              category: "advertisement",
+              description: project.description || "",
+              mediaType: project.mediaType || undefined,
+            };
           })
-        );
+          .filter((item: PortfolioItem) => {
+            if (!item.id || item.id === "") {
+              console.warn(`Skipping project with invalid ID: ${JSON.stringify(item)}`);
+              return false;
+            }
+            return true;
+          });
 
-        // Test media accessibility only for non-YouTube URLs
+        // Test media accessibility for each item
         for (const item of mappedPortfolioImages) {
-          const mediaUrl = item.videoUrl || item.videoLink || item.url || "";
-          if (mediaUrl && !(mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be'))) {
+          if (item.url) {
             try {
-              await fetch(mediaUrl, { method: "HEAD" });
-              console.log(`Media accessible: ${mediaUrl}`);
-            } catch (imgErr) {
-              console.warn(`Media not accessible: ${mediaUrl}`);
-              // Clear invalid media URLs
+              const response = await fetch(item.url, { method: "HEAD" });
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} for ${item.url}`);
+              }
+            } catch (imgErr: any) {
+              console.warn(
+                `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${imgErr.message}`
+              );
               item.url = "";
+            }
+          }
+          if (item.videoUrl && !(item.videoUrl.includes('youtube.com') || item.videoUrl.includes('youtu.be'))) {
+            try {
+              const response = await fetch(item.videoUrl, { method: "HEAD" });
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
+              }
+              console.log(`Video accessible: ${item.videoUrl}`);
+            } catch (videoErr: any) {
+              console.warn(
+                `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${videoErr.message}`
+              );
               item.videoUrl = "";
+            }
+          }
+          if (item.videoLink && !(item.videoLink.includes('youtube.com') || item.videoLink.includes('youtu.be'))) {
+            try {
+              const response = await fetch(item.videoLink, { method: "HEAD" });
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} for ${item.videoLink}`);
+              }
+              console.log(`Video link accessible: ${item.videoLink}`);
+            } catch (linkErr: any) {
+              console.warn(
+                `Video link not accessible: ${item.videoLink}, ID: ${item.id}, Error: ${linkErr.message}`
+              );
               item.videoLink = "";
             }
-          } else if (mediaUrl) {
           }
         }
         setPortfolioImages(mappedPortfolioImages);
@@ -84,14 +123,17 @@ const AdvertisementPage: React.FC = () => {
 
         // Map service steps to services
         const mappedServices: Service[] = serviceSteps.map((step: any) => ({
-          title: step.title,
-          description: step.subtitles.map((sub: any) => sub.text).join(" "),
-          features: step.subtitles.flatMap((sub: any) => sub.headings || []),
+          title: step.title || "Service",
+          description: step.subtitles
+            ? step.subtitles.map((sub: any) => sub.text || "").join("\n")
+            : "",
+          features: step.subtitles ? step.subtitles.flatMap((sub: any) => sub.headings || []) : [],
         }));
         setServices(mappedServices);
 
         setLoading(false);
       } catch (err: any) {
+        console.error(`Fetch error: ${err.message}`);
         setError(err.message || "เกิดข้อผิดพลาดขณะดึงข้อมูล");
         setLoading(false);
       }

@@ -34,17 +34,11 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     }),
   };
 
-  // Function to render subtitles with proper line breaks
-  const renderSubtitles = (subtitles: string[] | undefined) => {
-    if (!subtitles || subtitles.length === 0) {
-      return <p className="text-gray-700">ไม่มีข้อมูลเพิ่มเติม</p>;
-    }
-    return subtitles.map((text, index) => (
-      <p
-        key={index}
-        className={`text-gray-700 ${index > 0 ? 'mt-2' : ''} whitespace-normal break-words`}
-      >
-        {text || '\u00A0'} {/* ใช้ non-breaking space สำหรับค่าว่าง */}
+  // Function to render description with proper line breaks
+  const renderDescription = (description: string) => {
+    return description.split('\n').map((line, index) => (
+      <p key={index} className={`${index > 0 ? 'mt-2' : ''} whitespace-normal break-words`}>
+        {line || '\u00A0'} {/* Use non-breaking space for empty lines */}
       </p>
     ));
   };
@@ -83,7 +77,6 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
             >
               <Collapsible
                 title={service.title}
-                icon={service.icon}
                 isOpen={expandedService === index}
                 onToggle={() => toggleService(index)}
               >
@@ -99,30 +92,24 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
                     >
                       <div className="p-1 text-gray-700">
                         <div className="mb-2 mt-[-0.5rem]">
-                          {renderSubtitles(service.subtitles)}
+                          {renderDescription(service.description)}
                         </div>
-                        <p className="font-bold">รายละเอียด :</p>
-                        <ul className="list-disc pl-5 mt-2 mb-2">
-                          {service.features.map((feature, i) => (
-                            <motion.li
-                              key={i}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ duration: 0.3, delay: i * 0.1 }}
-                            >
-                              {feature}
-                            </motion.li>
-                          ))}
-                        </ul>
-                        {service.timeline && (
-                          <p className="mt-2">
-                            <span className="font-bold">ระยะเวลา:</span> {service.timeline}
-                          </p>
-                        )}
-                        {service.revisions && (
-                          <p className="mt-2">
-                            <span className="font-bold">จำนวนครั้งแก้ไข:</span> {service.revisions}
-                          </p>
+                        {service.features.length > 0 && (
+                          <>
+                            <p className="font-bold">รายละเอียด :</p>
+                            <ul className="list-disc pl-5 mt-2 mb-2">
+                              {service.features.map((feature, i) => (
+                                <motion.li
+                                  key={i}
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ duration: 0.3, delay: i * 0.1 }}
+                                >
+                                  {feature}
+                                </motion.li>
+                              ))}
+                            </ul>
+                          </>
                         )}
                       </div>
                     </motion.div>

@@ -37,7 +37,6 @@ const VisualPage: React.FC = () => {
         const mappedPortfolioImages: PortfolioItem[] = projects.map(
           (project: any, index: number) => {
             const id = project._id || project.id || `fallback-${index}`; // Fallback to index if id is missing
-            console.log(`Mapping project: ID=${id}, imageUrl=${project.imageUrl}, videoUrl=${project.videoUrl}, mediaType=${project.mediaType}`);
             return {
               id,
               url: project.imageUrl || "",
@@ -60,7 +59,6 @@ const VisualPage: React.FC = () => {
               if (!response.ok) {
                 throw new Error(`HTTP ${response.status} for ${mediaUrl}`);
               }
-              console.log(`Media accessible: ${mediaUrl}`);
             } catch (imgErr: any) {
               console.warn(`Media not accessible: ${mediaUrl}, Error: ${imgErr.message}`);
               // Clear invalid media URLs

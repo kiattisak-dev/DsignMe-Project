@@ -16,7 +16,6 @@ export interface Service {
   features: string[];
   timeline?: string;
   revisions?: string;
-  subtitles?: string[]; // เพิ่มฟิลด์นี้เพื่อเก็บ subtitles.text
 }
 
 export interface ProcessStep {

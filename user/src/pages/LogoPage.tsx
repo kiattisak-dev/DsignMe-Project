@@ -39,9 +39,6 @@ const LogoPage: React.FC = () => {
             const id = project._id || `fallback-${index}`; // Fallback if _id is missing
             const imageUrl = project.imageUrl || "";
             const title = project.title || "Logo Project";
-            console.log(
-              `Mapping project: ID=${id}, imageUrl=${imageUrl}, title=${title}`
-            );
             return {
               id,
               url: imageUrl,
@@ -70,7 +67,6 @@ const LogoPage: React.FC = () => {
               if (!response.ok) {
                 throw new Error(`HTTP ${response.status} for ${item.url}`);
               }
-              console.log(`Image accessible: ${item.url}`);
             } catch (imgErr: any) {
               console.warn(
                 `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${imgErr.message}`
