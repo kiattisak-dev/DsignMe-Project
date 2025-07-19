@@ -33,27 +33,37 @@ const AdvertisementPage: React.FC = () => {
         const projectsData = await projectsResponse.json();
         const projects = projectsData.data || [];
 
-        // Map projects to portfolioImages
+        // Map projects to portfolioImages with all possible media fields
         const mappedPortfolioImages: PortfolioItem[] = projects.map(
           (project: any) => ({
-            id: project.ID,
-            url: project.ImageUrl || "",
+            id: project.ID || project.id,
+            url: project.url || project.ImageUrl || project.ImageURL || "",
+            videoUrl: project.videoUrl || project.VideoUrl || project.VideoURL || "",
+            videoLink: project.videoLink || project.VideoLink || "",
             title: project.title || "Advertisement Project",
-            category: "advertisement",
+            category: project.category || "advertisement",
+            description: project.description || "",
           })
         );
-        setPortfolioImages(mappedPortfolioImages);
 
-        // Test image accessibility for each image
+        // Test media accessibility only for non-YouTube URLs
         for (const item of mappedPortfolioImages) {
-          if (item.url) {
+          const mediaUrl = item.videoUrl || item.videoLink || item.url || "";
+          if (mediaUrl && !(mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be'))) {
             try {
-              await fetch(item.url, { method: "HEAD" });
+              await fetch(mediaUrl, { method: "HEAD" });
+              console.log(`Media accessible: ${mediaUrl}`);
             } catch (imgErr) {
-              // Silently handle image accessibility errors
+              console.warn(`Media not accessible: ${mediaUrl}`);
+              // Clear invalid media URLs
+              item.url = "";
+              item.videoUrl = "";
+              item.videoLink = "";
             }
+          } else if (mediaUrl) {
           }
         }
+        setPortfolioImages(mappedPortfolioImages);
 
         // Fetch service steps for 'advertisement' category
         const servicesResponse = await fetch(

@@ -34,11 +34,17 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     }),
   };
 
-  // Function to render description with proper line breaks
-  const renderDescription = (description: string) => {
-    return description.split('\n').map((line, index) => (
-      <p key={index} className={`${index > 0 ? 'mt-2' : ''} whitespace-normal break-words`}>
-        {line || '\u00A0'} {/* ใช้ &nbsp; สำหรับบรรทัดว่าง */}
+  // Function to render subtitles with proper line breaks
+  const renderSubtitles = (subtitles: string[] | undefined) => {
+    if (!subtitles || subtitles.length === 0) {
+      return <p className="text-gray-700">ไม่มีข้อมูลเพิ่มเติม</p>;
+    }
+    return subtitles.map((text, index) => (
+      <p
+        key={index}
+        className={`text-gray-700 ${index > 0 ? 'mt-2' : ''} whitespace-normal break-words`}
+      >
+        {text || '\u00A0'} {/* ใช้ non-breaking space สำหรับค่าว่าง */}
       </p>
     ));
   };
@@ -77,6 +83,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
             >
               <Collapsible
                 title={service.title}
+                icon={service.icon}
                 isOpen={expandedService === index}
                 onToggle={() => toggleService(index)}
               >
@@ -92,7 +99,7 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
                     >
                       <div className="p-1 text-gray-700">
                         <div className="mb-2 mt-[-0.5rem]">
-                          {renderDescription(service.description)}
+                          {renderSubtitles(service.subtitles)}
                         </div>
                         <p className="font-bold">รายละเอียด :</p>
                         <ul className="list-disc pl-5 mt-2 mb-2">
@@ -107,6 +114,16 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
                             </motion.li>
                           ))}
                         </ul>
+                        {service.timeline && (
+                          <p className="mt-2">
+                            <span className="font-bold">ระยะเวลา:</span> {service.timeline}
+                          </p>
+                        )}
+                        {service.revisions && (
+                          <p className="mt-2">
+                            <span className="font-bold">จำนวนครั้งแก้ไข:</span> {service.revisions}
+                          </p>
+                        )}
                       </div>
                     </motion.div>
                   )}

@@ -34,26 +34,67 @@ const LogoPage: React.FC = () => {
         const projects = projectsData.data || [];
 
         // Map projects to portfolioImages
-        const mappedPortfolioImages: PortfolioItem[] = projects.map(
-          (project: any) => ({
-            id: project.ID,
-            url: project.ImageUrl || "",
-            title: project.title || "Logo Project",
-            category: "logo",
+        const mappedPortfolioImages: PortfolioItem[] = projects
+          .map((project: any, index: number) => {
+            const id = project._id || `fallback-${index}`; // Fallback if _id is missing
+            const imageUrl = project.imageUrl || "";
+            const title = project.title || "Logo Project";
+            console.log(
+              `Mapping project: ID=${id}, imageUrl=${imageUrl}, title=${title}`
+            );
+            return {
+              id,
+              url: imageUrl,
+              videoUrl: project.videoUrl || "",
+              videoLink: project.videoLink || "",
+              title,
+              category: "logo",
+              description: project.description || "",
+              mediaType: project.mediaType || undefined,
+            };
           })
-        );
-        setPortfolioImages(mappedPortfolioImages);
+          .filter((item: PortfolioItem) => {
+            // Filter out invalid projects
+            if (!item.id || item.id === "") {
+              console.warn(`Skipping project with invalid ID: ${JSON.stringify(item)}`);
+              return false;
+            }
+            return true;
+          });
 
         // Test image accessibility for each image
         for (const item of mappedPortfolioImages) {
           if (item.url) {
             try {
-              await fetch(item.url, { method: "HEAD" });
-            } catch (imgErr) {
-              // Silently handle image accessibility errors
+              const response = await fetch(item.url, { method: "HEAD" });
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} for ${item.url}`);
+              }
+              console.log(`Image accessible: ${item.url}`);
+            } catch (imgErr: any) {
+              console.warn(
+                `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${imgErr.message}`
+              );
+              item.url = ""; // Clear invalid URL
+            }
+          }
+          if (item.videoUrl) {
+            try {
+              const response = await fetch(item.videoUrl, { method: "HEAD" });
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
+              }
+              console.log(`Video accessible: ${item.videoUrl}`);
+            } catch (videoErr: any) {
+              console.warn(
+                `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${videoErr.message}`
+              );
+              item.videoUrl = ""; // Clear invalid URL
             }
           }
         }
+
+        setPortfolioImages(mappedPortfolioImages);
 
         // Fetch service steps for 'logo' category
         const servicesResponse = await fetch(
@@ -74,14 +115,17 @@ const LogoPage: React.FC = () => {
 
         // Map service steps to services
         const mappedServices: Service[] = serviceSteps.map((step: any) => ({
-          title: step.title,
-          description: step.subtitles.map((sub: any) => sub.text).join(" "),
-          features: step.subtitles.flatMap((sub: any) => sub.headings || []),
+          title: step.title || "Service",
+          description: step.subtitles
+            ? step.subtitles.map((sub: any) => sub.text || "").join(" ")
+            : "",
+          features: step.subtitles ? step.subtitles.flatMap((sub: any) => sub.headings || []) : [],
         }));
         setServices(mappedServices);
 
         setLoading(false);
       } catch (err: any) {
+        console.error(`Fetch error: ${err.message}`);
         setError(err.message || "เกิดข้อผิดพลาดขณะดึงข้อมูล");
         setLoading(false);
       }

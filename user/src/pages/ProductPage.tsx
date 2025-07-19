@@ -129,7 +129,7 @@ const ProductPage: React.FC = () => {
         description={productPageData.description}
         contactInfo={productPageData.contactInfo}
       />
-      <PortfolioSection portfolioImages={portfolioImages} />
+      <PortfolioSection portfolioImages={portfolioImages}  />
       <ServicesSection services={services} />
       <ProcessSection process={productPageData.process} />
     </div>
