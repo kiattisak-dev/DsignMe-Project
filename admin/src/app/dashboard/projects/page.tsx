@@ -24,7 +24,7 @@ export default function ProjectsPage() {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [categoryName, setCategoryName] = useState<string | null>(null);
-  const projectsPerPage = 12;
+  const projectsPerPage = 6;
   const { toast } = useToast();
 
   // Fetch categories
@@ -34,16 +34,19 @@ export default function ProjectsPage() {
         setIsCategoriesLoading(true);
         const token = Cookies.get("auth_token");
         if (!token) throw new Error("No authentication token found");
-        const response = await fetch(
-          "http://localhost:8081/projects/categories",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            cache: "force-cache", // Cache response in browser
-          }
-        );
+        const response = await fetch("http://localhost:8081/projects/categories", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (!response.ok) throw new Error("Failed to fetch categories");
         const data = await response.json();
         setCategories(data.data || []);
+        if (!data.data || data.data.length === 0) {
+          toast({
+            title: "Warning",
+            description: "No categories found. Showing all projects.",
+            variant: "default",
+          });
+        }
       } catch (error: any) {
         toast({
           title: "Error",
@@ -65,7 +68,6 @@ export default function ProjectsPage() {
       if (!token) throw new Error("No authentication token found");
 
       let url = `http://localhost:8081/projects?page=${currentPage}&limit=${projectsPerPage}`;
-
       if (categoryFilter !== "All") {
         if (!categories.some((cat) => cat.ID === categoryFilter)) {
           console.warn(`Invalid category ID: ${categoryFilter}`);
@@ -76,7 +78,6 @@ export default function ProjectsPage() {
 
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
-        cache: "force-cache", // Cache response in browser
       });
 
       if (!response.ok) {
@@ -89,14 +90,13 @@ export default function ProjectsPage() {
       const fetchedProjects = data.data || [];
       setProjects(fetchedProjects);
 
-      fetchedProjects.forEach((project: Project) => {
-        if (!project.VideoUrl && !project.ImageUrl) {
-          console.warn(`Project ${project.ID} has no ImageUrl or VideoUrl`);
-        }
-        if (!project.CategoryID) {
-          console.warn(`Project ${project.ID} has no CategoryID`);
-        }
-      });
+      if (fetchedProjects.length === 0) {
+        toast({
+          title: "No Projects",
+          description: "No projects found for the current filters.",
+          variant: "default",
+        });
+      }
     } catch (error: any) {
       console.error("Fetch projects error:", error);
       toast({
@@ -111,20 +111,15 @@ export default function ProjectsPage() {
 
   // Trigger fetchProjects when dependencies change
   useEffect(() => {
-    if (
-      !isCategoriesLoading &&
-      (categories.length > 0 || categoryFilter === "All")
-    ) {
+    if (!isCategoriesLoading) {
       fetchProjects();
     }
-  }, [fetchProjects, isCategoriesLoading, categories, categoryFilter]);
+  }, [fetchProjects, isCategoriesLoading]);
 
   // Fetch category name for view modal
   const fetchCategoryName = useCallback(async () => {
     if (selectedProject && isViewOpen) {
       try {
-        const token = Cookies.get("auth_token");
-        if (!token) throw new Error("No authentication token found");
         const category = categories.find(
           (c: Category) => c.ID === selectedProject.CategoryID
         );
@@ -163,28 +158,25 @@ export default function ProjectsPage() {
 
   // Memoized filtered projects
   const filteredProjects = useMemo(() => {
-    return projects.filter((project) => {
+    const filtered = projects.filter((project) => {
       const matchesSearch =
         searchQuery === "" ||
-        (project.ImageUrl || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (project.VideoUrl || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        (project.title || "").toLowerCase().includes(searchQuery.toLowerCase());
       const matchesType =
         typeFilter === "All" ||
         (typeFilter === "Image" && project.ImageUrl) ||
-        (typeFilter === "Video" && project.VideoUrl);
+        (typeFilter === "Video" && project.VideoUrl) ||
+        (typeFilter === "No Media" && !project.ImageUrl && !project.VideoUrl); // เพิ่ม No Media
       const matchesCategory =
         categoryFilter === "All" || project.CategoryID === categoryFilter;
       return matchesSearch && matchesType && matchesCategory;
     });
+    return filtered;
   }, [projects, searchQuery, typeFilter, categoryFilter]);
 
-  // Log filtered projects for debugging
+  // Notify when no results
   useEffect(() => {
-    if (filteredProjects.length === 0 && projects.length > 0) {
+    if (filteredProjects.length === 0 && projects.length > 0 && !isLoading) {
       toast({
         title: "No Results",
         description:
@@ -192,14 +184,17 @@ export default function ProjectsPage() {
         variant: "default",
       });
     }
-  }, [filteredProjects, projects, toast]);
+  }, [filteredProjects, projects, isLoading, toast]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
   const currentProjects = useMemo(
-    () => filteredProjects.slice(indexOfFirstProject, indexOfLastProject),
+    () => {
+      const sliced = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+      return sliced;
+    },
     [filteredProjects, indexOfFirstProject, indexOfLastProject]
   );
 
@@ -213,7 +208,7 @@ export default function ProjectsPage() {
         const project = projects.find((p) => p.ID === projectToDelete);
         if (!project) throw new Error("Project not found");
         const category = categories.find(
-          (c: any) => c.ID === project.CategoryID
+          (c: Category) => c.ID === project.CategoryID
         );
         if (!category) throw new Error("Category not found");
         const token = Cookies.get("auth_token");
@@ -227,9 +222,7 @@ export default function ProjectsPage() {
           }
         );
         if (!response.ok) throw new Error("Failed to delete project");
-        setProjects(
-          projects.filter((project) => project.ID !== projectToDelete)
-        );
+        setProjects(projects.filter((project) => project.ID !== projectToDelete));
         if (currentProjects.length === 1 && currentPage > 1) {
           setCurrentPage(currentPage - 1);
         }
@@ -247,14 +240,7 @@ export default function ProjectsPage() {
         setProjectToDelete(null);
       }
     }
-  }, [
-    projectToDelete,
-    projects,
-    categories,
-    currentProjects,
-    currentPage,
-    toast,
-  ]);
+  }, [projectToDelete, projects, categories, currentProjects, currentPage, toast]);
 
   // Memoized callbacks for ProjectFilters
   const memoizedSetCategoryFilter = useCallback((value: string) => {

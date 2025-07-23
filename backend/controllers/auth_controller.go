@@ -234,3 +234,48 @@ func ResetPasswordHandler(c *fiber.Ctx) error {
 		"message": "Password reset successfully",
 	})
 }
+
+func VerifyTokenHandler(c *fiber.Ctx) error {
+	log.Printf("VerifyTokenHandler: Received request to verify token")
+
+	// ดึง token จาก header Authorization
+	tokenString := c.Get("Authorization")
+	if tokenString == "" {
+		log.Printf("VerifyTokenHandler: No token provided")
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "No token provided",
+		})
+	}
+
+	// ลบ prefix "Bearer " ถ้ามี
+	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
+		tokenString = tokenString[7:]
+	}
+
+	// Parse และ verify token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fiber.ErrUnauthorized
+		}
+		return []byte(configs.EnvSecret()), nil
+	})
+
+	if err != nil {
+		log.Printf("VerifyTokenHandler: Invalid token: %v", err)
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	if !token.Valid {
+		log.Printf("VerifyTokenHandler: Token is not valid")
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	log.Printf("VerifyTokenHandler: Token verified successfully")
+	return c.JSON(fiber.Map{
+		"valid": true,
+	})
+}

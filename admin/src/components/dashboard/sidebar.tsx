@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation"; // เพิ่ม useRouter
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,7 @@ interface SidebarProps {
 
 export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter(); // เพิ่ม useRouter
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -79,6 +80,26 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
     };
     fetchCategories();
   }, [toast]);
+
+  // ฟังก์ชัน logout
+  const handleLogout = () => {
+    try {
+      Cookies.remove("auth_token"); // ลบ auth_token ออกจาก Cookies
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+        variant: "default",
+      });
+      router.push("/login"); // เปลี่ยนเส้นทางไปยังหน้า login
+    } catch (error) {
+      console.error("Logout Error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -267,18 +288,17 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           )}
         </div> */}
 
-        <Link href="/login">
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full mt-4 text-muted-foreground hover:bg-transparent hover:text-muted-foreground",
-              !expanded && "justify-center px-0"
-            )}
-          >
-            <LogOut className="h-5 w-5 mr-2" />
-            {expanded && "Log out"}
-          </Button>
-        </Link>
+        <Button
+          variant="ghost"
+          className={cn(
+            "w-full mt-4 text-muted-foreground hover:bg-transparent hover:text-muted-foreground",
+            !expanded && "justify-center px-0"
+          )}
+          onClick={handleLogout} // เปลี่ยนจาก Link เป็น onClick
+        >
+          <LogOut className="h-5 w-5 mr-2" />
+          {expanded && "Log out"}
+        </Button>
       </div>
     </div>
   );
