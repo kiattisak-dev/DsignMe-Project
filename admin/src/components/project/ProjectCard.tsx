@@ -21,6 +21,7 @@ import {
 import { MoreHorizontal, Eye, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Project } from "@/lib/types";
+import { toast } from "@/hooks/use-toast";
 
 interface ProjectCardProps {
   project: Project;
@@ -37,11 +38,19 @@ export default function ProjectCard({
   setProjectToDelete,
   handleDeleteProject,
 }: ProjectCardProps) {
-  const getYouTubeEmbedUrl = (url: string) => {
+  const getYouTubeEmbedUrl = (url?: string) => {
+    if (!url) {
+      console.warn(`No VideoUrl provided for project ${project.ID}`);
+      return undefined;
+    }
     const regExp =
       /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/;
     const match = url.match(regExp);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : undefined;
+    if (!match) {
+      console.error(`Invalid YouTube URL for project ${project.ID}: ${url}`);
+      return undefined;
+    }
+    return `https://www.youtube-nocookie.com/embed/${match[1]}?enablejsapi=0&disable_polymer=true&rel=0&modestbranding=1&controls=0&showinfo=0`;
   };
 
   const formatDate = (dateString: string) => {
@@ -151,6 +160,14 @@ export default function ProjectCard({
                 src={project.ImageUrl}
                 alt="Project image"
                 className="h-48 w-full object-cover rounded-md border border-black dark:border-white hover:opacity-90 transition-opacity"
+                onError={() => {
+                  console.error(`Failed to load image: ${project.ImageUrl}`);
+                  toast({
+                    title: "Error",
+                    description: `Failed to load image for project ${project.ID}`,
+                    variant: "destructive",
+                  });
+                }}
               />
             ) : getYouTubeEmbedUrl(project.VideoUrl) ? (
               <iframe
@@ -159,19 +176,34 @@ export default function ProjectCard({
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
+                sandbox="allow-same-origin allow-scripts allow-presentation"
                 className="h-48 w-full rounded-md border border-black dark:border-white hover:opacity-90 transition-opacity"
+                onError={() => {
+                  console.error(`Failed to load YouTube video: ${project.VideoUrl}`);
+                  toast({
+                    title: "Error",
+                    description: `Failed to load YouTube video for project ${project.ID}`,
+                    variant: "destructive",
+                  });
+                }}
               />
             ) : project.VideoUrl ? (
               <video
                 src={project.VideoUrl}
                 className="h-48 w-full object-cover rounded-md border border-black dark:border-white hover:opacity-90 transition-opacity"
                 controls
+                onError={() => {
+                  console.error(`Failed to load video: ${project.VideoUrl}`);
+                  toast({
+                    title: "Error",
+                    description: `Failed to load video for project ${project.ID}`,
+                    variant: "destructive",
+                  });
+                }}
               />
             ) : (
               <div className="h-48 w-full bg-gray-200 dark:bg-gray-800 rounded-md flex items-center justify-center border border-black dark:border-white">
-                <span className="text-gray-600 dark:text-gray-400">
-                  No Media
-                </span>
+                <span className="text-gray-600 dark:text-gray-400">No Media Available</span>
               </div>
             )}
           </div>

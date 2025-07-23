@@ -21,28 +21,26 @@ export default function ProjectGrid({
   setProjectToDelete,
   handleDeleteProject,
 }: ProjectGridProps) {
-  // กำหนด variants สำหรับ container
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.08, // ลด stagger เพื่อให้สมูทและเร็วขึ้น
+        staggerChildren: 0.08,
       },
     },
     exit: { opacity: 0 },
   };
 
-  // กำหนด variants สำหรับแต่ละการ์ด
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring", // ใช้ spring เพื่อความสมูท
-        stiffness: 120, // ความแข็งของ spring
-        damping: 20, // การหน่วงเพื่อลดการเด้ง
+        type: "spring",
+        stiffness: 120,
+        damping: 20,
         duration: 0.4,
       },
     },
@@ -59,19 +57,29 @@ export default function ProjectGrid({
     >
       <AnimatePresence>
         {isLoading ? (
-          <div className="col-span-full">
+          <motion.div
+            key="skeleton"
+            variants={cardVariants}
+            className="col-span-full"
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array(6).fill(0).map((_, i) => (
-                <Skeleton key={i} height={300} className="rounded-lg" />
-              ))}
+              {Array(6)
+                .fill(0)
+                .map((_, i) => (
+                  <Skeleton
+                    key={`skeleton-${i}`}
+                    height={300}
+                    className="rounded-lg"
+                  />
+                ))}
             </div>
-          </div>
+          </motion.div>
         ) : projects.length > 0 ? (
           projects.map((project) => (
             <motion.div
               key={project.ID}
               variants={cardVariants}
-              layout // เพิ่ม layout เพื่อให้การเปลี่ยนแปลงขนาดหรือตำแหน่งสมูท
+              layout
             >
               <ProjectCard
                 project={project}
@@ -84,6 +92,7 @@ export default function ProjectGrid({
           ))
         ) : (
           <motion.div
+            key="no-projects"
             variants={cardVariants}
             className="col-span-full text-center py-10 text-[#111827] dark:text-[#D1D5DB]"
           >
