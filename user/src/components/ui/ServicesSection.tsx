@@ -34,6 +34,15 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     }),
   };
 
+  // Function to render description with proper line breaks
+  const renderDescription = (description: string) => {
+    return description.split('\n').map((line, index) => (
+      <p key={index} className={`${index > 0 ? 'mt-2' : ''} whitespace-normal break-words`}>
+        {line || '\u00A0'} {/* Use non-breaking space for empty lines */}
+      </p>
+    ));
+  };
+
   return (
     <section className="py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -82,20 +91,26 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
                       className="overflow-visible"
                     >
                       <div className="p-1 text-gray-700">
-                        <p className="mb-2 mt-[-0.5rem] whitespace-normal break-words">{service.description}</p>
-                        <p className="font-bold">รายละเอียด :</p>
-                        <ul className="list-disc pl-5 mt-2 mb-2">
-                          {service.features.map((feature, i) => (
-                            <motion.li
-                              key={i}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ duration: 0.3, delay: i * 0.1 }}
-                            >
-                              {feature}
-                            </motion.li>
-                          ))}
-                        </ul>
+                        <div className="mb-2 mt-[-0.5rem]">
+                          {renderDescription(service.description)}
+                        </div>
+                        {service.features.length > 0 && (
+                          <>
+                            <p className="font-bold">รายละเอียด :</p>
+                            <ul className="list-disc pl-5 mt-2 mb-2">
+                              {service.features.map((feature, i) => (
+                                <motion.li
+                                  key={i}
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ duration: 0.3, delay: i * 0.1 }}
+                                >
+                                  {feature}
+                                </motion.li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
                       </div>
                     </motion.div>
                   )}

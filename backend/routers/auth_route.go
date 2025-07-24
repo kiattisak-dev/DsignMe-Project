@@ -10,6 +10,7 @@ func AuthRoutes(app *fiber.App) {
 	// Register and Login routes without AuthMiddleware
 	app.Post("/auth/register", controllers.CreateUserHandler)
 	app.Post("/auth/login", controllers.LoginHandler)
+	app.Post("/auth/verify", controllers.VerifyTokenHandler)
 
 	// All other auth routes with AuthMiddleware
 	authRoute := app.Group("/auth", middleware.AuthMiddleware())

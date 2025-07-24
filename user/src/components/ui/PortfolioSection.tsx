@@ -1,18 +1,18 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { PortfolioItem } from '../../types/types';
+import MediaItem from './PortfolioSection/MediaItem';
+import ModalContent from './PortfolioSection/ModalContent';
 
-// Animation variants for portfolio items
-const itemVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
+// Animation variants for section scroll
+const sectionVariants = {
+  hidden: { opacity: 0, y: 50 },
   visible: {
     opacity: 1,
-    scale: 1,
-    transition: { duration: 0.5, ease: 'easeOut' },
+    y: 0,
+    transition: { duration: 0.6, ease: 'easeOut' },
   },
-  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.3 } },
-  hover: { scale: 1.05, transition: { duration: 0.3 } },
 };
 
 // Animation variants for buttons
@@ -36,27 +36,6 @@ const paginationButtonVariants = {
   },
 };
 
-// Animation variants for modal
-const modalVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.3, ease: 'easeOut' },
-  },
-  exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } },
-};
-
-// Animation variants for section scroll
-const sectionVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' },
-  },
-};
-
 interface PortfolioSectionProps {
   portfolioImages: PortfolioItem[];
 }
@@ -64,7 +43,7 @@ interface PortfolioSectionProps {
 const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showAll, setShowAll] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<PortfolioItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const itemsPerPage = 10;
 
   const totalItems = useMemo(() => (showAll ? portfolioImages : portfolioImages.slice(0, 4)), [showAll, portfolioImages]);
@@ -72,12 +51,12 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = totalItems.slice(startIndex, startIndex + itemsPerPage);
 
-  const openModal = (image: PortfolioItem) => {
-    setSelectedImage(image);
+  const openModal = (item: PortfolioItem) => {
+    setSelectedItem(item);
   };
 
   const closeModal = () => {
-    setSelectedImage(null);
+    setSelectedItem(null);
   };
 
   return (
@@ -95,10 +74,11 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-gray-900">
             ผลงานของพวกเรา
-          </h2>
+          </h3>
         </motion.div>
+        
         {portfolioImages.length === 0 ? (
           <div className="text-center text-gray-500 text-base sm:text-lg">
             ไม่มีผลงานที่สามารถแสดงได้
@@ -111,35 +91,17 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
           >
             <AnimatePresence>
-              {currentItems.map((image) => (
-                <motion.div
-                  key={image.id}
-                  className="relative overflow-hidden bg-gray-100 border border-gray-200 shadow-md transition-shadow duration-300 cursor-pointer"
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  whileHover="hover"
-                  onClick={() => openModal(image)}
-                >
-                  {image.url ? (
-                    <img
-                      src={image.url}
-                      alt={`${image.title}`}
-                      className="w-full h-full object-cover aspect-square"
-                      loading="lazy"
-                      onError={() => console.warn(`Failed to load image: ${image.url}`)}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-sm sm:text-base">
-                      ไม่มีภาพ
-                    </div>
-                  )}
-                </motion.div>
+              {currentItems.map((item, index) => (
+                <MediaItem 
+                  key={item.id || `fallback-${index}`}
+                  item={item} 
+                  onClick={() => openModal(item)} 
+                />
               ))}
             </AnimatePresence>
           </motion.div>
         )}
+        
         <AnimatePresence>
           {!showAll && portfolioImages.length > 4 && (
             <motion.div
@@ -160,6 +122,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
             </motion.div>
           )}
         </AnimatePresence>
+        
         {showAll && totalPages > 1 && (
           <motion.div
             className="flex justify-center items-center space-x-2 mt-6"
@@ -180,6 +143,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
               <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1" />
               Previous
             </motion.button>
+            
             <div className="flex space-x-1">
               {Array.from({ length: totalPages }, (_, index) => (
                 <motion.button
@@ -196,6 +160,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
                 </motion.button>
               ))}
             </div>
+            
             <motion.button
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
@@ -211,42 +176,10 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
             </motion.button>
           </motion.div>
         )}
+        
         <AnimatePresence>
-          {selectedImage && (
-            <motion.div
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              variants={modalVariants}
-              onClick={closeModal}
-            >
-              <motion.div
-                className="relative bg-white rounded-lg max-w-2xl w-full"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  onClick={closeModal}
-                  className="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors duration-300"
-                  aria-label="Close modal"
-                >
-                  <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
-                </button>
-                {selectedImage.url ? (
-                  <img
-                    src={selectedImage.url}
-                    alt={`${selectedImage.title}`}
-                    className="w-full h-auto object-contain max-h-[80vh]"
-                    loading="lazy"
-                    onError={() => console.warn(`Failed to load image: ${selectedImage.url}`)}
-                  />
-                ) : (
-                  <div className="w-full h-64 sm:h-80 flex items-center justify-center bg-gray-200 text-gray-500 text-base sm:text-lg">
-                    ไม่มีภาพ
-                  </div>
-                )}
-              </motion.div>
-            </motion.div>
+          {selectedItem && (
+            <ModalContent item={selectedItem} onClose={closeModal} />
           )}
         </AnimatePresence>
       </div>

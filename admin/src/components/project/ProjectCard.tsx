@@ -21,12 +21,13 @@ import {
 import { MoreHorizontal, Eye, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Project } from "@/lib/types";
+import { toast } from "@/hooks/use-toast";
 
 interface ProjectCardProps {
   project: Project;
   setSelectedProject: (project: Project | null) => void;
   setIsViewOpen: (isOpen: boolean) => void;
-  setProjectToDelete: (id: string | null) => void;
+  setProjectToDelete: (id: string | null) => void; // แก้ type ให้รับ string | null
   handleDeleteProject: () => void;
 }
 
@@ -37,11 +38,17 @@ export default function ProjectCard({
   setProjectToDelete,
   handleDeleteProject,
 }: ProjectCardProps) {
-  const getYouTubeEmbedUrl = (url: string) => {
+  const getYouTubeEmbedUrl = (url?: string) => {
+    if (!url) {
+      return undefined;
+    }
     const regExp =
       /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/;
     const match = url.match(regExp);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : undefined;
+    if (!match) {
+      return undefined;
+    }
+    return `https://www.youtube-nocookie.com/embed/${match[1]}?enablejsapi=0&disable_polymer=true&rel=0&modestbranding=1&controls=0&showinfo=0`;
   };
 
   const formatDate = (dateString: string) => {
@@ -56,7 +63,7 @@ export default function ProjectCard({
     <Card className="dark:border-white bg-white dark:bg-black hover:shadow-[0_4px_6px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_4px_6px_rgba(255,255,255,0.2)] transition-shadow duration-200">
       <CardHeader className="p-4 relative">
         <CardTitle className="text-lg text-black dark:text-white pr-8">
-          {project.ImageUrl ? "Image" : project.VideoUrl ? "Video" : "No Media"}
+          {project.title || (project.ImageUrl ? "Image" : project.VideoUrl ? "Video" : "No Media")}
         </CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -149,29 +156,50 @@ export default function ProjectCard({
             {project.ImageUrl ? (
               <img
                 src={project.ImageUrl}
-                alt="Project image"
+                alt={project.title || "Project image"}
+                loading="lazy" 
                 className="h-48 w-full object-cover rounded-md border border-black dark:border-white hover:opacity-90 transition-opacity"
+                onError={() => {
+                  toast({
+                    title: "Error",
+                    description: `Failed to load image for project ${project.ID}`,
+                    variant: "destructive",
+                  });
+                }}
               />
             ) : getYouTubeEmbedUrl(project.VideoUrl) ? (
               <iframe
                 src={getYouTubeEmbedUrl(project.VideoUrl)}
-                title="YouTube video"
+                title={project.title || "YouTube video"}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
+                sandbox="allow-same-origin allow-scripts allow-presentation"
                 className="h-48 w-full rounded-md border border-black dark:border-white hover:opacity-90 transition-opacity"
+                onError={() => {
+                  toast({
+                    title: "Error",
+                    description: `Failed to load YouTube video for project ${project.ID}`,
+                    variant: "destructive",
+                  });
+                }}
               />
             ) : project.VideoUrl ? (
               <video
                 src={project.VideoUrl}
                 className="h-48 w-full object-cover rounded-md border border-black dark:border-white hover:opacity-90 transition-opacity"
                 controls
+                onError={() => {
+                  toast({
+                    title: "Error",
+                    description: `Failed to load video for project ${project.ID}`,
+                    variant: "destructive",
+                  });
+                }}
               />
             ) : (
               <div className="h-48 w-full bg-gray-200 dark:bg-gray-800 rounded-md flex items-center justify-center border border-black dark:border-white">
-                <span className="text-gray-600 dark:text-gray-400">
-                  No Media
-                </span>
+                <span className="text-gray-600 dark:text-gray-400">No Media Available</span>
               </div>
             )}
           </div>

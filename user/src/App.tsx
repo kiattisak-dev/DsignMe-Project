@@ -18,7 +18,7 @@ function App() {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-gray-950 text-white font-inter">
+      <div className="min-h-screen bg-gray-950 text-white">
         <Header />
         <main>
           <Routes>

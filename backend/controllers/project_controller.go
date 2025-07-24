@@ -649,9 +649,85 @@ func GetProjectsByCategoryHandler(c *fiber.Ctx) error {
 	}
 	defer cursor.Close(ctx)
 
-	var projects []models.Project
-	if err := cursor.All(ctx, &projects); err != nil {
-		log.Printf("GetProjectsByCategoryHandler: Failed to process projects for category %s: %v", categoryName, err)
+	var projects []map[string]interface{}
+	for cursor.Next(ctx) {
+		var project models.Project
+		if err := cursor.Decode(&project); err != nil {
+			log.Printf("GetProjectsByCategoryHandler: Failed to decode project: %v", err)
+			continue
+		}
+
+		// Validate project ID
+		if project.ID.IsZero() {
+			log.Printf("GetProjectsByCategoryHandler: Project has invalid ID (zero ObjectID), skipping")
+			continue
+		}
+
+		// Initialize project data
+		projectData := map[string]interface{}{
+			"_id":        project.ID.Hex(),
+			"imageUrl":   project.ImageUrl,
+			"videoUrl":   project.VideoUrl,
+			"category_id": project.CategoryID.Hex(),
+			"createdAt":  project.CreatedAt,
+			"updatedAt":  project.UpdatedAt,
+			"mediaType":  "", // Default empty
+		}
+
+		// Determine media type based on available URLs
+		if project.VideoUrl != "" {
+			// Check if it's a YouTube URL
+			if strings.Contains(project.VideoUrl, "youtube.com") || strings.Contains(project.VideoUrl, "youtu.be") {
+				projectData["mediaType"] = "youtube"
+				log.Printf("GetProjectsByCategoryHandler: Project %s has YouTube URL: %s", project.ID.Hex(), project.VideoUrl)
+			} else {
+				// Extract file ID from videoUrl
+				parts := strings.Split(project.VideoUrl, "/")
+				if len(parts) >= 5 {
+					fileIDStr := parts[len(parts)-1]
+					fileID, err := primitive.ObjectIDFromHex(fileIDStr)
+					if err == nil {
+						var file File
+						err = configs.Client.Database("ProjectsDB").Collection("FilesColl").FindOne(ctx, bson.M{"_id": fileID}).Decode(&file)
+						if err == nil {
+							projectData["mediaType"] = file.Type
+							log.Printf("GetProjectsByCategoryHandler: Project %s has video, mediaType: %s", project.ID.Hex(), file.Type)
+						} else {
+							log.Printf("GetProjectsByCategoryHandler: Failed to find file metadata for video ID %s: %v", fileIDStr, err)
+						}
+					} else {
+						log.Printf("GetProjectsByCategoryHandler: Invalid video file ID %s: %v", fileIDStr, err)
+					}
+				}
+			}
+		} else if project.ImageUrl != "" {
+			// Extract file ID from imageUrl
+			parts := strings.Split(project.ImageUrl, "/")
+			if len(parts) >= 5 {
+				fileIDStr := parts[len(parts)-1]
+				fileID, err := primitive.ObjectIDFromHex(fileIDStr)
+				if err == nil {
+					var file File
+					err = configs.Client.Database("ProjectsDB").Collection("FilesColl").FindOne(ctx, bson.M{"_id": fileID}).Decode(&file)
+					if err == nil {
+						projectData["mediaType"] = file.Type
+						log.Printf("GetProjectsByCategoryHandler: Project %s has image, mediaType: %s", project.ID.Hex(), file.Type)
+					} else {
+						log.Printf("GetProjectsByCategoryHandler: Failed to find file metadata for image ID %s: %v", fileIDStr, err)
+					}
+				} else {
+					log.Printf("GetProjectsByCategoryHandler: Invalid image file ID %s: %v", fileIDStr, err)
+				}
+			}
+		} else {
+			log.Printf("GetProjectsByCategoryHandler: Project %s has no media URLs", project.ID.Hex())
+		}
+
+		projects = append(projects, projectData)
+	}
+
+	if err := cursor.Err(); err != nil {
+		log.Printf("GetProjectsByCategoryHandler: Cursor error: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to process projects",
 		})

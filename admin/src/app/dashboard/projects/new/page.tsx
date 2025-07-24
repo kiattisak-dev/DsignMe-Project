@@ -114,7 +114,6 @@ export default function NewProjectPage() {
           throw new Error(`Failed to fetch categories: ${response.statusText}`);
         }
         const data = await response.json();
-        console.log("Categories data:", data);
         setCategories(data.data || []);
         if (data.data && data.data.length > 0) {
           form.setValue("category", data.data[0].NameCategory);
@@ -150,7 +149,6 @@ export default function NewProjectPage() {
   }, [formErrors, toast]);
 
   const handleUploadTypeChange = (value: string) => {
-    console.log("Upload type changed to:", value);
     form.setValue("uploadType", value as "image" | "video" | "videoUrl", {
       shouldValidate: false,
     });
@@ -161,7 +159,6 @@ export default function NewProjectPage() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("onSubmit called with values:", values);
     setIsLoading(true);
 
     const customValidation = z
@@ -217,8 +214,6 @@ export default function NewProjectPage() {
         formData.append("type", "videoUrl");
       }
       formData.append("category", values.category);
-
-      console.log("FormData contents:");
       for (const [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
@@ -226,7 +221,6 @@ export default function NewProjectPage() {
       const url = `http://localhost:8081/projects/${encodeURIComponent(
         values.category
       )}`;
-      console.log("Request URL:", url);
 
       const response = await fetch(url, {
         method: "POST",
@@ -238,7 +232,6 @@ export default function NewProjectPage() {
       });
 
       const responseBody = await response.text();
-      console.log("Response status:", response.status, "Response body:", responseBody);
 
       if (!response.ok) {
         const errorData = responseBody ? JSON.parse(responseBody) : {};
@@ -248,8 +241,6 @@ export default function NewProjectPage() {
         }
         throw new Error(errorMessage);
       }
-
-      const responseData = JSON.parse(responseBody);
       toast({
         title: "Project created",
         description: "Your new project has been successfully created.",

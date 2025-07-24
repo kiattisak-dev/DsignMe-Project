@@ -1,18 +1,21 @@
 export interface PortfolioItem {
-  id: number;
-  url: string;
+  id: number | string; // อัพเดทให้รองรับ string ด้วย เพราะ backend ส่ง ObjectID เป็น string
+  url?: string;
+  videoUrl?: string;
+  videoLink?: string;
   title: string;
   category: string;
-  description: string;
+  description?: string;
+  mediaType?: "image" | "video" | "youtube"; // เพิ่มฟิลด์นี้
 }
 
 export interface Service {
-  icon: React.ComponentType<{ className?: string }>;
+  icon?: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
   features: string[];
-  timeline: string;
-  revisions: string;
+  timeline?: string;
+  revisions?: string;
 }
 
 export interface ProcessStep {
