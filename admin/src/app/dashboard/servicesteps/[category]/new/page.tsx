@@ -38,7 +38,6 @@ export default function AddServiceStepPage() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -66,14 +65,12 @@ export default function AddServiceStepPage() {
     fetchCategories();
   }, [category, toast]);
 
-  // Handle subtitle text change
   const handleSubtitleChange = (index: number, value: string) => {
     setSubtitles(
       subtitles.map((s, i) => (i === index ? { ...s, text: value } : s))
     );
   };
 
-  // Handle heading change
   const handleHeadingChange = (
     subtitleIndex: number,
     headingIndex: number,
@@ -93,17 +90,14 @@ export default function AddServiceStepPage() {
     );
   };
 
-  // Add new subtitle
   const addSubtitle = () => {
     setSubtitles([...subtitles, { text: "", headings: [""] }]);
   };
 
-  // Remove subtitle
   const removeSubtitle = (index: number) => {
     setSubtitles(subtitles.filter((_, i) => i !== index));
   };
 
-  // Add new heading to subtitle
   const addHeading = (subtitleIndex: number) => {
     setSubtitles(
       subtitles.map((s, i) =>
@@ -112,7 +106,6 @@ export default function AddServiceStepPage() {
     );
   };
 
-  // Remove heading from subtitle
   const removeHeading = (subtitleIndex: number, headingIndex: number) => {
     setSubtitles(
       subtitles.map((s, i) =>
@@ -123,7 +116,6 @@ export default function AddServiceStepPage() {
     );
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -274,7 +266,7 @@ export default function AddServiceStepPage() {
                   key={subtitleIndex}
                   className="mt-2 p-4 border rounded-md bg-gray-50 dark:bg-[#2D3748]"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2">
                     <Input
                       value={subtitle.text}
                       onChange={(e) =>
@@ -296,7 +288,7 @@ export default function AddServiceStepPage() {
                       </Button>
                     )}
                   </div>
-                  <div className="mt-2">
+                  <div className="mt-4">
                     <label className="text-sm font-medium text-[#666666] dark:text-[#9CA3AF]">
                       Sub-details
                     </label>
@@ -352,7 +344,7 @@ export default function AddServiceStepPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="mt-4 "
+                className="mt-4"
                 onClick={addSubtitle}
                 disabled={isLoading}
               >

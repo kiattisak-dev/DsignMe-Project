@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Collapsible from "./Collapsible";
@@ -14,7 +16,6 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     setExpandedService(expandedService === index ? null : index);
   };
 
-  // Animation variants for the section header
   const headerVariants = {
     hidden: { opacity: 0, y: -50 },
     visible: {
@@ -24,7 +25,6 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     },
   };
 
-  // Animation variants for collapsible items
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
@@ -34,11 +34,13 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     }),
   };
 
-  // Function to render description with proper line breaks
   const renderDescription = (description: string) => {
-    return description.split('\n').map((line, index) => (
-      <p key={index} className={`${index > 0 ? 'mt-2' : ''} whitespace-normal break-words`}>
-        {line || '\u00A0'} {/* Use non-breaking space for empty lines */}
+    return description.split(" ").map((line, index) => (
+      <p
+        key={index}
+        className={`${index > 0 ? "mt-0" : ""} whitespace-pre-line break-words text-gray-700`}
+      >
+        {line.trim() === "" ? "\u00A0" : line}
       </p>
     ));
   };
@@ -57,14 +59,12 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
             การบริการและค่าบริการ
           </h2>
           <p className="text-gray-700 text-lg max-w-2xl mx-auto">
-            ค่าบริการโดยทั่วไปจะมีเรทราคาที่แตกต่างกันออกไป
-            ทั้งนี้ขึ้นอยู่กับรายละเอียดของงานแต่ละประเภท
-            โดยคิดค่าบริการจากราคาเริ่มต้น - สูงสุดของงานประเภทนั้นๆ
-            และไม่เกินไปกว่านั้น
-            ซึ่งจะประเมินจากรายละเอียดที่ลูกค้าแจ้งตามต้องการ
-            และผู้ประเมินจะคิดค่าบริการตามความยาก - ง่าย อย่างเหมาะสม
+            ค่าบริการโดยทั่วไปจะมีเรทราคาที่แตกต่างกันออกไป ทั้งนี้ขึ้นอยู่กับรายละเอียดของงานแต่ละประเภท
+            โดยคิดค่าบริการจากราคาเริ่มต้น - สูงสุดของงานประเภทนั้นๆ และไม่เกินไปกว่านั้น
+            ซึ่งจะประเมินจากรายละเอียดที่ลูกค้าแจ้งตามต้องการ และผู้ประเมินจะคิดค่าบริการตามความยาก - ง่าย อย่างเหมาะสม
           </p>
         </motion.div>
+
         <div>
           {services.map((service, index) => (
             <motion.div
@@ -91,25 +91,26 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
                       className="overflow-visible"
                     >
                       <div className="p-1 text-gray-700">
-                        <div className="mb-2 mt-[-0.5rem]">
+                        <div className="mb-2 mt-[-0.5rem] flex flex-col gap-2">
                           {renderDescription(service.description)}
                         </div>
+
                         {service.features.length > 0 && (
-                          <>
-                            <p className="font-bold">รายละเอียด :</p>
-                            <ul className="list-disc pl-5 mt-2 mb-2">
+                          <div className="mt-4">
+                            <p className="font-bold mb-2">รายละเอียด :</p>
+                            <div className="flex flex-col gap-2">
                               {service.features.map((feature, i) => (
-                                <motion.li
+                                <motion.p
                                   key={i}
                                   initial={{ opacity: 0, x: -20 }}
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ duration: 0.3, delay: i * 0.1 }}
                                 >
-                                  {feature}
-                                </motion.li>
+                                  {`${i + 1}. ${feature}`}
+                                </motion.p>
                               ))}
-                            </ul>
-                          </>
+                            </div>
+                          </div>
                         )}
                       </div>
                     </motion.div>
