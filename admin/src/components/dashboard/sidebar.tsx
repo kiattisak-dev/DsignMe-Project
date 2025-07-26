@@ -47,19 +47,18 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true); // เพิ่มสถานะ loading
+  const [loading, setLoading] = useState(true);
 
-  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoading(true); // เริ่มโหลด
+      setLoading(true);
       try {
         const token = Cookies.get("auth_token");
         if (!token) {
           throw new Error("No auth token found");
         }
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/projects/categories`, // ใช้ environment variable
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/categories`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -67,7 +66,8 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           }
         );
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          const text = await response.text(); // Debug response
+          throw new Error(`HTTP ${response.status}: ${text}`);
         }
         const data = await response.json();
         setCategories(data.data || []);
@@ -75,17 +75,16 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
         console.error("Fetch Categories Error:", error);
         toast({
           title: "Error",
-          description: "Failed to load categories. Please try again later.",
+          description: `Failed to load categories. ${error}`,
           variant: "destructive",
         });
       } finally {
-        setLoading(false); // สิ้นสุดการโหลด
+        setLoading(false);
       }
     };
     fetchCategories();
-  }, [toast, process.env.NEXT_PUBLIC_API_URL]); // เพิ่ม dependency
+  }, [toast, process.env.NEXT_PUBLIC_API_URL]);
 
-  // ฟังก์ชัน logout
   const handleLogout = () => {
     try {
       Cookies.remove("auth_token");
@@ -110,21 +109,9 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
   };
 
   const navItems = [
-    {
-      name: "Dashboard",
-      href: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "Projects",
-      href: "/dashboard/projects",
-      icon: FolderKanban,
-    },
-    {
-      name: "Categories",
-      href: "/dashboard/categories",
-      icon: Layers,
-    },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Projects", href: "/dashboard/projects", icon: FolderKanban },
+    { name: "Categories", href: "/dashboard/categories", icon: Layers },
   ];
 
   return (
@@ -156,74 +143,49 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
           )}
           onClick={() => setExpanded((prev) => !prev)}
         >
-          {expanded ? (
-            <ChevronLeft className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
+          {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
       </div>
 
       <div className="flex-1 overflow-auto py-2">
         <nav className="grid gap-1 px-2">
           {navItems.map((item) => (
-            <TooltipProvider
-              key={item.href}
-              delayDuration={expanded ? 1000 : 0}
-            >
+            <TooltipProvider key={item.href} delayDuration={expanded ? 1000 : 0}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link
                     href={item.href}
                     className={cn(
                       "flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground transition-colors",
-                      pathname === item.href &&
-                        "bg-muted border border-primary text-primary font-semibold",
+                      pathname === item.href && "bg-muted border border-primary text-primary font-semibold",
                       !expanded && "justify-center px-0",
                       "hover:bg-transparent hover:text-muted-foreground"
                     )}
                   >
-                    <item.icon
-                      className={cn(
-                        "h-5 w-5",
-                        pathname === item.href && "text-primary"
-                      )}
-                    />
+                    <item.icon className={cn("h-5 w-5", pathname === item.href && "text-primary")} />
                     {expanded && <span>{item.name}</span>}
                   </Link>
                 </TooltipTrigger>
-                {!expanded && (
-                  <TooltipContent side="right">{item.name}</TooltipContent>
-                )}
+                {!expanded && <TooltipContent side="right">{item.name}</TooltipContent>}
               </Tooltip>
             </TooltipProvider>
           ))}
-          {/* Service-Steps with Categories */}
           <TooltipProvider delayDuration={expanded ? 1000 : 0}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div
                   className={cn(
                     "flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground transition-colors",
-                    pathname.includes("/dashboard/servicesteps") &&
-                      "bg-muted border border-primary text-primary font-semibold",
+                    pathname.includes("/dashboard/servicesteps") && "bg-muted border border-primary text-primary font-semibold",
                     !expanded && "justify-center px-0",
                     "hover:bg-transparent hover:text-muted-foreground"
                   )}
                 >
-                  <ListOrdered
-                    className={cn(
-                      "h-5 w-5",
-                      pathname.includes("/dashboard/servicesteps") &&
-                        "text-primary"
-                    )}
-                  />
+                  <ListOrdered className={cn("h-5 w-5", pathname.includes("/dashboard/servicesteps") && "text-primary")} />
                   {expanded && <span>Service-Steps</span>}
                 </div>
               </TooltipTrigger>
-              {!expanded && (
-                <TooltipContent side="right">Service-Steps</TooltipContent>
-              )}
+              {!expanded && <TooltipContent side="right">Service-Steps</TooltipContent>}
             </Tooltip>
           </TooltipProvider>
           {expanded && !loading && categories.length > 0 && (
@@ -234,9 +196,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
                   href={`/dashboard/servicesteps/${cat.NameCategory.toLowerCase()}`}
                   className={cn(
                     "flex h-8 items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground transition-colors",
-                    pathname ===
-                      `/dashboard/servicesteps/${cat.NameCategory.toLowerCase()}` &&
-                      "bg-muted text-primary font-semibold",
+                    pathname === `/dashboard/servicesteps/${cat.NameCategory.toLowerCase()}` && "bg-muted text-primary font-semibold",
                     "hover:bg-transparent hover:text-muted-foreground"
                   )}
                 >
@@ -246,9 +206,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
             </div>
           )}
           {expanded && !loading && categories.length === 0 && (
-            <div className="ml-6 text-sm text-muted-foreground">
-              No categories available.
-            </div>
+            <div className="ml-6 text-sm text-muted-foreground">No categories available.</div>
           )}
           {expanded && loading && (
             <div className="ml-6 text-sm text-muted-foreground">Loading...</div>
@@ -261,10 +219,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
       <div className="p-4">
         <Button
           variant="ghost"
-          className={cn(
-            "w-full mt-4 text-muted-foreground hover:bg-transparent hover:text-muted-foreground",
-            !expanded && "justify-center px-0"
-          )}
+          className={cn("w-full mt-4 text-muted-foreground hover:bg-transparent hover:text-muted-foreground", !expanded && "justify-center px-0")}
           onClick={handleLogout}
         >
           <LogOut className="h-5 w-5 mr-2" />
