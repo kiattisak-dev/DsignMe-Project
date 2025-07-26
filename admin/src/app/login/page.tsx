@@ -21,7 +21,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
