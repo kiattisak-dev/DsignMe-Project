@@ -7,4 +7,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify(import.meta.env.VITE_API_URL || 'https://dsignme-project.onrender.com'),
+  },
 });
