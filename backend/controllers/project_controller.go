@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"mime/multipart"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
@@ -17,7 +20,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"mime/multipart"
 )
 
 type ProjectRequest struct {
@@ -113,10 +115,13 @@ func uploadToGridFS(file *multipart.FileHeader, fileType string) (string, error)
 		return "", fmt.Errorf("failed to save file metadata: %v", err)
 	}
 
-	// Generate file URL
-	fileUrl := fmt.Sprintf("http://localhost:8081/files/%s", fileID.Hex())
-	log.Printf("uploadToGridFS: File %s uploaded successfully, URL: %s", file.Filename, fileUrl)
-	return fileUrl, nil
+	baseURL := os.Getenv("BASE_URL")
+    if baseURL == "" {
+        baseURL = "http://localhost:8081"
+    }
+    fileUrl := fmt.Sprintf("%s/files/%s", baseURL, fileID.Hex())
+    log.Printf("uploadToGridFS: File %s uploaded successfully, URL: %s", file.Filename, fileUrl)
+    return fileUrl, nil
 }
 
 func UploadFileHandler(c *fiber.Ctx) error {
