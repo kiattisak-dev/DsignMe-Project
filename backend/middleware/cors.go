@@ -11,7 +11,7 @@ func CorsMiddleware() fiber.Handler {
 	// ใช้ environment variable สำหรับ AllowOrigins (ถ้าไม่กำหนดใช้ค่า default)
 	allowedOrigins := os.Getenv("CORS_ALLOWED_ORIGINS")
 	if allowedOrigins == "" {
-		allowedOrigins = "https://dsignme-admin.vercel.app" // ค่า default สำหรับ production
+		allowedOrigins = "https://dsignme-admin.vercel.app,https://www.dsignme.co"
 	}
 
 	return cors.New(cors.Config{
