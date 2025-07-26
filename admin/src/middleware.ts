@@ -4,6 +4,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
 
 export const config = {
   matcher: [
+    "/",
     "/dashboard/:path*",
     "/dashboard",
     "/dashboard/categories/:path*",
@@ -44,13 +45,21 @@ async function verifyToken(token: string): Promise<boolean> {
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;
+  const { pathname } = request.nextUrl;
 
+  // กรณีไม่มี token: redirect ไป /login และเก็บ redirect path
   if (!token) {
     const redirectUrl = new URL("/login", request.url);
-    redirectUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    redirectUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
+  // กรณีมี token และอยู่ที่ /login: redirect ไป /dashboard
+  if (token && pathname === "/login") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // กรณีมี token แต่ต้อง verify
   const isValid = await verifyToken(token);
 
   if (!isValid) {
@@ -60,7 +69,7 @@ export async function middleware(request: NextRequest) {
     // ตั้ง query param redirect ให้หน้า login รู้ว่าต้องไปหน้าไหนต่อ
     response.headers.set(
       "set-cookie",
-      `redirect=${encodeURIComponent(request.nextUrl.pathname)}; Path=/; HttpOnly; SameSite=Lax`
+      `redirect=${encodeURIComponent(pathname)}; Path=/; HttpOnly; SameSite=Lax`
     );
     return response;
   }

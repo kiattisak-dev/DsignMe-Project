@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation"; // เพิ่ม useRouter
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -43,21 +43,23 @@ interface SidebarProps {
 
 export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter(); // เพิ่ม useRouter
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true); // เพิ่มสถานะ loading
 
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
+      setLoading(true); // เริ่มโหลด
       try {
         const token = Cookies.get("auth_token");
         if (!token) {
           throw new Error("No auth token found");
         }
         const response = await fetch(
-          "http://localhost:8081/projects/categories",
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/categories`, // ใช้ environment variable
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -73,24 +75,26 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
         console.error("Fetch Categories Error:", error);
         toast({
           title: "Error",
-          description: "Failed to load categories.",
+          description: "Failed to load categories. Please try again later.",
           variant: "destructive",
         });
+      } finally {
+        setLoading(false); // สิ้นสุดการโหลด
       }
     };
     fetchCategories();
-  }, [toast]);
+  }, [toast, process.env.NEXT_PUBLIC_API_URL]); // เพิ่ม dependency
 
   // ฟังก์ชัน logout
   const handleLogout = () => {
     try {
-      Cookies.remove("auth_token"); // ลบ auth_token ออกจาก Cookies
+      Cookies.remove("auth_token");
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
         variant: "default",
       });
-      router.push("/login"); // เปลี่ยนเส้นทางไปยังหน้า login
+      router.push("/login");
     } catch (error) {
       console.error("Logout Error:", error);
       toast({
@@ -222,7 +226,7 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
               )}
             </Tooltip>
           </TooltipProvider>
-          {expanded && categories.length > 0 && (
+          {expanded && !loading && categories.length > 0 && (
             <div className="ml-6 grid gap-1">
               {categories.map((cat) => (
                 <Link
@@ -241,60 +245,27 @@ export function Sidebar({ className, expanded, setExpanded }: SidebarProps) {
               ))}
             </div>
           )}
+          {expanded && !loading && categories.length === 0 && (
+            <div className="ml-6 text-sm text-muted-foreground">
+              No categories available.
+            </div>
+          )}
+          {expanded && loading && (
+            <div className="ml-6 text-sm text-muted-foreground">Loading...</div>
+          )}
         </nav>
       </div>
 
       <Separator />
 
       <div className="p-4">
-        {/* <div
-          className={cn(
-            "flex items-center gap-3 pb-4",
-            !expanded && "justify-center"
-          )}
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Toggle theme"
-            onClick={toggleTheme}
-          >
-            {theme === "dark" ? (
-              <Sun className="h-[1.2rem] w-[1.2rem]" />
-            ) : (
-              <Moon className="h-[1.2rem] w-[1.2rem]" />
-            )}
-          </Button>
-
-          {expanded && <span className="text-muted-foreground">Theme</span>}
-        </div> */}
-
-        {/* <div className={cn("flex items-center gap-3", !expanded && "flex-col")}>
-          <Avatar>
-            <AvatarImage
-              src="https://i.pravatar.cc/150?img=68"
-              alt="Admin User"
-            />
-            <AvatarFallback>AU</AvatarFallback>
-          </Avatar>
-
-          {expanded && (
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">Admin User</span>
-              <span className="text-xs text-muted-foreground">
-                admin@example.com
-              </span>
-            </div>
-          )}
-        </div> */}
-
         <Button
           variant="ghost"
           className={cn(
             "w-full mt-4 text-muted-foreground hover:bg-transparent hover:text-muted-foreground",
             !expanded && "justify-center px-0"
           )}
-          onClick={handleLogout} // เปลี่ยนจาก Link เป็น onClick
+          onClick={handleLogout}
         >
           <LogOut className="h-5 w-5 mr-2" />
           {expanded && "Log out"}
