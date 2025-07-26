@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// กำหนดเส้นทางที่ต้องการ middleware
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
+
 export const config = {
   matcher: [
     "/dashboard/:path*",
@@ -22,7 +23,7 @@ async function verifyToken(token: string): Promise<boolean> {
   }
 
   try {
-    const response = await fetch("http://localhost:8081/auth/verify", {
+    const response = await fetch(`${API_URL}/auth/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,26 +43,24 @@ async function verifyToken(token: string): Promise<boolean> {
 }
 
 export async function middleware(request: NextRequest) {
-  // ใช้ request.cookies แทน cookies() เพื่อดึง auth_token
   const token = request.cookies.get("auth_token")?.value;
 
-  // ถ้าไม่มี token ให้ redirect ไป /login
   if (!token) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("redirect", request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // ตรวจสอบ token กับ backend
   const isValid = await verifyToken(token);
 
   if (!isValid) {
-    // ลบ token ที่ไม่ถูกต้อง
     const response = NextResponse.redirect(new URL("/login", request.url));
+    // ลบ cookie auth_token
     response.cookies.delete("auth_token");
+    // ตั้ง query param redirect ให้หน้า login รู้ว่าต้องไปหน้าไหนต่อ
     response.headers.set(
       "set-cookie",
-      `redirect=${encodeURIComponent(request.nextUrl.pathname)}; Path=/; HttpOnly`
+      `redirect=${encodeURIComponent(request.nextUrl.pathname)}; Path=/; HttpOnly; SameSite=Lax`
     );
     return response;
   }

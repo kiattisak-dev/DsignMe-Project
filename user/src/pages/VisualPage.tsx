@@ -7,6 +7,8 @@ import { visualPageData } from "../types/data";
 import { PortfolioItem, Service } from "../types/types";
 import { motion } from "framer-motion";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
+
 const VisualPage: React.FC = () => {
   const [portfolioImages, setPortfolioImages] = useState<PortfolioItem[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -18,7 +20,7 @@ const VisualPage: React.FC = () => {
       try {
         // Fetch portfolio images for 'visual' category
         const projectsResponse = await fetch(
-          "http://localhost:8081/projects/visual",
+          `${API_BASE_URL}/projects/visual`,
           {
             headers: {
               Accept: "application/json",
@@ -53,14 +55,19 @@ const VisualPage: React.FC = () => {
         // Test media accessibility only for non-YouTube URLs
         for (const item of mappedPortfolioImages) {
           const mediaUrl = item.videoUrl || item.url || "";
-          if (mediaUrl && !(mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be'))) {
+          if (
+            mediaUrl &&
+            !(mediaUrl.includes("youtube.com") || mediaUrl.includes("youtu.be"))
+          ) {
             try {
               const response = await fetch(mediaUrl, { method: "HEAD" });
               if (!response.ok) {
                 throw new Error(`HTTP ${response.status} for ${mediaUrl}`);
               }
             } catch (imgErr: any) {
-              console.warn(`Media not accessible: ${mediaUrl}, Error: ${imgErr.message}`);
+              console.warn(
+                `Media not accessible: ${mediaUrl}, Error: ${imgErr.message}`
+              );
               // Clear invalid media URLs
               item.url = "";
               item.videoUrl = "";
@@ -72,7 +79,7 @@ const VisualPage: React.FC = () => {
 
         // Fetch service steps for 'visual' category
         const servicesResponse = await fetch(
-          "http://localhost:8081/servicesteps/visual/service-steps",
+          `${API_BASE_URL}/servicesteps/visual/service-steps`,
           {
             headers: {
               Accept: "application/json",
@@ -91,7 +98,9 @@ const VisualPage: React.FC = () => {
         const mappedServices: Service[] = serviceSteps.map((step: any) => ({
           title: step.title,
           description: "",
-          subtitles: step.subtitles ? step.subtitles.map((sub: any) => sub.text || "") : [],
+          subtitles: step.subtitles
+            ? step.subtitles.map((sub: any) => sub.text || "")
+            : [],
           features: step.subtitles.flatMap((sub: any) => sub.headings || []),
         }));
         setServices(mappedServices);
@@ -132,9 +141,7 @@ const VisualPage: React.FC = () => {
           <p className="text-xl font-semibold text-red-500">
             ข้อผิดพลาด: {error}
           </p>
-          <p className="text-gray-500">
-            กรุณาลองใหม่ในภายหลัง
-          </p>
+          <p className="text-gray-500">กรุณาลองใหม่ในภายหลัง</p>
         </div>
       </div>
     );

@@ -34,9 +34,13 @@ export default function ProjectsPage() {
         setIsCategoriesLoading(true);
         const token = Cookies.get("auth_token");
         if (!token) throw new Error("No authentication token found");
-        const response = await fetch("http://localhost:8081/projects/categories", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/categories`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
         if (!response.ok) throw new Error("Failed to fetch categories");
         const data = await response.json();
         setCategories(data.data || []);
@@ -67,7 +71,7 @@ export default function ProjectsPage() {
       const token = Cookies.get("auth_token");
       if (!token) throw new Error("No authentication token found");
 
-      let url = `http://localhost:8081/projects?page=${currentPage}&limit=${projectsPerPage}`;
+      let url = `${process.env.NEXT_PUBLIC_API_URL}/projects?page=${currentPage}&limit=${projectsPerPage}`;
       if (categoryFilter !== "All") {
         if (!categories.some((cat) => cat.ID === categoryFilter)) {
           console.warn(`Invalid category ID: ${categoryFilter}`);
@@ -190,13 +194,13 @@ export default function ProjectsPage() {
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
-  const currentProjects = useMemo(
-    () => {
-      const sliced = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
-      return sliced;
-    },
-    [filteredProjects, indexOfFirstProject, indexOfLastProject]
-  );
+  const currentProjects = useMemo(() => {
+    const sliced = filteredProjects.slice(
+      indexOfFirstProject,
+      indexOfLastProject
+    );
+    return sliced;
+  }, [filteredProjects, indexOfFirstProject, indexOfLastProject]);
 
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
@@ -215,14 +219,19 @@ export default function ProjectsPage() {
         if (!token) throw new Error("No authentication token found");
 
         const response = await fetch(
-          `http://localhost:8081/projects/${category.NameCategory.toLowerCase()}/${projectToDelete}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/${encodeURIComponent(
+            category.NameCategory.toLowerCase()
+          )}/${projectToDelete}`,
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+
         if (!response.ok) throw new Error("Failed to delete project");
-        setProjects(projects.filter((project) => project.ID !== projectToDelete));
+        setProjects(
+          projects.filter((project) => project.ID !== projectToDelete)
+        );
         if (currentProjects.length === 1 && currentPage > 1) {
           setCurrentPage(currentPage - 1);
         }
@@ -240,7 +249,14 @@ export default function ProjectsPage() {
         setProjectToDelete(null);
       }
     }
-  }, [projectToDelete, projects, categories, currentProjects, currentPage, toast]);
+  }, [
+    projectToDelete,
+    projects,
+    categories,
+    currentProjects,
+    currentPage,
+    toast,
+  ]);
 
   // Memoized callbacks for ProjectFilters
   const memoizedSetCategoryFilter = useCallback((value: string) => {
