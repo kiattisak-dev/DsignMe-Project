@@ -6,7 +6,6 @@ import {
   FaFacebook,
   FaInstagram,
   FaLine,
-  FaPhone,
 } from "react-icons/fa";
 
 const ContactPage: React.FC = () => {
@@ -109,9 +108,12 @@ const ContactPage: React.FC = () => {
                 <FaEnvelope className="w-6 h-6" />
               </button>
               <div className="flex flex-col items-start justify-center">
-                <p className="text-sm sm:text-base md:text-lg lg:text-3xl text-gray-800 hover:underline">
+                <a
+                  href="mailto:dsignme18@gmail.com"
+                  className="text-sm sm:text-base md:text-lg lg:text-3xl text-gray-800 hover:underline"
+                >
                   dsignme18@gmail.com
-                </p>
+                </a>
               </div>
             </motion.div>
 

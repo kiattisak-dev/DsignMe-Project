@@ -194,21 +194,9 @@ export const productPageData: PageData = {
     },
   ],
   contactInfo: [
-    {
-      icon: FaLine,
-      title: "Line",
-      detail: "@YourBrandLine",
-    },
-    {
-      icon: FaInstagram,
-      title: "Instagram",
-      detail: "@YourBrandIG",
-    },
-    {
-      icon: FaFacebook,
-      title: "Facebook",
-      detail: "facebook.com/YourBrandFB",
-    },
+    { icon: FaLine, title: "Line", detail: "https://lin.ee/c2HxJS1" },
+    { icon: FaInstagram, title: "Instagram", detail: "https://www.instagram.com/dee_signme?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" },
+    { icon: FaFacebook, title: "Facebook", detail: "https://www.facebook.com/profile.php?id=61561907601448&mibextid=ZbWKwL" },
   ],
   ctaTitle: "Ready to Design Your Product?",
   ctaDescription:
@@ -377,9 +365,9 @@ export const visualPageData: PageData = {
     },
   ],
   contactInfo: [
-    { icon: FaLine, title: "Line", detail: "@YourBrandLine" },
-    { icon: FaInstagram, title: "Instagram", detail: "@YourBrandIG" },
-    { icon: FaFacebook, title: "Facebook", detail: "facebook.com/YourBrandFB" },
+    { icon: FaLine, title: "Line", detail: "https://lin.ee/c2HxJS1" },
+    { icon: FaInstagram, title: "Instagram", detail: "https://www.instagram.com/dee_signme?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" },
+    { icon: FaFacebook, title: "Facebook", detail: "https://www.facebook.com/profile.php?id=61561907601448&mibextid=ZbWKwL" },
   ],
   ctaTitle: "Ready to Create Visual Impact?",
   ctaDescription:
@@ -549,9 +537,9 @@ export const websiteDevelopPageData: PageData = {
     },
   ],
   contactInfo: [
-    { icon: FaLine, title: "Line", detail: "@YourBrandLine" },
-    { icon: FaInstagram, title: "Instagram", detail: "@YourBrandIG" },
-    { icon: FaFacebook, title: "Facebook", detail: "facebook.com/YourBrandFB" },
+    { icon: FaLine, title: "Line", detail: "https://lin.ee/c2HxJS1" },
+    { icon: FaInstagram, title: "Instagram", detail: "https://www.instagram.com/dee_signme?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" },
+    { icon: FaFacebook, title: "Facebook", detail: "https://www.facebook.com/profile.php?id=61561907601448&mibextid=ZbWKwL" },
   ],
   ctaTitle: "Ready to Build Your Website?",
   ctaDescription:
@@ -746,9 +734,9 @@ export const logoPageData: PageData = {
     },
   ],
   contactInfo: [
-    { icon: FaLine, title: "Line", detail: "@YourBrandLine" },
-    { icon: FaInstagram, title: "Instagram", detail: "@YourBrandIG" },
-    { icon: FaFacebook, title: "Facebook", detail: "facebook.com/YourBrandFB" },
+    { icon: FaLine, title: "Line", detail: "https://lin.ee/c2HxJS1" },
+    { icon: FaInstagram, title: "Instagram", detail: "https://www.instagram.com/dee_signme?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" },
+    { icon: FaFacebook, title: "Facebook", detail: "https://www.facebook.com/profile.php?id=61561907601448&mibextid=ZbWKwL" },
   ],
   ctaTitle: "Ready to Create Your Logo?",
   ctaDescription:
@@ -920,10 +908,10 @@ export const advertisementPageData: PageData = {
     },
   ],
 
-  contactInfo: [
-    { icon: FaLine, title: "Line", detail: "@YourBrandLine" },
-    { icon: FaInstagram, title: "Instagram", detail: "@YourBrandIG" },
-    { icon: FaFacebook, title: "Facebook", detail: "facebook.com/YourBrandFB" },
+ contactInfo: [
+    { icon: FaLine, title: "Line", detail: "https://lin.ee/c2HxJS1" },
+    { icon: FaInstagram, title: "Instagram", detail: "https://www.instagram.com/dee_signme?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" },
+    { icon: FaFacebook, title: "Facebook", detail: "https://www.facebook.com/profile.php?id=61561907601448&mibextid=ZbWKwL" },
   ],
   ctaTitle: "Ready to Launch Your Campaign?",
   ctaDescription:
