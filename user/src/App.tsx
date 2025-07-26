@@ -2,16 +2,16 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import HomePage from "./pages/HomePage";
-import LogoPage from "./pages/LogoPage";
-import AdvertisementPage from "./pages/AdvertisementPage";
-import ProductPage from "./pages/ProductPage";
-import VisualPage from "./pages/VisualPage";
-import WebsiteDevelopPage from "./pages/WebsiteDevelopPage";
-import ContactPage from "./pages/ContactPage";
+import HomePage from "./pages/home";
+import LogoPage from "./pages/logo";
+import AdvertisementPage from "./pages/advertisement";
+import ProductPage from "./pages/product";
+import VisualPage from "./pages/visual";
+import WebsiteDevelopPage from "./pages/websitedevelop";
+import ContactPage from "./pages/contact";
 import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose } from "./components/ui/toast";
 import { useToast } from "./hooks/use-toast";
-import AboutPage from "./pages/AboutPage";
+import AboutPage from "./pages/about";
 
 function App() {
   const { toasts, dismiss } = useToast();

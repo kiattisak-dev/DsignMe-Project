@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import HeroSection from "../components/ui/HeroSection";
 import PortfolioSection from "../components/ui/PortfolioSection";
 import ServicesSection from "../components/ui/ServicesSection";
@@ -43,6 +43,7 @@ const LogoPage: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const servicesSectionRef = useRef<HTMLDivElement>(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
 
@@ -208,15 +209,24 @@ const LogoPage: React.FC = () => {
     );
   }
 
+  const scrollToServices = () => {
+    if (servicesSectionRef.current) {
+      servicesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div>
       <HeroSection
         title={logoPageData.title}
         description={logoPageData.description}
         contactInfo={logoPageData.contactInfo}
+        onServicesClick={scrollToServices}
       />
       <PortfolioSection portfolioImages={portfolioImages} />
-      <ServicesSection services={services} />
+      <div ref={servicesSectionRef}> {/* Wrap ServicesSection with ref */}
+        <ServicesSection services={services} />
+      </div>
       <ProcessSection process={logoPageData.process} />
     </div>
   );

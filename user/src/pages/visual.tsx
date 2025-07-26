@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import HeroSection from "../components/ui/HeroSection";
 import PortfolioSection from "../components/ui/PortfolioSection";
 import ServicesSection from "../components/ui/ServicesSection";
@@ -14,6 +14,7 @@ const VisualPage: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const servicesSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -146,16 +147,23 @@ const VisualPage: React.FC = () => {
       </div>
     );
   }
-
+  const scrollToServices = () => {
+    if (servicesSectionRef.current) {
+      servicesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   return (
     <div>
       <HeroSection
         title={visualPageData.title}
         description={visualPageData.description}
         contactInfo={visualPageData.contactInfo}
+        onServicesClick={scrollToServices}
       />
       <PortfolioSection portfolioImages={portfolioImages} />
-      <ServicesSection services={services} />
+      <div ref={servicesSectionRef}> {/* Wrap ServicesSection with ref */}
+        <ServicesSection services={services} />
+      </div>
       <ProcessSection process={visualPageData.process} />
     </div>
   );

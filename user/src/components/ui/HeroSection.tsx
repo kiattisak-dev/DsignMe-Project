@@ -35,12 +35,12 @@ interface HeroSectionProps {
   title: string;
   description: string;
   contactInfo: ContactInfo[];
+  onServicesClick?: () => void; // Add callback prop for scrolling to ServicesSection
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ title, description, contactInfo }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ title, description, contactInfo, onServicesClick }) => {
   return (
     <section className="pt-28 pb-16 bg-white relative overflow-hidden flex items-center justify-center min-h-screen">
-     
       <motion.div
         className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
         variants={containerVariants}
@@ -55,19 +55,31 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, description, contactIn
             {description}
           </motion.p>
         </motion.div>
-        <motion.div className="text-center rounded-lg bg-black py-4 mx-auto max-w-sm border-t border-black" variants={itemVariants}>
+        <motion.div
+          className="text-center rounded-lg bg-black py-4 mx-auto max-w-sm border-t border-black cursor-pointer"
+          variants={itemVariants}
+          onClick={onServicesClick} // Trigger scroll on click
+          whileHover={{ scale: 1.05 }} // Optional: Add hover effect
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              onServicesClick?.();
+            }
+          }}
+        >
           <h2 className="text-xl md:text-2xl font-medium text-white font-sans tracking-tight">
             ขั้นตอน & บริการ
           </h2>
         </motion.div>
-         <hr className="border-t-2 border-black mt-12" />
+        <hr className="border-t-2 border-black mt-12" />
         <motion.div className="text-center mb-4 py-5 mx-auto max-w-sm border border-black bg-black border-t border-black" variants={itemVariants}>
           <h2 className="text-xl md:text-2xl font-medium mb-4 text-white">ติดต่อเรา</h2>
           <div className="flex flex-row justify-center items-center gap-8 mx-auto max-w-md">
             {contactInfo.map((info, index) => (
               <motion.a
                 key={index}
-                href={`https://${info.detail.replace('@', '')}`}
+                href={info.detail}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-12 h-12 bg-white rounded-full border border-black shadow-md hover:bg-gray-200 hover:scale-105 transition-all duration-300"
