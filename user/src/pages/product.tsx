@@ -7,7 +7,7 @@ import { productPageData } from "../types/data";
 import { PortfolioItem, Service } from "../types/types";
 import { motion } from "framer-motion";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const ProductPage: React.FC = () => {
   const [portfolioImages, setPortfolioImages] = useState<PortfolioItem[]>([]);

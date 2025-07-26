@@ -45,7 +45,7 @@ const LogoPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const servicesSectionRef = useRef<HTMLDivElement>(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
