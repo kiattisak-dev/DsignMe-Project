@@ -1,17 +1,30 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { ReactNode, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [expanded, setExpanded] = useState(true);
-  const token = Cookies.get("auth_token");
+  const [isLoading, setIsLoading] = useState(true);
 
-  const showSidebar = token && !pathname.startsWith("/login");
+  useEffect(() => {
+    const token = Cookies.get("auth_token");
+    if (!token && pathname !== "/login") {
+      router.push("/login");
+    } else if (token && pathname === "/login") {
+      router.push("/dashboard");
+    }
+    setIsLoading(false);
+  }, [pathname, router]);
+
+  if (isLoading) return null; // ป้องกัน render ก่อน redirect
+
+  const showSidebar = !!Cookies.get("auth_token") && !pathname.startsWith("/login");
 
   return (
     <div className="flex min-h-screen relative">
