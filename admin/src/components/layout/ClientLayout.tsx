@@ -22,7 +22,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, [pathname, router]);
 
-  if (isLoading) return null; // ป้องกัน render ก่อน redirect
+  if (isLoading) return null;
 
   const showSidebar = !!Cookies.get("auth_token") && !pathname.startsWith("/login");
 
