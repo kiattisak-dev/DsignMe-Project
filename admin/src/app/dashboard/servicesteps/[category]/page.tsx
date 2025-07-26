@@ -57,14 +57,19 @@ export default function ServiceStepsPage() {
         const token = Cookies.get("auth_token");
         if (!token) throw new Error("Please sign in");
         const response = await fetch(
-          `http://localhost:8081/servicesteps/${category}/service-steps`,
+          `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(
+            category
+          )}/service-steps`,
+
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
         if (!response.ok) throw new Error("Failed to fetch service steps");
         const data = await response.json();
-        setServiceSteps(data.data?.filter((step: ServiceStep) => step._id) || []);
+        setServiceSteps(
+          data.data?.filter((step: ServiceStep) => step._id) || []
+        );
         setCurrentPage(1);
       } catch (error: any) {
         toast({
@@ -101,7 +106,7 @@ export default function ServiceStepsPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-  
+
   const handleUpdateStep = (updatedStep: ServiceStep) => {
     setServiceSteps(
       serviceSteps.map((step) =>
@@ -116,14 +121,19 @@ export default function ServiceStepsPage() {
         const token = Cookies.get("auth_token");
         if (!token) throw new Error("Please sign in");
         const response = await fetch(
-          `http://localhost:8081/servicesteps/${category}/service-steps/${stepToDelete}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(
+            category
+          )}/service-steps/${stepToDelete}`,
+
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
           }
         );
         if (!response.ok) throw new Error("Failed to delete service step");
-        setServiceSteps(serviceSteps.filter((step) => step._id !== stepToDelete));
+        setServiceSteps(
+          serviceSteps.filter((step) => step._id !== stepToDelete)
+        );
         if (currentSteps.length === 1 && currentPage > 1) {
           setCurrentPage(currentPage - 1);
         }
@@ -190,7 +200,7 @@ export default function ServiceStepsPage() {
           Service Steps - {category}
         </h1>
         <Link href={`/dashboard/servicesteps/${category}/new`}>
-          <Button  className="bg-black text-white border border-gray-300 hover:bg-gray-800 hover:border-gray-400 dark:bg-black dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 flex items-center justify-center w-full sm:w-auto">
+          <Button className="bg-black text-white border border-gray-300 hover:bg-gray-800 hover:border-gray-400 dark:bg-black dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 flex items-center justify-center w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Add Service Step
           </Button>
@@ -334,7 +344,10 @@ export default function ServiceStepsPage() {
                         {subtitle.headings.length > 0 && (
                           <div className="text-sm text-gray-500 dark:text-gray-400 ml-4">
                             {subtitle.headings.map((heading, hIndex) => (
-                              <div key={hIndex} className="flex items-center gap-2">
+                              <div
+                                key={hIndex}
+                                className="flex items-center gap-2"
+                              >
                                 <span className="w-6">{hIndex + 1}.</span>
                                 <span>{heading}</span>
                               </div>
@@ -369,14 +382,18 @@ export default function ServiceStepsPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={!!stepToDelete} onOpenChange={() => setStepToDelete(null)}>
+      <AlertDialog
+        open={!!stepToDelete}
+        onOpenChange={() => setStepToDelete(null)}
+      >
         <AlertDialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-gray-900 dark:text-gray-100">
               Are you sure?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-gray-500 dark:text-gray-400">
-              This action cannot be undone. This will permanently delete the service step.
+              This action cannot be undone. This will permanently delete the
+              service step.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -395,7 +412,7 @@ export default function ServiceStepsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
+
       <EditServiceStepDialog
         open={isEditOpen}
         onOpenChange={setIsEditOpen}

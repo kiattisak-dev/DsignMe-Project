@@ -7,6 +7,8 @@ import { productPageData } from "../types/data";
 import { PortfolioItem, Service } from "../types/types";
 import { motion } from "framer-motion";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
+
 const ProductPage: React.FC = () => {
   const [portfolioImages, setPortfolioImages] = useState<PortfolioItem[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -18,7 +20,7 @@ const ProductPage: React.FC = () => {
       try {
         // Fetch portfolio images for 'product' category
         const projectsResponse = await fetch(
-          "http://localhost:8081/projects/product",
+          `${API_BASE_URL}/projects/product`,
           {
             headers: {
               Accept: "application/json",
@@ -37,12 +39,14 @@ const ProductPage: React.FC = () => {
         const mappedPortfolioImages: PortfolioItem[] = projects
           .map((project: any, index: number) => {
             const id = project._id || project.ID || `fallback-${index}`;
-            const imageUrl = project.imageUrl || project.ImageUrl || project.ImageURL || "";
+            const imageUrl =
+              project.imageUrl || project.ImageUrl || project.ImageURL || "";
             const title = project.title || "Product Project";
             return {
               id,
               url: imageUrl,
-              videoUrl: project.videoUrl || project.VideoUrl || project.VideoURL || "",
+              videoUrl:
+                project.videoUrl || project.VideoUrl || project.VideoURL || "",
               videoLink: project.videoLink || project.VideoLink || "",
               title,
               category: "product",
@@ -52,7 +56,9 @@ const ProductPage: React.FC = () => {
           })
           .filter((item: PortfolioItem) => {
             if (!item.id || item.id === "") {
-              console.warn(`Skipping project with invalid ID: ${JSON.stringify(item)}`);
+              console.warn(
+                `Skipping project with invalid ID: ${JSON.stringify(item)}`
+              );
               return false;
             }
             return true;
@@ -73,7 +79,13 @@ const ProductPage: React.FC = () => {
               item.url = "";
             }
           }
-          if (item.videoUrl && !(item.videoUrl.includes('youtube.com') || item.videoUrl.includes('youtu.be'))) {
+          if (
+            item.videoUrl &&
+            !(
+              item.videoUrl.includes("youtube.com") ||
+              item.videoUrl.includes("youtu.be")
+            )
+          ) {
             try {
               const response = await fetch(item.videoUrl, { method: "HEAD" });
               if (!response.ok) {
@@ -87,11 +99,19 @@ const ProductPage: React.FC = () => {
               item.videoUrl = "";
             }
           }
-          if (item.videoLink && !(item.videoLink.includes('youtube.com') || item.videoLink.includes('youtu.be'))) {
+          if (
+            item.videoLink &&
+            !(
+              item.videoLink.includes("youtube.com") ||
+              item.videoLink.includes("youtu.be")
+            )
+          ) {
             try {
               const response = await fetch(item.videoLink, { method: "HEAD" });
               if (!response.ok) {
-                throw new Error(`HTTP ${response.status} for ${item.videoLink}`);
+                throw new Error(
+                  `HTTP ${response.status} for ${item.videoLink}`
+                );
               }
               console.log(`Video link accessible: ${item.videoLink}`);
             } catch (linkErr: any) {
@@ -106,7 +126,7 @@ const ProductPage: React.FC = () => {
 
         // Fetch service steps for 'product' category
         const servicesResponse = await fetch(
-          "http://localhost:8081/servicesteps/product/service-steps",
+          `${API_BASE_URL}/servicesteps/product/service-steps`,
           {
             headers: {
               Accept: "application/json",
@@ -127,7 +147,9 @@ const ProductPage: React.FC = () => {
           description: step.subtitles
             ? step.subtitles.map((sub: any) => sub.text || "").join("\n")
             : "",
-          features: step.subtitles ? step.subtitles.flatMap((sub: any) => sub.headings || []) : [],
+          features: step.subtitles
+            ? step.subtitles.flatMap((sub: any) => sub.headings || [])
+            : [],
         }));
         setServices(mappedServices);
 

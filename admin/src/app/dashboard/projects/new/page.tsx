@@ -112,7 +112,7 @@ export default function NewProjectPage() {
           throw new Error("Authentication token not found. Please log in.");
         }
         const response = await fetch(
-          "http://localhost:8081/projects/categories",
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/categories`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -211,11 +211,19 @@ export default function NewProjectPage() {
 
       const formData = new FormData();
       if (values.uploadType === "image" && values.imageFile) {
-        console.log("Image file size:", values.imageFile.size / 1024 / 1024, "MB");
+        console.log(
+          "Image file size:",
+          values.imageFile.size / 1024 / 1024,
+          "MB"
+        );
         formData.append("file", values.imageFile);
         formData.append("type", "image");
       } else if (values.uploadType === "video" && values.videoFile) {
-        console.log("Video file size:", values.videoFile.size / 1024 / 1024, "MB");
+        console.log(
+          "Video file size:",
+          values.videoFile.size / 1024 / 1024,
+          "MB"
+        );
         formData.append("file", values.videoFile);
         formData.append("type", "video");
       } else if (values.uploadType === "videoUrl" && values.videoUrl) {
@@ -227,9 +235,9 @@ export default function NewProjectPage() {
         console.log(`${key}:`, value);
       }
 
-      const url = `http://localhost:8081/projects/${encodeURIComponent(
-        values.category
-      )}`;
+      const url = `${
+        process.env.NEXT_PUBLIC_API_URL
+      }/projects/${encodeURIComponent(values.category)}`;
 
       const response = await fetch(url, {
         method: "POST",
@@ -244,9 +252,12 @@ export default function NewProjectPage() {
 
       if (!response.ok) {
         const errorData = responseBody ? JSON.parse(responseBody) : {};
-        let errorMessage = errorData.error || `Failed to create project (status: ${response.status})`;
+        let errorMessage =
+          errorData.error ||
+          `Failed to create project (status: ${response.status})`;
         if (errorMessage.includes("file too large")) {
-          errorMessage = "File size exceeds server limit (10MB for images). Please use a smaller file.";
+          errorMessage =
+            "File size exceeds server limit (10MB for images). Please use a smaller file.";
         }
         throw new Error(errorMessage);
       }
@@ -259,16 +270,19 @@ export default function NewProjectPage() {
       console.error("Error in onSubmit:", error);
       let errorMessage = "Failed to create project. Please try again.";
       if (error.name === "TimeoutError") {
-        errorMessage = "Request timed out. Try a smaller file or check your connection.";
+        errorMessage =
+          "Request timed out. Try a smaller file or check your connection.";
       } else if (error.message.includes("token")) {
         errorMessage = "Authentication error. Please log in again.";
         router.push("/login");
       } else if (error.message.includes("Category not found")) {
-        errorMessage = "Selected category does not exist. Please create it first.";
+        errorMessage =
+          "Selected category does not exist. Please create it first.";
       } else if (error.message.includes("Failed to fetch")) {
-        errorMessage = "Cannot connect to the server. Please ensure the server is running at http://localhost:8081.";
+        errorMessage = `Cannot connect to the server. Please ensure the server is running at ${process.env.NEXT_PUBLIC_API_URL}.`;
       } else if (error.message.includes("file too large")) {
-        errorMessage = "File size exceeds server limit (10MB for images). Please use a smaller file.";
+        errorMessage =
+          "File size exceeds server limit (10MB for images). Please use a smaller file.";
       } else if (error.message.includes("Failed to create project")) {
         errorMessage = `Server error: ${error.message}`;
       }

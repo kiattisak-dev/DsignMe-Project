@@ -26,16 +26,22 @@ export default function DashboardPage() {
         if (!token) throw new Error("Please sign in");
 
         const [projectResponse, categoryResponse] = await Promise.all([
-          fetch("http://localhost:8081/projects", {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:8081/projects/categories", {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/categories`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
 
-        if (!projectResponse.ok) throw new Error(`Failed to fetch projects: ${projectResponse.status}`);
-        if (!categoryResponse.ok) throw new Error(`Failed to fetch categories: ${categoryResponse.status}`);
+        if (!projectResponse.ok)
+          throw new Error(
+            `Failed to fetch projects: ${projectResponse.status}`
+          );
+        if (!categoryResponse.ok)
+          throw new Error(
+            `Failed to fetch categories: ${categoryResponse.status}`
+          );
 
         const [projectData, categoryData] = await Promise.all([
           projectResponse.json(),

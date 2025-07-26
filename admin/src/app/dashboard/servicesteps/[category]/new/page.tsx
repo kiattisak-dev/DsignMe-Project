@@ -43,9 +43,12 @@ export default function AddServiceStepPage() {
       try {
         const token = Cookies.get("auth_token");
         if (!token) throw new Error("Please go back login");
-        const res = await fetch("http://localhost:8081/projects/categories", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/categories`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (!res.ok) throw new Error("Can not load categories");
         const data = await res.json();
         setCategories(data.data || []);
@@ -160,7 +163,10 @@ export default function AddServiceStepPage() {
       const token = Cookies.get("auth_token");
       if (!token) throw new Error("Please go back login");
       const res = await fetch(
-        `http://localhost:8081/servicesteps/${category}/service-steps`,
+        `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(
+          category
+        )}/service-steps`,
+
         {
           method: "POST",
           headers: {
