@@ -18,18 +18,21 @@ func main() {
 	// Environment variables are loaded via init() in configs/env.go
 
 	// Initialize database
-	configs.InitDB()
+	if err := configs.InitDB(); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
 	defer configs.DisconnectDB()
 
 	// Initialize Fiber app with configuration
 	app := fiber.New(fiber.Config{
-		BodyLimit: 50 * 1024 * 1024, // Set limit to 50 MB to support video uploads
+		BodyLimit: 50 * 1024 * 1024, // 50 MB limit for video uploads
 	})
 
 	// Apply middleware
 	app.Use(middleware.CorsMiddleware())
 	app.Use(logger.New(logger.Config{
 		Format: "${time} ${method} ${path} - ${ip} - ${status} ${latency}\n",
+		// Output to stdout (Render will capture this for logs)
 	}))
 
 	// Setup routes
@@ -46,7 +49,7 @@ func main() {
 	// Get port from environment (Render provides PORT automatically)
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // fallback for local development
+		log.Fatalf("PORT environment variable is not set, expected by Render")
 	}
 
 	// Start server with graceful shutdown
@@ -55,8 +58,8 @@ func main() {
 		log.Printf("Server running on port %s", port)
 		if err := app.Listen(":" + port); err != nil {
 			log.Printf("Server failed to start: %v", err)
+			close(server)
 		}
-		close(server)
 	}()
 
 	// Handle graceful shutdown
@@ -71,7 +74,6 @@ func main() {
 	if err := app.ShutdownWithContext(ctx); err != nil {
 		log.Printf("Server shutdown failed: %v", err)
 	}
-
-	<-server
-	log.Println("Server stopped")
+	log.Println("Server stopped gracefully")
+	close(server)
 }

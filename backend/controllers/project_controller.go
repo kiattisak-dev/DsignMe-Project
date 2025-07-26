@@ -35,7 +35,7 @@ type File struct {
 	CreatedAt time.Time          `bson:"created_at"`
 }
 
-func uploadToGridFS(file *multipart.FileHeader, fileType string) (string, error) {
+func uploadToGridFS(ctx context.Context, file *multipart.FileHeader, fileType string) (string, error) {
 	log.Printf("uploadToGridFS: Uploading file %s of type %s", file.Filename, fileType)
 
 	// Validate file size
@@ -103,7 +103,7 @@ func uploadToGridFS(file *multipart.FileHeader, fileType string) (string, error)
 
 	// Save file metadata to FilesColl
 	filesColl := configs.Client.Database("ProjectsDB").Collection("FilesColl")
-	_, err = filesColl.InsertOne(context.Background(), bson.M{
+	_, err = filesColl.InsertOne(ctx, bson.M{
 		"_id":      fileID,
 		"filename": file.Filename,
 		"type":     fileType,
@@ -116,12 +116,12 @@ func uploadToGridFS(file *multipart.FileHeader, fileType string) (string, error)
 	}
 
 	baseURL := os.Getenv("BASE_URL")
-    if baseURL == "" {
-        baseURL = "http://localhost:8081"
-    }
-    fileUrl := fmt.Sprintf("%s/files/%s", baseURL, fileID.Hex())
-    log.Printf("uploadToGridFS: File %s uploaded successfully, URL: %s", file.Filename, fileUrl)
-    return fileUrl, nil
+	if baseURL == "" {
+		return "", fmt.Errorf("BASE_URL environment variable is not set")
+	}
+	fileUrl := fmt.Sprintf("%s/files/%s", baseURL, fileID.Hex())
+	log.Printf("uploadToGridFS: File %s uploaded successfully, URL: %s", file.Filename, fileUrl)
+	return fileUrl, nil
 }
 
 func UploadFileHandler(c *fiber.Ctx) error {
@@ -161,8 +161,8 @@ func UploadFileHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Upload file to GridFS
-	fileUrl, err := uploadToGridFS(file, fileType)
+	// Upload file to GridFS with context
+	fileUrl, err := uploadToGridFS(c.Context(), file, fileType)
 	if err != nil {
 		log.Printf("UploadFileHandler: Failed to upload file %s: %v", file.Filename, err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -248,7 +248,7 @@ func AddProjectHandler(c *fiber.Ctx) error {
 	if len(files) > 0 {
 		file := files[0]
 		log.Printf("AddProjectHandler: File received: %s, Size: %d MB", file.Filename, file.Size/(1024*1024))
-		fileUrl, err := uploadToGridFS(file, uploadType[0])
+		fileUrl, err := uploadToGridFS(ctx, file, uploadType[0])
 		if err != nil {
 			log.Printf("AddProjectHandler: Failed to upload file %s: %v", file.Filename, err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
