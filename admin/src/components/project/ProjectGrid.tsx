@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Project } from "@/lib/types";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants, Transition } from "framer-motion";
 import ProjectCard from "./ProjectCard";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -23,28 +23,28 @@ const ProjectGrid = memo(
     setProjectToDelete,
     handleDeleteProject,
   }: ProjectGridProps) => {
-    const containerVariants = {
+    const containerVariants: Variants = {
       hidden: { opacity: 0 },
       visible: {
         opacity: 1,
         transition: {
-          staggerChildren: projects.length > 6 ? 0 : 0.08, // ปรับตาม projectsPerPage
+          staggerChildren: projects.length > 6 ? 0 : 0.08,
         },
       },
       exit: { opacity: 0 },
     };
 
-    const cardVariants = {
+    const cardVariants: Variants = {
       hidden: { opacity: 0, y: 20 },
       visible: {
         opacity: 1,
         y: 0,
         transition: {
           type: projects.length > 6 ? "tween" : "spring",
-          stiffness: 120,
-          damping: 20,
-          duration: 0.4,
-        },
+          ...(projects.length > 6
+            ? { duration: 0.4 }
+            : { stiffness: 120, damping: 20, duration: 0.4 }),
+        } as Transition, // Explicitly cast to Transition
       },
       exit: { opacity: 0, y: 20, transition: { duration: 0.2 } },
     };
@@ -65,7 +65,7 @@ const ProjectGrid = memo(
               className="col-span-full"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array(6) // ปรับเป็น 6 เพื่อให้ตรงกับ projectsPerPage
+                {Array(6)
                   .fill(0)
                   .map((_, i) => (
                     <Skeleton

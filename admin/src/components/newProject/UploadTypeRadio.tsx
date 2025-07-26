@@ -7,30 +7,43 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
+import { Control } from "react-hook-form";
 
-const fieldVariants = {
+// Use the shared FormValues interface
+interface FormValues {
+  uploadType: "image" | "video" | "videoUrl";
+  imageFile?: File;
+  videoFile?: File;
+  videoUrl?: string;
+  category: string;
+}
+
+interface UploadTypeRadioProps {
+  control: Control<FormValues>;
+  onChange: (value: string) => void;
+}
+
+const fieldVariants: Variants = {
   hidden: { opacity: 0, x: -20 },
-  visible: (i: number) => ({
+  visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.5, delay: i * 0.1, ease: "easeOut" },
-  }),
+    transition: {
+      duration: 0.5,
+      ease: "easeOut" as const,
+    },
+  },
 };
 
-export default function UploadTypeRadio({
-  control,
-  onChange,
-}: {
-  control: any;
-  onChange: (value: string) => void;
-}) {
+export default function UploadTypeRadio({ control, onChange }: UploadTypeRadioProps) {
   return (
     <motion.div
-      custom={1}
       variants={fieldVariants}
       initial="hidden"
       animate="visible"
+      custom={1}
+      transition={{ delay: 1 * 0.1 }}
     >
       <FormField
         control={control}
@@ -40,7 +53,10 @@ export default function UploadTypeRadio({
             <FormLabel className="text-base">Upload Type</FormLabel>
             <FormControl>
               <RadioGroup
-                onValueChange={onChange}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  onChange(value);
+                }}
                 defaultValue={field.value}
                 className="flex flex-col space-y-2"
               >

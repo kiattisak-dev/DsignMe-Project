@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import Cookies from "js-cookie";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -28,6 +28,15 @@ import VideoUrlInput from "@/components/newProject/VideoUrlInput";
 interface Category {
   ID: string;
   NameCategory: string;
+}
+
+// Define the form values interface based on formSchema
+interface FormValues {
+  uploadType: "image" | "video" | "videoUrl";
+  imageFile?: File;
+  videoFile?: File;
+  videoUrl?: string;
+  category: string;
 }
 
 const formSchema = z
@@ -82,7 +91,7 @@ export default function NewProjectPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       uploadType: "image",
@@ -158,7 +167,7 @@ export default function NewProjectPage() {
     setImagePreview(null);
   };
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: FormValues) {
     setIsLoading(true);
 
     const customValidation = z
@@ -274,19 +283,33 @@ export default function NewProjectPage() {
     }
   }
 
-  const containerVariants = {
+  // Define variants with explicit type
+  const containerVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: "easeOut" },
+      transition: {
+        duration: 0.6,
+        ease: "easeOut" as const,
+      },
     },
   };
 
-  const buttonVariants = {
+  const buttonVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.5, delay: 0.6 } },
-    hover: { scale: 1.05, transition: { duration: 0.2 } },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        delay: 0.6,
+        ease: "easeOut" as const,
+      },
+    },
+    hover: {
+      scale: 1.05,
+      transition: { duration: 0.2, ease: "easeOut" as const },
+    },
     tap: { scale: 0.95 },
   };
 

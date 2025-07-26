@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   Table,
   TableBody,
@@ -47,6 +47,10 @@ interface Category {
   UpdatedAt?: string;
 }
 
+interface CategoryResponse {
+  data: Category;
+}
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -62,8 +66,8 @@ export default function CategoriesPage() {
     const fetchCategories = async () => {
       try {
         setIsLoading(true);
-        const data = await getCategories();
-        setCategories(data.data || []);
+        const response = await getCategories();
+        setCategories(response.data || []);
       } catch (error: any) {
         toast({
           title: "Error",
@@ -86,7 +90,7 @@ export default function CategoriesPage() {
   const handleSaveCategory = async () => {
     try {
       const body = { nameCategory: formName };
-      let data;
+      let data: CategoryResponse;
       if (formCategory) {
         // Edit category
         data = await updateCategory(formCategory.ID, body);
@@ -144,22 +148,25 @@ export default function CategoriesPage() {
   };
 
   // Animation variants
-  const rowVariants = {
+  const rowVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
+    visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, delay: i * 0.1, ease: "easeOut" },
-    }),
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
   };
 
-  const formVariants = {
+  const formVariants: Variants = {
     hidden: { opacity: 0, scale: 0.9 },
     visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
     exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } },
   };
 
-  const dropdownVariants = {
+  const dropdownVariants: Variants = {
     hidden: { opacity: 0, y: -10 },
     visible: {
       opacity: 1,
@@ -240,6 +247,7 @@ export default function CategoriesPage() {
                         initial="hidden"
                         animate="visible"
                         exit="hidden"
+                        transition={{ delay: index * 0.1 }}
                         className="border-[#D1D5DB] dark:border-[#4B5563] hover:bg-[#E5E7EB] dark:hover:bg-[#374151]"
                       >
                         <TableCell className="text-[#111827] dark:text-[#D1D5DB]">

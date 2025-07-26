@@ -8,16 +8,19 @@ import {
 } from "@/components/ui/form";
 import { ImageIcon } from "lucide-react";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { useFormContext } from "react-hook-form"; // เพิ่ม import
+import { motion, Variants } from "framer-motion";
+import { useFormContext } from "react-hook-form";
 
-const fieldVariants = {
+const fieldVariants: Variants = {
   hidden: { opacity: 0, x: -20 },
-  visible: (i: number) => ({
+  visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.5, delay: i * 0.1, ease: "easeOut" },
-  }),
+    transition: {
+      duration: 0.5,
+      ease: "easeOut" as const, // ระบุเป็น literal string
+    },
+  },
 };
 
 export default function ImageUpload({
@@ -29,7 +32,7 @@ export default function ImageUpload({
   setImagePreview: React.Dispatch<React.SetStateAction<string | null>>;
   isLoading: boolean;
 }) {
-  const { setValue, control } = useFormContext(); // ใช้ useFormContext เพื่อเข้าถึง setValue และ control
+  const { setValue, control } = useFormContext();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,10 +57,11 @@ export default function ImageUpload({
 
   return (
     <motion.div
-      custom={2}
       variants={fieldVariants}
       initial="hidden"
       animate="visible"
+      custom={2} // ใช้ custom เพื่อส่งค่า index
+      transition={{ delay: 2 * 0.1 }} // คำนวณ delay ตาม index
     >
       <FormField
         control={control}
