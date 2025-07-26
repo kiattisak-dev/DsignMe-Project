@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-
 import React, { useState, useEffect, useRef } from "react";
 import HeroSection from "../components/ui/HeroSection";
 import PortfolioSection from "../components/ui/PortfolioSection";
@@ -47,24 +45,29 @@ const LogoPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const servicesSectionRef = useRef<HTMLDivElement>(null);
 
-  // ใช้ VITE_API_URL จาก environment variable
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "https://dsignme-project.onrender.com";
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch projects
-        const projectsResponse = await fetch(`${API_BASE_URL}/projects/logo`, {
-          headers: {
-            Accept: "application/json",
-          },
-        });
+        const projectsResponse = await fetch(
+          `${API_BASE_URL}/projects/logo`,
+          {
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
 
         if (!projectsResponse.ok) {
-          throw new Error(`Failed to fetch projects: ${projectsResponse.statusText}`);
+          throw new Error(
+            `Failed to fetch projects: ${projectsResponse.statusText}`
+          );
         }
 
-        const projectsData: { data: ProjectResponse[] } = await projectsResponse.json();
+        const projectsData: { data: ProjectResponse[] } =
+          await projectsResponse.json();
         const projects = projectsData.data || [];
 
         const mappedPortfolioImages: PortfolioItem[] = projects
@@ -83,14 +86,48 @@ const LogoPage: React.FC = () => {
           })
           .filter((item) => {
             if (!item.id || item.id === "") {
-              console.warn(`Skipping project with invalid ID: ${JSON.stringify(item)}`);
+              console.warn(
+                `Skipping project with invalid ID: ${JSON.stringify(item)}`
+              );
               return false;
             }
             return true;
           });
 
-        // ข้ามการตรวจสอบ HEAD request เพื่อลดปัญหาการเชื่อมต่อ
-        // การจัดการ error จะอยู่ใน MediaItem.tsx แทน
+        // Test image accessibility (optional)
+        for (const item of mappedPortfolioImages) {
+          if (item.url) {
+            try {
+              const response = await fetch(item.url, { method: "HEAD" });
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} for ${item.url}`);
+              }
+            } catch (imgErr) {
+              if (imgErr instanceof Error) {
+                console.warn(
+                  `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${imgErr.message}`
+                );
+              }
+              item.url = "";
+            }
+          }
+          if (item.videoUrl) {
+            try {
+              const response = await fetch(item.videoUrl, { method: "HEAD" });
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
+              }
+            } catch (videoErr) {
+              if (videoErr instanceof Error) {
+                console.warn(
+                  `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${videoErr.message}`
+                );
+              }
+              item.videoUrl = "";
+            }
+          }
+        }
+
         setPortfolioImages(mappedPortfolioImages);
 
         // Fetch service steps
@@ -104,10 +141,13 @@ const LogoPage: React.FC = () => {
         );
 
         if (!servicesResponse.ok) {
-          throw new Error(`Failed to fetch service steps: ${servicesResponse.statusText}`);
+          throw new Error(
+            `Failed to fetch service steps: ${servicesResponse.statusText}`
+          );
         }
 
-        const servicesData: { data: ServiceStep[] } = await servicesResponse.json();
+        const servicesData: { data: ServiceStep[] } =
+          await servicesResponse.json();
         const serviceSteps = servicesData.data || [];
 
         const mappedServices: Service[] = serviceSteps.map((step) => ({
@@ -121,6 +161,7 @@ const LogoPage: React.FC = () => {
         }));
 
         setServices(mappedServices);
+
         setLoading(false);
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -159,7 +200,9 @@ const LogoPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-xl font-semibold text-red-500">ข้อผิดพลาด: {error}</p>
+          <p className="text-xl font-semibold text-red-500">
+            ข้อผิดพลาด: {error}
+          </p>
           <p className="text-gray-500 mt-2">กรุณาลองใหม่ในภายหลัง</p>
         </div>
       </div>
@@ -168,7 +211,7 @@ const LogoPage: React.FC = () => {
 
   const scrollToServices = () => {
     if (servicesSectionRef.current) {
-      servicesSectionRef.current.scrollIntoView({ behavior: "smooth" });
+      servicesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -181,7 +224,7 @@ const LogoPage: React.FC = () => {
         onServicesClick={scrollToServices}
       />
       <PortfolioSection portfolioImages={portfolioImages} />
-      <div ref={servicesSectionRef}>
+      <div ref={servicesSectionRef}> {/* Wrap ServicesSection with ref */}
         <ServicesSection services={services} />
       </div>
       <ProcessSection process={logoPageData.process} />
