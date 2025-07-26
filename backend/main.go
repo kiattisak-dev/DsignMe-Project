@@ -17,10 +17,8 @@ import (
 func main() {
 	// Environment variables are loaded via init() in configs/env.go
 
-	// Initialize database
-	if err := configs.InitDB(); err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
-	}
+	// Initialize database (ไม่มีการคืนค่า error)
+	configs.InitDB()
 	defer configs.DisconnectDB()
 
 	// Initialize Fiber app with configuration
