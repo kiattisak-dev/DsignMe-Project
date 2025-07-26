@@ -45,11 +45,9 @@ const LogoPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const servicesSectionRef = useRef<HTMLDivElement>(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "https://dsignme-project.onrender.com";
-  const FALLBACK_IMAGE = "https://via.placeholder.com/300";
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
 
   useEffect(() => {
-    console.log("API_BASE_URL:", API_BASE_URL); // Debug URL
     const fetchData = async () => {
       try {
         // Fetch projects
@@ -77,7 +75,7 @@ const LogoPage: React.FC = () => {
             const id = project._id || `fallback-${index}`;
             return {
               id,
-              url: project.imageUrl || FALLBACK_IMAGE,
+              url: project.imageUrl || "",
               videoUrl: project.videoUrl || "",
               videoLink: project.videoLink || "",
               title: project.title || "Logo Project",
@@ -96,33 +94,36 @@ const LogoPage: React.FC = () => {
             return true;
           });
 
-        // Test image accessibility only in development
-        const isProduction = import.meta.env.MODE === 'production';
-        if (!isProduction) {
-          for (const item of mappedPortfolioImages) {
-            if (item.url && item.url !== FALLBACK_IMAGE) {
-              try {
-                const response = await fetch(item.url, { method: "HEAD" });
-                if (!response.ok) {
-                  throw new Error(`HTTP ${response.status} for ${item.url}`);
-                }
-              } catch (imgErr: unknown) {
-                const errorMessage = imgErr instanceof Error ? imgErr.message : 'Unknown error';
-                console.warn(`Image not accessible: ${item.url}, ID: ${item.id}, Error: ${errorMessage}`);
-                item.url = FALLBACK_IMAGE;
+        // Test image accessibility (optional)
+        for (const item of mappedPortfolioImages) {
+          if (item.url) {
+            try {
+              const response = await fetch(item.url, { method: "HEAD" });
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} for ${item.url}`);
               }
+            } catch (imgErr) {
+              if (imgErr instanceof Error) {
+                console.warn(
+                  `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${imgErr.message}`
+                );
+              }
+              item.url = "";
             }
-            if (item.videoUrl) {
-              try {
-                const response = await fetch(item.videoUrl, { method: "HEAD" });
-                if (!response.ok) {
-                  throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
-                }
-              } catch (videoErr: unknown) {
-                const errorMessage = videoErr instanceof Error ? videoErr.message : 'Unknown error';
-                console.warn(`Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${errorMessage}`);
-                item.videoUrl = "";
+          }
+          if (item.videoUrl) {
+            try {
+              const response = await fetch(item.videoUrl, { method: "HEAD" });
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
               }
+            } catch (videoErr) {
+              if (videoErr instanceof Error) {
+                console.warn(
+                  `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${videoErr.message}`
+                );
+              }
+              item.videoUrl = "";
             }
           }
         }
@@ -223,7 +224,7 @@ const LogoPage: React.FC = () => {
         onServicesClick={scrollToServices}
       />
       <PortfolioSection portfolioImages={portfolioImages} />
-      <div ref={servicesSectionRef}>
+      <div ref={servicesSectionRef}> {/* Wrap ServicesSection with ref */}
         <ServicesSection services={services} />
       </div>
       <ProcessSection process={logoPageData.process} />
