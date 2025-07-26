@@ -63,7 +63,7 @@ const Header: React.FC = () => {
   return (
     <motion.header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isHomePage && !isScrolled ? 'bg-black/30' : 'bg-white/80 shadow-md'
+        isHomePage && !isScrolled ? 'bg-black/50 backdrop-blur-sm' : 'bg-white/80 shadow-md'
       }`}
       initial="hidden"
       animate="visible"
