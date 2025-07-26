@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { ReactNode } from "react";
 import ClientLayout from "@/components/layout/ClientLayout";
+import Cookies from "js-cookie";
+import { redirect } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const roboto = Roboto({
@@ -19,6 +21,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  // ตรวจสอบ token เมื่อโหลดหน้า
+  const token = Cookies.get("auth_token");
+  if (!token && !["/login"].includes(window.location.pathname)) {
+    redirect("/login");
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${roboto.variable} font-roboto`}>
