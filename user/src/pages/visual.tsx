@@ -149,7 +149,12 @@ const VisualPage: React.FC = () => {
   }
   const scrollToServices = () => {
     if (servicesSectionRef.current) {
-      servicesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      const navbarHeight = 100; // Adjust this value based on your navbar height
+      const elementPosition = servicesSectionRef.current.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({
+        top: elementPosition - navbarHeight,
+        behavior: "smooth",
+      });
     }
   };
   return (

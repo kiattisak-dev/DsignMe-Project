@@ -199,7 +199,12 @@ const AdvertisementPage: React.FC = () => {
 
   const scrollToServices = () => {
     if (servicesSectionRef.current) {
-      servicesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      const navbarHeight = 100; // Adjust this value based on your navbar height
+      const elementPosition = servicesSectionRef.current.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({
+        top: elementPosition - navbarHeight,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -209,6 +214,7 @@ const AdvertisementPage: React.FC = () => {
         title={advertisementPageData.title}
         description={advertisementPageData.description}
         contactInfo={advertisementPageData.contactInfo}
+        onServicesClick={scrollToServices}
       />
       <PortfolioSection portfolioImages={portfolioImages} />
        <div ref={servicesSectionRef}> {/* Wrap ServicesSection with ref */}
