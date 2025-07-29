@@ -21,42 +21,26 @@ const ImageSlider: React.FC = () => {
       ],
       link: "/services/logo",
     },
-    {
-      name: "Advertisement",
-      images: ["/Home-Picture/Advertisement/01.png"],
-      link: "/services/advertisement",
-    },
-    {
-      name: "Visual Graphics",
-      images: ["/Home-Picture/Visual/01.png"],
-      link: "/services/visual",
-    },
-    {
-      name: "Products Retouch",
-      images: ["/Home-Picture/Product/01.jpg"],
-      link: "/services/product",
-    },
-    {
-      name: "UX/UI & Development",
-      images: ["/Home-Picture/UXUI/01.jpg"],
-      link: "/services/website-develop",
-    },
+    { name: "Advertisement", images: ["/Home-Picture/Advertisement/01.png"], link: "/services/advertisement" },
+    { name: "Visual Graphics", images: ["/Home-Picture/Visual/01.png"], link: "/services/visual" },
+    { name: "Products Retouch", images: ["/Home-Picture/Product/01.jpg"], link: "/services/product" },
+    { name: "UX/UI & Development", images: ["/Home-Picture/UXUI/01.jpg"], link: "/services/website-develop" },
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const logoImages = categories[0].images;
   const totalSlides = logoImages.length;
 
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement | null>(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
   useEffect(() => {
     const allImages = [
       ...logoImages,
-      ...categories.slice(1).flatMap((category) => category.images),
+      ...categories.slice(1).flatMap((c) => c.images),
     ];
     preloadImages(allImages);
-  }, [logoImages]);
+  }, [logoImages, categories]);
 
   useEffect(() => {
     if (!isInView) return;
@@ -79,10 +63,17 @@ const ImageSlider: React.FC = () => {
               animate={{ opacity: index === currentSlide ? 1 : 0 }}
               transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
               className={`absolute w-full h-full object-cover transition-opacity ${
-                index === currentSlide ? "z-10" : "z-0"
+                index === currentSlide ? "z-10" : "z-0 pointer-events-none"
               }`}
-              style={{ position: "absolute", top: 0, left: 0 }}
-              loading="eager"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                willChange: "opacity",
+                backfaceVisibility: "hidden",
+                WebkitTransform: "translateZ(0)",
+              }}
+              loading={index === currentSlide ? "eager" : "lazy"}
               onError={(e) => {
                 console.log(`Image failed to load: ${img}`);
                 (e.target as HTMLImageElement).src = "https://placehold.co/800x600";
@@ -104,7 +95,7 @@ const ImageSlider: React.FC = () => {
       className="min-h-screen bg-white w-full flex flex-col items-stretch py-0 lg:flex-row lg:items-stretch lg:py-0"
     >
       <motion.div
-        ref={ref}
+        ref={ref as any}
         initial={{ opacity: 0, y: 50 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
