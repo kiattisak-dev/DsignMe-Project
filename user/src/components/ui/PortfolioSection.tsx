@@ -1,9 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { PortfolioItem } from '../../types/types';
-import MediaItem from './PortfolioSection/MediaItem';
-import ModalContent from './PortfolioSection/ModalContent';
+import React, { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { PortfolioItem } from "../../types/types";
+import MediaItem from "./PortfolioSection/MediaItem";
+import ModalContent from "./PortfolioSection/ModalContent";
 
 // Animation variants for section scroll
 const sectionVariants = {
@@ -11,7 +11,7 @@ const sectionVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' },
+    transition: { duration: 0.6, ease: "easeOut" },
   },
 };
 
@@ -21,7 +21,7 @@ const buttonVariants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.4, ease: 'easeOut' },
+    transition: { duration: 0.4, ease: "easeOut" },
   },
   hover: { scale: 1.05, transition: { duration: 0.2 } },
 };
@@ -32,7 +32,7 @@ const paginationButtonVariants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.3, ease: 'easeOut' },
+    transition: { duration: 0.3, ease: "easeOut" },
   },
 };
 
@@ -40,13 +40,18 @@ interface PortfolioSectionProps {
   portfolioImages: PortfolioItem[];
 }
 
-const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) => {
+const PortfolioSection: React.FC<PortfolioSectionProps> = ({
+  portfolioImages,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showAll, setShowAll] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
 
-  const totalItems = useMemo(() => (showAll ? portfolioImages : portfolioImages.slice(0, 4)), [showAll, portfolioImages]);
+  const totalItems = useMemo(
+    () => (showAll ? portfolioImages : portfolioImages.slice(0, 4)),
+    [showAll, portfolioImages]
+  );
   const totalPages = Math.ceil(totalItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = totalItems.slice(startIndex, startIndex + itemsPerPage);
@@ -57,6 +62,15 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
 
   const closeModal = () => {
     setSelectedItem(null);
+  };
+
+  // ฟังก์ชันสำหรับเลื่อนหน้าแบบวนลูป
+  const goToPreviousPage = () => {
+    setCurrentPage((prev) => (prev === 1 ? totalPages : prev - 1));
+  };
+
+  const goToNextPage = () => {
+    setCurrentPage((prev) => (prev === totalPages ? 1 : prev + 1));
   };
 
   return (
@@ -72,13 +86,13 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
           className="text-center mb-8 sm:mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-gray-900">
             ผลงานของพวกเรา
           </h3>
         </motion.div>
-        
+
         {portfolioImages.length === 0 ? (
           <div className="text-center text-gray-500 text-base sm:text-lg">
             ไม่มีผลงานที่สามารถแสดงได้
@@ -92,16 +106,16 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
           >
             <AnimatePresence>
               {currentItems.map((item, index) => (
-                <MediaItem 
+                <MediaItem
                   key={item.id || `fallback-${index}`}
-                  item={item} 
-                  onClick={() => openModal(item)} 
+                  item={item}
+                  onClick={() => openModal(item)}
                 />
               ))}
             </AnimatePresence>
           </motion.div>
         )}
-        
+
         <AnimatePresence>
           {!showAll && portfolioImages.length > 4 && (
             <motion.div
@@ -122,7 +136,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         {showAll && totalPages > 1 && (
           <motion.div
             className="flex justify-center items-center space-x-2 mt-6"
@@ -131,26 +145,30 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
           >
             <motion.button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
+              onClick={goToPreviousPage}
+              disabled={totalPages === 1}
               className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
-                currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
-              } transition-colors duration-300`}
+                totalPages === 1
+                  ? "bg-gray-200 text-gray-900 cursor-not-allowed"
+                  : "bg-white text-black hover:bg-gray-100"
+              } border border-black transition-colors duration-300`}
               variants={paginationButtonVariants}
-              whileHover={currentPage === 1 ? {} : { scale: 1.05 }}
+              whileHover={totalPages === 1 ? {} : { scale: 1.05 }}
               aria-label="Previous page"
             >
               <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1" />
             </motion.button>
-            
+
             <div className="flex space-x-1">
               {Array.from({ length: totalPages }, (_, index) => (
                 <motion.button
                   key={index}
                   onClick={() => setCurrentPage(index + 1)}
                   className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
-                    currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  } transition-colors duration-300`}
+                    currentPage === index + 1
+                      ? "bg-black text-white"
+                      : "bg-white text-black hover:bg-gray-100"
+                  } border border-black transition-colors duration-300`}
                   variants={paginationButtonVariants}
                   whileHover={{ scale: 1.05 }}
                   aria-label={`Page ${index + 1}`}
@@ -159,22 +177,24 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) 
                 </motion.button>
               ))}
             </div>
-            
+
             <motion.button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
+              onClick={goToNextPage}
+              disabled={totalPages === 1}
               className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
-                currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
-              } transition-colors duration-300`}
+                totalPages === 1
+                  ? "bg-gray-200 text-gray-900 cursor-not-allowed"
+                  : "bg-white text-black hover:bg-gray-100"
+              } border border-black transition-colors duration-300`}
               variants={paginationButtonVariants}
-              whileHover={currentPage === totalPages ? {} : { scale: 1.05 }}
+              whileHover={totalPages === 1 ? {} : { scale: 1.05 }}
               aria-label="Next page"
             >
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 inline-block ml-1" />
             </motion.button>
           </motion.div>
         )}
-        
+
         <AnimatePresence>
           {selectedItem && (
             <ModalContent item={selectedItem} onClose={closeModal} />

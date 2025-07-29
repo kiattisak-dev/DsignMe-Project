@@ -211,7 +211,11 @@ const LogoPage: React.FC = () => {
 
   const scrollToServices = () => {
     if (servicesSectionRef.current) {
-      servicesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      servicesSectionRef.current.scrollIntoView({ behavior: "smooth" });
+      // Adjust scroll position to account for navbar height (e.g., 100px)
+      setTimeout(() => {
+        window.scrollBy({ top: -100, behavior: "smooth" });
+      }, 0);
     }
   };
 

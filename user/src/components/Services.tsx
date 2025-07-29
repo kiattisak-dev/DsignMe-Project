@@ -105,9 +105,14 @@ const Services: React.FC = () => {
         <div className="grid grid-cols-1 gap-0 sm:gap-0 lg:grid-cols-2 lg:gap-6">
           {/* First four cards in 2x2 grid */}
           {services.slice(0, 4).map((service, index) => (
-            <Link to={service.link} key={index} className={`mb-6 sm:mb-8 lg:mb-0 ${
-                index > 0 ? "border-t-2 border-gray-400" : ""
-              }`}>
+            <Link
+              to={service.link}
+              key={index}
+              className={`mb-6 sm:mb-8 lg:mb-0 ${index > 0 ? "border-t-2 border-gray-400" : ""}`}
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
               <div
                 className="relative w-full h-[100vw] sm:h-[50vw] md:h-[50vw] lg:h-96 !aspect-square sm:!aspect-square md:!aspect-square lg:aspect-auto overflow-hidden bg-gray-900/80 backdrop-blur-md border-2 border-gray-400"
               >
@@ -140,7 +145,7 @@ const Services: React.FC = () => {
                 ))}
 
                 {/* Slide Indicators */}
-                <div className="absolute bottom-4  ml-2 left-8 flex space-x-2">
+                <div className="absolute bottom-4 ml-2 left-8 flex space-x-2">
                   {service.images.map((_, imgIndex) => (
                     <button
                       key={imgIndex}
@@ -193,7 +198,12 @@ const Services: React.FC = () => {
         </div>
         {/* Fifth card in full-width row */}
         <div className="mt-6 sm:mt-8 lg:mt-12 lg:mx-auto lg:max-w-[50%]">
-          <Link to={services[4].link}>
+          <Link
+            to={services[4].link}
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
             <div className="relative w-full h-[100vw] sm:h-[50vw] md:h-[50vw] lg:h-96 !aspect-square sm:!aspect-square md:!aspect-square lg:aspect-auto overflow-hidden bg-gray-900/80 backdrop-blur-md border-2 border-gray-400">
               {services[4].images.map((img, imgIndex) => (
                 <div
