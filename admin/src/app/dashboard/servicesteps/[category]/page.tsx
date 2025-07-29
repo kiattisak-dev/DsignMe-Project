@@ -60,7 +60,6 @@ export default function ServiceStepsPage() {
           `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(
             category
           )}/service-steps`,
-
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -124,7 +123,6 @@ export default function ServiceStepsPage() {
           `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(
             category
           )}/service-steps/${stepToDelete}`,
-
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
@@ -332,35 +330,43 @@ export default function ServiceStepsPage() {
                   {selectedStep?.title || "No Title"}
                 </h3>
                 <div className="mt-2">
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    Details
-                  </h4>
-                  {selectedStep?.subtitles.length ? (
+                  {selectedStep &&
                     selectedStep.subtitles.map((subtitle, index) => (
-                      <div key={index} className="ml-4">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {subtitle.text || "No subtitle text"}
-                        </p>
-                        {subtitle.headings.length > 0 && (
-                          <div className="text-sm text-gray-500 dark:text-gray-400 ml-4">
-                            {subtitle.headings.map((heading, hIndex) => (
-                              <div
-                                key={hIndex}
-                                className="flex items-center gap-2"
-                              >
-                                <span className="w-6">{hIndex + 1}.</span>
-                                <span>{heading}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                      <p
+                        key={index}
+                        className="text-sm font-medium text-gray-900 dark:text-gray-100"
+                      >
+                        {subtitle.text || `KO${index + 1}`}
+                      </p>
+                    ))}
+                  {selectedStep?.subtitles && selectedStep.subtitles.length > 0 && (
+                    <div className="mt-2">
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        รายละเอียด:
+                      </h4>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 ml-4">
+                        {selectedStep.subtitles
+                          .flatMap((subtitle) =>
+                            subtitle.headings.map((heading, hIndex) => ({
+                              heading,
+                              index: hIndex,
+                            }))
+                          )
+                          .map((item, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                              <span className="w-6">{index + 1}.</span>
+                              <span>{item.heading || `SUB${item.index + 1}`}</span>
+                            </div>
+                          ))}
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 ml-4">
-                      No details
-                    </p>
+                    </div>
                   )}
+                  {!selectedStep?.subtitles ||
+                    (selectedStep.subtitles.length === 0 && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 ml-4">
+                        No details
+                      </p>
+                    ))}
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   Created:{" "}

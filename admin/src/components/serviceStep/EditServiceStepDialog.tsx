@@ -49,23 +49,23 @@ export default function EditServiceStepDialog({
 }: EditServiceStepDialogProps) {
   const { toast } = useToast();
   const [title, setTitle] = useState("");
-  const [subtitles, setSubtitles] = useState<Subtitle[]>([{ text: "", headings: [""] }]);
+  const [subtitles, setSubtitles] = useState<Subtitle[]>([{ text: "", headings: [] }]);
+  const [allHeadings, setAllHeadings] = useState<string[]>([]);
   const [categoryId, setCategoryId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize form with step data
   useEffect(() => {
     if (step) {
       setTitle(step.title);
       setSubtitles(
         step.subtitles.length > 0
-          ? step.subtitles
-          : [{ text: "", headings: [""] }]
+          ? step.subtitles.map((s) => ({ text: s.text, headings: [] }))
+          : [{ text: "", headings: [] }]
       );
+      setAllHeadings(step.subtitles.flatMap((s) => s.headings).filter((h) => h.trim()));
     }
   }, [step]);
 
-  // Fetch category ID
   useEffect(() => {
     const fetchCategoryId = async () => {
       try {
@@ -97,53 +97,30 @@ export default function EditServiceStepDialog({
     }
   }, [open, categoryName, toast]);
 
-  // Handle subtitle text change
   const handleSubtitleChange = (index: number, value: string) => {
     setSubtitles(subtitles.map((s, i) => (i === index ? { ...s, text: value } : s)));
   };
 
-  // Handle heading change
-  const handleHeadingChange = (subtitleIndex: number, headingIndex: number, value: string) => {
-    setSubtitles(
-      subtitles.map((s, i) =>
-        i === subtitleIndex
-          ? { ...s, headings: s.headings.map((h, j) => (j === headingIndex ? value : h)) }
-          : s
-      )
-    );
+  const handleHeadingChange = (index: number, value: string) => {
+    setAllHeadings(allHeadings.map((h, i) => (i === index ? value : h)));
   };
 
-  // Add new subtitle
   const addSubtitle = () => {
-    setSubtitles([...subtitles, { text: "", headings: [""] }]);
+    setSubtitles([...subtitles, { text: "", headings: [] }]);
   };
 
-  // Remove subtitle
   const removeSubtitle = (index: number) => {
     setSubtitles(subtitles.filter((_, i) => i !== index));
   };
 
-  // Add new heading to subtitle
-  const addHeading = (subtitleIndex: number) => {
-    setSubtitles(
-      subtitles.map((s, i) =>
-        i === subtitleIndex ? { ...s, headings: [...s.headings, ""] } : s
-      )
-    );
+  const addHeading = () => {
+    setAllHeadings([...allHeadings, ""]);
   };
 
-  // Remove heading from subtitle
-  const removeHeading = (subtitleIndex: number, headingIndex: number) => {
-    setSubtitles(
-      subtitles.map((s, i) =>
-        i === subtitleIndex
-          ? { ...s, headings: s.headings.filter((_, j) => j !== headingIndex) }
-          : s
-      )
-    );
+  const removeHeading = (index: number) => {
+    setAllHeadings(allHeadings.filter((_, i) => i !== index));
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!step) return;
@@ -161,7 +138,7 @@ export default function EditServiceStepDialog({
 
     let hasContent = false;
     for (const subtitle of subtitles) {
-      if (subtitle.text.trim() || subtitle.headings.some((h) => h.trim())) {
+      if (subtitle.text.trim() || allHeadings.some((h) => h.trim())) {
         hasContent = true;
         break;
       }
@@ -181,7 +158,7 @@ export default function EditServiceStepDialog({
       title: title.trim(),
       subtitles: subtitles.map((s) => ({
         text: s.text.trim(),
-        headings: s.headings.filter((h) => h.trim()),
+        headings: allHeadings.filter((h) => h.trim()),
       })),
     };
 
@@ -253,7 +230,7 @@ export default function EditServiceStepDialog({
                 key={subtitleIndex}
                 className="mt-2 p-4 border rounded-md bg-gray-50 dark:bg-gray-800 space-y-3"
               >
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                <div className="flex flex-col gap-2">
                   <Input
                     value={subtitle.text}
                     onChange={(e) => handleSubtitleChange(subtitleIndex, e.target.value)}
@@ -274,54 +251,6 @@ export default function EditServiceStepDialog({
                     </Button>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Sub-details
-                  </label>
-                  {subtitle.headings.map((heading, headingIndex) => (
-                    <div
-                      key={headingIndex}
-                      className="flex flex-col sm:flex-row items-start sm:items-center gap-2 ml-4"
-                    >
-                      <div className="flex items-center gap-2 w-full">
-                        <span className="w-6 text-sm text-gray-900 dark:text-gray-100">
-                          {headingIndex + 1}.
-                        </span>
-                        <Input
-                          value={heading}
-                          onChange={(e) =>
-                            handleHeadingChange(subtitleIndex, headingIndex, e.target.value)
-                          }
-                          placeholder={`Sub-detail ${headingIndex + 1}`}
-                          className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 flex-1 max-w-md"
-                          disabled={isLoading}
-                        />
-                      </div>
-                      {subtitle.headings.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeHeading(subtitleIndex, headingIndex)}
-                          disabled={isLoading}
-                          className="w-full sm:w-auto mt-2 sm:mt-0"
-                        >
-                          Remove Sub-detail
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mt-2 ml-4 w-full sm:w-auto"
-                    onClick={() => addHeading(subtitleIndex)}
-                    disabled={isLoading}
-                  >
-                    Add Sub-detail
-                  </Button>
-                </div>
               </div>
             ))}
             <Button
@@ -333,6 +262,47 @@ export default function EditServiceStepDialog({
             >
               Add Subtitle
             </Button>
+            <div className="mt-4">
+              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Sub-details (Single Box)
+              </label>
+              {allHeadings.map((heading, index) => (
+                <div key={index} className="flex items-center gap-2 mt-1">
+                  <span className="w-6 text-sm text-gray-900 dark:text-gray-100">
+                    {index + 1}.
+                  </span>
+                  <Input
+                    value={heading}
+                    onChange={(e) => handleHeadingChange(index, e.target.value)}
+                    placeholder={`Sub-detail ${index + 1}`}
+                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 flex-1 max-w-md"
+                    disabled={isLoading}
+                  />
+                  {allHeadings.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeHeading(index)}
+                      disabled={isLoading}
+                      className="w-full sm:w-auto mt-2 sm:mt-0"
+                    >
+                      Remove Sub-detail
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2 w-full sm:w-auto"
+                onClick={addHeading}
+                disabled={isLoading}
+              >
+                Add Sub-detail
+              </Button>
+            </div>
           </div>
           <AlertDialogFooter className="flex flex-col sm:flex-row sm:gap-2">
             <AlertDialogCancel

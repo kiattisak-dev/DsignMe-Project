@@ -394,7 +394,7 @@ export default function NewProjectPage() {
                   variants={buttonVariants}
                   initial="hidden"
                   animate="visible"
-                  className="flex justify-end gap-4"
+                  className="flex justify-start gap-4"
                 >
                   <motion.div
                     variants={buttonVariants}

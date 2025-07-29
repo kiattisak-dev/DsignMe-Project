@@ -34,8 +34,9 @@ export default function AddServiceStepPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [subtitles, setSubtitles] = useState<Subtitle[]>([
-    { text: "", headings: [""] },
+    { text: "", headings: [] },
   ]);
+  const [allHeadings, setAllHeadings] = useState<string[]>([""]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -74,49 +75,24 @@ export default function AddServiceStepPage() {
     );
   };
 
-  const handleHeadingChange = (
-    subtitleIndex: number,
-    headingIndex: number,
-    value: string
-  ) => {
-    setSubtitles(
-      subtitles.map((s, i) =>
-        i === subtitleIndex
-          ? {
-              ...s,
-              headings: s.headings.map((h, j) =>
-                j === headingIndex ? value : h
-              ),
-            }
-          : s
-      )
-    );
+  const handleHeadingChange = (index: number, value: string) => {
+    setAllHeadings(allHeadings.map((h, i) => (i === index ? value : h)));
   };
 
   const addSubtitle = () => {
-    setSubtitles([...subtitles, { text: "", headings: [""] }]);
+    setSubtitles([...subtitles, { text: "", headings: [] }]);
   };
 
   const removeSubtitle = (index: number) => {
     setSubtitles(subtitles.filter((_, i) => i !== index));
   };
 
-  const addHeading = (subtitleIndex: number) => {
-    setSubtitles(
-      subtitles.map((s, i) =>
-        i === subtitleIndex ? { ...s, headings: [...s.headings, ""] } : s
-      )
-    );
+  const addHeading = () => {
+    setAllHeadings([...allHeadings, ""]);
   };
 
-  const removeHeading = (subtitleIndex: number, headingIndex: number) => {
-    setSubtitles(
-      subtitles.map((s, i) =>
-        i === subtitleIndex
-          ? { ...s, headings: s.headings.filter((_, j) => j !== headingIndex) }
-          : s
-      )
-    );
+  const removeHeading = (index: number) => {
+    setAllHeadings(allHeadings.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,7 +111,7 @@ export default function AddServiceStepPage() {
 
     let hasContent = false;
     for (const subtitle of subtitles) {
-      if (subtitle.text.trim() || subtitle.headings.some((h) => h.trim())) {
+      if (subtitle.text.trim() || allHeadings.some((h) => h.trim())) {
         hasContent = true;
         break;
       }
@@ -155,7 +131,7 @@ export default function AddServiceStepPage() {
       title,
       subtitles: subtitles.map((s) => ({
         text: s.text,
-        headings: s.headings.filter((h) => h.trim()),
+        headings: allHeadings.filter((h) => h.trim()),
       })),
     };
 
@@ -166,7 +142,6 @@ export default function AddServiceStepPage() {
         `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(
           category
         )}/service-steps`,
-
         {
           method: "POST",
           headers: {
@@ -294,68 +269,59 @@ export default function AddServiceStepPage() {
                       </Button>
                     )}
                   </div>
-                  <div className="mt-4">
-                    <label className="text-sm font-medium text-[#666666] dark:text-[#9CA3AF]">
-                      Sub-details
-                    </label>
-                    {subtitle.headings.map((heading, headingIndex) => (
-                      <div
-                        key={headingIndex}
-                        className="flex items-center gap-2 mt-1 ml-4"
-                      >
-                        <span className="text-sm text-[#111827] dark:text-[#D1D5DB] w-6">
-                          {headingIndex + 1}.
-                        </span>
-                        <Input
-                          value={heading}
-                          onChange={(e) =>
-                            handleHeadingChange(
-                              subtitleIndex,
-                              headingIndex,
-                              e.target.value
-                            )
-                          }
-                          placeholder={`Sub-detail ${headingIndex + 1}`}
-                          className="bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
-                          disabled={isLoading}
-                        />
-                        {subtitle.headings.length > 1 && (
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() =>
-                              removeHeading(subtitleIndex, headingIndex)
-                            }
-                            disabled={isLoading}
-                          >
-                            Remove Sub-detail
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 ml-4"
-                      onClick={() => addHeading(subtitleIndex)}
-                      disabled={isLoading}
-                    >
-                      Add Sub-detail
-                    </Button>
-                  </div>
                 </div>
               ))}
-              <Button
-                type="button"
-                variant="outline"
-                className="mt-4"
-                onClick={addSubtitle}
-                disabled={isLoading}
-              >
-                Add Subtitle
-              </Button>
+              <div className="flex items-center justify-between mt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                  onClick={addSubtitle}
+                  disabled={isLoading}
+                >
+                  Add Subtitle
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto ml-2"
+                  onClick={addHeading}
+                  disabled={isLoading}
+                >
+                  Add Sub-detail
+                </Button>
+              </div>
+              <div className="mt-4">
+                <label className="text-sm font-medium text-[#666666] dark:text-[#9CA3AF]">
+                  Sub-details (Single Box)
+                </label>
+                {allHeadings.map((heading, index) => (
+                  <div key={index} className="flex items-center gap-2 mt-1">
+                    <span className="text-sm text-[#111827] dark:text-[#D1D5DB] w-6">
+                      {index + 1}.
+                    </span>
+                    <Input
+                      value={heading}
+                      onChange={(e) => handleHeadingChange(index, e.target.value)}
+                      placeholder={`Sub-detail ${index + 1}`}
+                      className="bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
+                      disabled={isLoading}
+                    />
+                    {allHeadings.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => removeHeading(index)}
+                        disabled={isLoading}
+                      >
+                        Remove Sub-detail
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Adding..." : "Add Service Step"}

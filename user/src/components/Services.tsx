@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Palette, Megaphone, Eye, Package, Globe } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Define the interface for each service
 interface Service {
@@ -104,13 +105,12 @@ const Services: React.FC = () => {
         <div className="grid grid-cols-1 gap-0 sm:gap-0 lg:grid-cols-2 lg:gap-6">
           {/* First four cards in 2x2 grid */}
           {services.slice(0, 4).map((service, index) => (
-            <div
-              key={index}
-              className={`mb-6 sm:mb-8 lg:mb-0 ${
+            <Link to={service.link} key={index} className={`mb-6 sm:mb-8 lg:mb-0 ${
                 index > 0 ? "border-t-2 border-gray-400" : ""
-              }`}
-            >
-              <div className="relative w-full h-[100vw] sm:h-[50vw] md:h-[50vw] lg:h-96 !aspect-square sm:!aspect-square md:!aspect-square lg:aspect-auto overflow-hidden bg-gray-900/80 backdrop-blur-md border-2 border-gray-400">
+              }`}>
+              <div
+                className="relative w-full h-[100vw] sm:h-[50vw] md:h-[50vw] lg:h-96 !aspect-square sm:!aspect-square md:!aspect-square lg:aspect-auto overflow-hidden bg-gray-900/80 backdrop-blur-md border-2 border-gray-400"
+              >
                 {service.images.map((img, imgIndex) => (
                   <div
                     key={imgIndex}
@@ -188,88 +188,90 @@ const Services: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
         {/* Fifth card in full-width row */}
         <div className="mt-6 sm:mt-8 lg:mt-12 lg:mx-auto lg:max-w-[50%]">
-          <div className="relative w-full h-[100vw] sm:h-[50vw] md:h-[50vw] lg:h-96 !aspect-square sm:!aspect-square md:!aspect-square lg:aspect-auto overflow-hidden bg-gray-900/80 backdrop-blur-md border-2 border-gray-400">
-            {services[4].images.map((img, imgIndex) => (
-              <div
-                key={imgIndex}
-                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                  (currentSlide[4] || 0) === imgIndex
-                    ? "opacity-100 scale-100"
-                    : "opacity-0 scale-105"
-                }`}
-              >
-                <img
-                  src={img}
-                  alt={`${services[4].title} ${imgIndex + 1}`}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  onError={(e) => {
-                    console.log(
-                      `Image failed to load for ${services[4].title} ${
-                        imgIndex + 1
-                      }`
-                    );
-                    (e.target as HTMLImageElement).src =
-                      "https://placehold.co/400x300";
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-              </div>
-            ))}
-
-            {/* Slide Indicators */}
-            <div className="absolute bottom-4 ml-2 left-8 flex space-x-2">
-              {services[4].images.map((_, imgIndex) => (
-                <button
+          <Link to={services[4].link}>
+            <div className="relative w-full h-[100vw] sm:h-[50vw] md:h-[50vw] lg:h-96 !aspect-square sm:!aspect-square md:!aspect-square lg:aspect-auto overflow-hidden bg-gray-900/80 backdrop-blur-md border-2 border-gray-400">
+              {services[4].images.map((img, imgIndex) => (
+                <div
                   key={imgIndex}
-                  onClick={() => {
-                    setIsPaused(true);
-                    setCurrentSlide((prev) => ({
-                      ...prev,
-                      4: imgIndex,
-                    }));
-                    setTimeout(() => setIsPaused(false), 5000);
-                  }}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
                     (currentSlide[4] || 0) === imgIndex
-                      ? "bg-white scale-110"
-                      : "bg-gray-500 hover:bg-gray-400"
+                      ? "opacity-100 scale-100"
+                      : "opacity-0 scale-105"
                   }`}
-                />
+                >
+                  <img
+                    src={img}
+                    alt={`${services[4].title} ${imgIndex + 1}`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={(e) => {
+                      console.log(
+                        `Image failed to load for ${services[4].title} ${
+                          imgIndex + 1
+                        }`
+                      );
+                      (e.target as HTMLImageElement).src =
+                        "https://placehold.co/400x300";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                </div>
               ))}
-            </div>
 
-            {/* Progress Bar */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gray-700/50">
-              <div
-                className="h-full bg-gray-300 transition-all duration-300 ease-linear"
-                style={{
-                  width: `${
-                    (((currentSlide[4] || 0) + 1) / services[4].images.length) *
-                    100
-                  }%`,
-                }}
-              />
-            </div>
+              {/* Slide Indicators */}
+              <div className="absolute bottom-4 ml-2 left-8 flex space-x-2">
+                {services[4].images.map((_, imgIndex) => (
+                  <button
+                    key={imgIndex}
+                    onClick={() => {
+                      setIsPaused(true);
+                      setCurrentSlide((prev) => ({
+                        ...prev,
+                        4: imgIndex,
+                      }));
+                      setTimeout(() => setIsPaused(false), 5000);
+                    }}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      (currentSlide[4] || 0) === imgIndex
+                        ? "bg-white scale-110"
+                        : "bg-gray-500 hover:bg-gray-400"
+                    }`}
+                  />
+                ))}
+              </div>
 
-            {/* Fixed Text Content with Vertical Line */}
-            <div className="absolute bottom-6 left-6 right-6 z-10">
-              <div className="relative p-2">
-                <div className="absolute left-0 top-4 h-[calc(100%-8px)] w-0.5 bg-white z-20" />
-                <p className="text-gray-300 text-sm ml-2 mb-2">
-                  {services[4].description}
-                </p>
-                <h3 className="text-xl font-semibold ml-2 mb-2 text-white">
-                  {services[4].title}
-                </h3>
+              {/* Progress Bar */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gray-700/50">
+                <div
+                  className="h-full bg-gray-300 transition-all duration-300 ease-linear"
+                  style={{
+                    width: `${
+                      (((currentSlide[4] || 0) + 1) / services[4].images.length) *
+                      100
+                    }%`,
+                  }}
+                />
+              </div>
+
+              {/* Fixed Text Content with Vertical Line */}
+              <div className="absolute bottom-6 left-6 right-6 z-10">
+                <div className="relative p-2">
+                  <div className="absolute left-0 top-4 h-[calc(100%-8px)] w-0.5 bg-white z-20" />
+                  <p className="text-gray-300 text-sm ml-2 mb-2">
+                    {services[4].description}
+                  </p>
+                  <h3 className="text-xl font-semibold ml-2 mb-2 text-white">
+                    {services[4].title}
+                  </h3>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>

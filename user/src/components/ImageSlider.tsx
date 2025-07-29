@@ -51,7 +51,7 @@ const ImageSlider: React.FC = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
-  // Preload all images (logo and category images)
+  // Preload all images with error handling
   useEffect(() => {
     const allImages = [
       ...logoImages,
@@ -60,34 +60,34 @@ const ImageSlider: React.FC = () => {
     preloadImages(allImages);
   }, [logoImages]);
 
-  // Auto-slide for logo images with debounced interval
+  // Auto-slide with optimized interval and smooth transition
   useEffect(() => {
-    if (!isInView) return; // Only run interval when in view
+    if (!isInView) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % totalSlides);
-    }, 4000);
+    }, 4000); // 4 seconds interval
     return () => clearInterval(interval);
   }, [isInView, totalSlides]);
 
-  // Memoize the logo image rendering to prevent unnecessary re-renders
+  // Optimized logo slide rendering with smoother transitions
   const renderLogoSlide = React.useMemo(
     () => (
       <Link to={categories[0].link} className="relative w-full h-full flex items-center">
         <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[50vh] md:h-[60vh] lg:h-screen !aspect-square sm:aspect-auto lg:aspect-auto">
-          <AnimatePresence mode="wait">
+          <AnimatePresence initial={false} mode="wait">
             <motion.div
-              key={`large-${currentSlide}`}
-              initial={{ opacity: 0, x: 30 }}
+              key={currentSlide}
+              initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.7, ease: [0.43, 0.13, 0.23, 0.96] }} // Smoother easing
               className="absolute w-full h-full"
             >
               <img
                 src={logoImages[currentSlide]}
                 alt={`Logo Design Image ${currentSlide + 1}`}
                 className="w-full h-full object-cover"
-                loading="eager" // Prioritize loading for active slide
+                loading="eager"
                 onError={(e) => {
                   console.log(`Image failed to load: ${logoImages[currentSlide]}`);
                   (e.target as HTMLImageElement).src = "https://placehold.co/800x600";
@@ -134,7 +134,7 @@ const ImageSlider: React.FC = () => {
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  <div className="absolute bottom-2 left-2 text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-semibold z-20">
+                  <div className="absolute bottom-2 left-8 text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-semibold z-20">
                     {category.name}
                   </div>
                 </div>
