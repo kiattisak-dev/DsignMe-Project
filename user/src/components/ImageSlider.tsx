@@ -28,27 +28,47 @@ const ImageSlider: React.FC = () => {
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState(false); // Track image loading
   const logoImages = categories[0].images;
   const totalSlides = logoImages.length;
 
   const ref = useRef<HTMLElement | null>(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
+  // Preload images and track loading status
   useEffect(() => {
     const allImages = [
       ...logoImages,
       ...categories.slice(1).flatMap((c) => c.images),
     ];
-    preloadImages(allImages);
+    let loadedCount = 0;
+
+    const handleImageLoad = () => {
+      loadedCount += 1;
+      if (loadedCount === allImages.length) {
+        setImagesLoaded(true);
+      }
+    };
+
+    allImages.forEach((url) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = handleImageLoad;
+      img.onerror = () => {
+        console.log(`Image failed to load: ${url}`);
+        handleImageLoad(); // Proceed even if an image fails
+      };
+    });
   }, [logoImages, categories]);
 
+  // Slideshow interval
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || !imagesLoaded) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % totalSlides);
-    }, 9000);
+    }, 6000);
     return () => clearInterval(interval);
-  }, [isInView, totalSlides]);
+  }, [isInView, imagesLoaded, totalSlides]);
 
   const renderLogoSlide = (
     <Link to={categories[0].link} className="relative w-full h-full flex items-center">
@@ -59,19 +79,18 @@ const ImageSlider: React.FC = () => {
               key={index}
               src={img}
               alt={`Logo Design Image ${index + 1}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: index === currentSlide ? 1 : 0 }}
-              transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
-              className={`absolute w-full h-full object-cover transition-opacity ${
-                index === currentSlide ? "z-10" : "z-0 pointer-events-none"
-              }`}
+              initial={{ opacity: 0, visibility: "hidden" }}
+              animate={{
+                opacity: index === currentSlide ? 1 : 0,
+                visibility: index === currentSlide ? "visible" : "hidden",
+              }}
+              transition={{ duration: 0.7, ease: "easeInOut" }} // Adjusted transition
+              className="absolute w-full h-full object-cover"
               style={{
                 position: "absolute",
                 top: 0,
                 left: 0,
-                willChange: "opacity",
-                backfaceVisibility: "hidden",
-                WebkitTransform: "translateZ(0)",
+                transform: "translateZ(0)", // Simplified transform
               }}
               loading={index === currentSlide ? "eager" : "lazy"}
               onError={(e) => {
