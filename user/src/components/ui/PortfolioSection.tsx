@@ -38,17 +38,14 @@ const paginationButtonVariants = {
 
 interface PortfolioSectionProps {
   portfolioImages: PortfolioItem[];
-  loadMore?: () => void;
-  hasMore?: boolean;
 }
 
-const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages, loadMore, hasMore }) => {
+const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showAll, setShowAll] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+  const itemsPerPage = 10;
 
-  // ใช้ itemsPerPage 8 สำหรับเดสก์ท็อป และ 4 สำหรับมือถือ
-  const itemsPerPage = window.innerWidth >= 1024 ? 8 : 4;
   const totalItems = useMemo(() => (showAll ? portfolioImages : portfolioImages.slice(0, 4)), [showAll, portfolioImages]);
   const totalPages = Math.ceil(totalItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -115,10 +112,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages, lo
               variants={buttonVariants}
             >
               <motion.button
-                onClick={() => {
-                  setShowAll(true);
-                  if (loadMore) loadMore();
-                }}
+                onClick={() => setShowAll(true)}
                 className="bg-black text-white px-4 py-2 sm:px-6 sm:py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors duration-300 text-sm sm:text-base"
                 variants={buttonVariants}
                 whileHover="hover"
@@ -140,8 +134,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages, lo
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
-                currentPage === 1 ? 'bg-gray-200 text-gray-900 cursor-not-allowed' : 'bg-white text-black hover:bg-gray-100'
-              } border border-black transition-colors duration-300`}
+                currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+              } transition-colors duration-300`}
               variants={paginationButtonVariants}
               whileHover={currentPage === 1 ? {} : { scale: 1.05 }}
               aria-label="Previous page"
@@ -155,8 +149,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages, lo
                   key={index}
                   onClick={() => setCurrentPage(index + 1)}
                   className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
-                    currentPage === index + 1 ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-100'
-                  } border border-black transition-colors duration-300`}
+                    currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  } transition-colors duration-300`}
                   variants={paginationButtonVariants}
                   whileHover={{ scale: 1.05 }}
                   aria-label={`Page ${index + 1}`}
@@ -170,8 +164,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({ portfolioImages, lo
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
               className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
-                currentPage === totalPages ? 'bg-gray-200 text-gray-900 cursor-not-allowed' : 'bg-white text-black hover:bg-gray-100'
-              } border border-black transition-colors duration-300`}
+                currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+              } transition-colors duration-300`}
               variants={paginationButtonVariants}
               whileHover={currentPage === totalPages ? {} : { scale: 1.05 }}
               aria-label="Next page"
