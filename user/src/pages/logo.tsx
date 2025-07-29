@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import HeroSection from "../components/ui/HeroSection";
 import PortfolioSection from "../components/ui/PortfolioSection";
 import ServicesSection from "../components/ui/ServicesSection";
@@ -50,118 +50,67 @@ const LogoPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch projects
-        const projectsResponse = await fetch(
-          `${API_BASE_URL}/projects/logo`,
-          {
-            headers: {
-              Accept: "application/json",
-            },
-          }
-        );
+        setLoading(true);
+        const [projectsResponse, servicesResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/projects/logo`, {
+            headers: { Accept: "application/json" },
+          }),
+          fetch(`${API_BASE_URL}/servicesteps/logo/service-steps`, {
+            headers: { Accept: "application/json" },
+          }),
+        ]);
 
         if (!projectsResponse.ok) {
-          throw new Error(
-            `Failed to fetch projects: ${projectsResponse.statusText}`
-          );
+          throw new Error(`Failed to fetch projects: ${projectsResponse.statusText}`);
         }
-
-        const projectsData: { data: ProjectResponse[] } =
-          await projectsResponse.json();
-        const projects = projectsData.data || [];
-
-        const mappedPortfolioImages: PortfolioItem[] = projects
-          .map((project, index) => {
-            const id = project._id || `fallback-${index}`;
-            return {
-              id,
-              url: project.imageUrl || "",
-              videoUrl: project.videoUrl || "",
-              videoLink: project.videoLink || "",
-              title: project.title || "Logo Project",
-              category: "logo",
-              description: project.description || "",
-              mediaType: mapMediaType(project.mediaType),
-            };
-          })
-          .filter((item) => {
-            if (!item.id || item.id === "") {
-              console.warn(
-                `Skipping project with invalid ID: ${JSON.stringify(item)}`
-              );
-              return false;
-            }
-            return true;
-          });
-
-        // Test image accessibility (optional)
-        for (const item of mappedPortfolioImages) {
-          if (item.url) {
-            try {
-              const response = await fetch(item.url, { method: "HEAD" });
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status} for ${item.url}`);
-              }
-            } catch (imgErr) {
-              if (imgErr instanceof Error) {
-                console.warn(
-                  `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${imgErr.message}`
-                );
-              }
-              item.url = "";
-            }
-          }
-          if (item.videoUrl) {
-            try {
-              const response = await fetch(item.videoUrl, { method: "HEAD" });
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
-              }
-            } catch (videoErr) {
-              if (videoErr instanceof Error) {
-                console.warn(
-                  `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${videoErr.message}`
-                );
-              }
-              item.videoUrl = "";
-            }
-          }
-        }
-
-        setPortfolioImages(mappedPortfolioImages);
-
-        // Fetch service steps
-        const servicesResponse = await fetch(
-          `${API_BASE_URL}/servicesteps/logo/service-steps`,
-          {
-            headers: {
-              Accept: "application/json",
-            },
-          }
-        );
-
         if (!servicesResponse.ok) {
-          throw new Error(
-            `Failed to fetch service steps: ${servicesResponse.statusText}`
-          );
+          throw new Error(`Failed to fetch service steps: ${servicesResponse.statusText}`);
         }
 
-        const servicesData: { data: ServiceStep[] } =
-          await servicesResponse.json();
+        const projectsData: { data: ProjectResponse[] } = await projectsResponse.json();
+        const servicesData: { data: ServiceStep[] } = await servicesResponse.json();
+
+        const projects = projectsData.data || [];
         const serviceSteps = servicesData.data || [];
 
-        const mappedServices: Service[] = serviceSteps.map((step) => ({
-          title: step.title || "Service",
-          description: step.subtitles
-            ? step.subtitles.map((sub) => sub.text || "").join(" ")
-            : "",
-          features: step.subtitles
-            ? step.subtitles.flatMap((sub) => sub.headings || [])
-            : [],
-        }));
+        const mappedPortfolioImages: PortfolioItem[] = useMemo(() => {
+          return projects
+            .map((project, index) => {
+              const id = project._id || `fallback-${index}`;
+              return {
+                id,
+                url: project.imageUrl || "",
+                videoUrl: project.videoUrl || "",
+                videoLink: project.videoLink || "",
+                title: project.title || "Logo Project",
+                category: "logo",
+                description: project.description || "",
+                mediaType: mapMediaType(project.mediaType),
+              };
+            })
+            .filter((item) => {
+              if (!item.id || item.id === "") {
+                console.warn(`Skipping project with invalid ID: ${JSON.stringify(item)}`);
+                return false;
+              }
+              return true;
+            });
+        }, [projects]);
 
+        const mappedServices: Service[] = useMemo(() => {
+          return serviceSteps.map((step) => ({
+            title: step.title || "Service",
+            description: step.subtitles
+              ? step.subtitles.map((sub) => sub.text || "").join(" ")
+              : "",
+            features: step.subtitles
+              ? step.subtitles.flatMap((sub) => sub.headings || [])
+              : [],
+          }));
+        }, [serviceSteps]);
+
+        setPortfolioImages(mappedPortfolioImages);
         setServices(mappedServices);
-
         setLoading(false);
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -179,19 +128,14 @@ const LogoPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <motion.div
-          className="text-center filter grayscale"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <p className="text-xl font-semibold text-black">กำลังโหลดข้อมูล...</p>
-          <p className="text-gray-600 mt-2">กรุณารอสักครู่</p>
-        </motion.div>
+      <div className="min-h-screen bg-white">
+        <HeroSection
+          title="Loading..."
+          description="Loading..."
+          contactInfo={[]}
+        />
+        <PortfolioSection portfolioImages={Array(6).fill({ id: "skeleton", url: "", title: "Loading..." })} />
+        <ServicesSection services={Array(3).fill({ title: "Loading...", description: "", features: [] })} />
       </div>
     );
   }
@@ -209,9 +153,9 @@ const LogoPage: React.FC = () => {
     );
   }
 
-   const scrollToServices = () => {
+  const scrollToServices = () => {
     if (servicesSectionRef.current) {
-      const navbarHeight = 100; // Adjust this value based on your navbar height
+      const navbarHeight = 100; // ปรับตามความสูงของ navbar
       const elementPosition = servicesSectionRef.current.getBoundingClientRect().top + window.pageYOffset;
       window.scrollTo({
         top: elementPosition - navbarHeight,
@@ -229,7 +173,7 @@ const LogoPage: React.FC = () => {
         onServicesClick={scrollToServices}
       />
       <PortfolioSection portfolioImages={portfolioImages} />
-      <div ref={servicesSectionRef}> {/* Wrap ServicesSection with ref */}
+      <div ref={servicesSectionRef}>
         <ServicesSection services={services} />
       </div>
       <ProcessSection process={logoPageData.process} />
@@ -237,4 +181,4 @@ const LogoPage: React.FC = () => {
   );
 };
 
-export default LogoPage;
+export default React.memo(LogoPage);
