@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 
 // Preload images to prevent lag
 const preloadImages = (imageUrls: string[]) => {
@@ -47,11 +47,9 @@ const ImageSlider: React.FC = () => {
   const logoImages = categories[0].images;
   const totalSlides = logoImages.length;
 
-  // Reference for the section to detect visibility
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
-  // Preload all images with error handling
   useEffect(() => {
     const allImages = [
       ...logoImages,
@@ -60,49 +58,44 @@ const ImageSlider: React.FC = () => {
     preloadImages(allImages);
   }, [logoImages]);
 
-  // Auto-slide with optimized interval and smooth transition
   useEffect(() => {
     if (!isInView) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % totalSlides);
-    }, 4000); // 4 seconds interval
+    }, 4000);
     return () => clearInterval(interval);
   }, [isInView, totalSlides]);
 
-  // Optimized logo slide rendering with smoother transitions
-  const renderLogoSlide = React.useMemo(
-    () => (
-      <Link to={categories[0].link} className="relative w-full h-full flex items-center">
-        <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[50vh] md:h-[60vh] lg:h-screen !aspect-square sm:aspect-auto lg:aspect-auto">
-          <AnimatePresence initial={false} mode="wait">
-            <motion.div
-              key={currentSlide}
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              transition={{ duration: 0.7, ease: [0.43, 0.13, 0.23, 0.96] }} // Smoother easing
-              className="absolute w-full h-full"
-            >
-              <img
-                src={logoImages[currentSlide]}
-                alt={`Logo Design Image ${currentSlide + 1}`}
-                className="w-full h-full object-cover"
-                loading="eager"
-                onError={(e) => {
-                  console.log(`Image failed to load: ${logoImages[currentSlide]}`);
-                  (e.target as HTMLImageElement).src = "https://placehold.co/800x600";
-                }}
-              />
-            </motion.div>
-          </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-          <div className="absolute bottom-2 left-8 text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-bold z-20">
-            Logo & Corporate Identity
-          </div>
+  const renderLogoSlide = (
+    <Link to={categories[0].link} className="relative w-full h-full flex items-center">
+      <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[50vh] md:h-[60vh] lg:h-screen !aspect-square sm:aspect-auto lg:aspect-auto">
+        <div className="absolute w-full h-full">
+          {logoImages.map((img, index) => (
+            <motion.img
+              key={index}
+              src={img}
+              alt={`Logo Design Image ${index + 1}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: index === currentSlide ? 1 : 0 }}
+              transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
+              className={`absolute w-full h-full object-cover transition-opacity ${
+                index === currentSlide ? "z-10" : "z-0"
+              }`}
+              style={{ position: "absolute", top: 0, left: 0 }}
+              loading="eager"
+              onError={(e) => {
+                console.log(`Image failed to load: ${img}`);
+                (e.target as HTMLImageElement).src = "https://placehold.co/800x600";
+              }}
+            />
+          ))}
         </div>
-      </Link>
-    ),
-    [currentSlide, logoImages]
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <div className="absolute bottom-2 left-8 text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-bold z-20">
+          Logo & Corporate Identity
+        </div>
+      </div>
+    </Link>
   );
 
   return (
