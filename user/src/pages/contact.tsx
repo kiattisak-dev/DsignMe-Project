@@ -88,13 +88,19 @@ const ContactPage: React.FC = () => {
               variants={itemVariants}
               className="flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-2 md:space-x-3 lg:space-x-4 border-b-2 border-gray-200 pb-2"
             >
-              <button className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800">
+              <a
+                href="https://lin.ee/c2HxJS1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800"
+              >
                 <FaLine className="w-6 h-6" />
-              </button>
+              </a>
               <a
                 href="https://lin.ee/c2HxJS1"
                 className="text-sm sm:text-base md:text-lg lg:text-3xl text-gray-800 hover:underline"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 @DsignMe
               </a>
@@ -104,9 +110,12 @@ const ContactPage: React.FC = () => {
               variants={itemVariants}
               className="flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-2 md:space-x-3 lg:space-x-6 border-b-2 border-gray-200 pb-2"
             >
-              <button className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800">
+              <a
+                href="mailto:dsignme18@gmail.com"
+                className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800"
+              >
                 <FaEnvelope className="w-6 h-6" />
-              </button>
+              </a>
               <div className="flex flex-col items-start justify-center">
                 <a
                   href="mailto:dsignme18@gmail.com"
@@ -121,13 +130,19 @@ const ContactPage: React.FC = () => {
               variants={itemVariants}
               className="flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-2 md:space-x-3 lg:space-x-4 border-b-2 border-gray-200 pb-2"
             >
-              <button className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800">
+              <a
+                href="https://www.facebook.com/profile.php?id=61561907601448&mibextid=ZbWKwL"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800"
+              >
                 <FaFacebook className="w-6 h-6" />
-              </button>
+              </a>
               <a
                 href="https://www.facebook.com/profile.php?id=61561907601448&mibextid=ZbWKwL"
                 className="text-sm sm:text-base md:text-lg lg:text-3xl text-gray-800 hover:underline"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 DesignMe
               </a>
@@ -137,13 +152,19 @@ const ContactPage: React.FC = () => {
               variants={itemVariants}
               className="flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-2 md:space-x-3 lg:space-x-4 border-b-2 border-gray-200 pb-2"
             >
-              <button className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800">
+              <a
+                href="https://www.instagram.com/dee_signme?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800"
+              >
                 <FaInstagram className="w-6 h-6" />
-              </button>
+              </a>
               <a
                 href="https://www.instagram.com/dee_signme?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                 className="text-sm sm:text-base md:text-lg lg:text-3xl text-gray-800 hover:underline"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 DsignMe
               </a>
