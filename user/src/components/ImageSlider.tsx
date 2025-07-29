@@ -46,7 +46,7 @@ const ImageSlider: React.FC = () => {
     if (!isInView) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % totalSlides);
-    }, 4000);
+    }, 9000);
     return () => clearInterval(interval);
   }, [isInView, totalSlides]);
 
