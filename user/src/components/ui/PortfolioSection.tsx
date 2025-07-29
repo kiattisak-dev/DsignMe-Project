@@ -34,6 +34,7 @@ const paginationButtonVariants = {
     x: 0,
     transition: { duration: 0.3, ease: "easeOut" },
   },
+  hover: { backgroundColor: "#f3f4f6", transition: { duration: 0.2 } },
 };
 
 interface PortfolioSectionProps {
@@ -100,11 +101,12 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         ) : (
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
+            key={currentPage} // Ensure smooth transition on page change
             initial="hidden"
             animate="visible"
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
           >
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {currentItems.map((item, index) => (
                 <MediaItem
                   key={item.id || `fallback-${index}`}
@@ -153,7 +155,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                   : "bg-white text-black hover:bg-gray-100"
               } border border-black transition-colors duration-300`}
               variants={paginationButtonVariants}
-              whileHover={totalPages === 1 ? {} : { scale: 1.05 }}
+              whileHover={totalPages === 1 ? {} : "hover"}
               aria-label="Previous page"
             >
               <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1" />
@@ -170,7 +172,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                       : "bg-white text-black hover:bg-gray-100"
                   } border border-black transition-colors duration-300`}
                   variants={paginationButtonVariants}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover="hover"
                   aria-label={`Page ${index + 1}`}
                 >
                   {index + 1}
@@ -187,7 +189,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                   : "bg-white text-black hover:bg-gray-100"
               } border border-black transition-colors duration-300`}
               variants={paginationButtonVariants}
-              whileHover={totalPages === 1 ? {} : { scale: 1.05 }}
+              whileHover={totalPages === 1 ? {} : "hover"}
               aria-label="Next page"
             >
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 inline-block ml-1" />
