@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 
+// Preload images to prevent lag
 const preloadImages = (imageUrls: string[]) => {
   imageUrls.forEach((url) => {
     const img = new Image();
@@ -36,7 +37,6 @@ const ImageSlider: React.FC = () => {
   useEffect(() => {
     const allImages = [
       ...logoImages,
-      ...logoImages.map((img) => img.replace(".png", "-mobile.png")),
       ...categories.slice(1).flatMap((c) => c.images),
     ];
     preloadImages(allImages);
@@ -45,48 +45,42 @@ const ImageSlider: React.FC = () => {
   useEffect(() => {
     if (!isInView) return;
     const interval = setInterval(() => {
-      const nextImage = new Image();
-      nextImage.src = logoImages[(currentSlide + 1) % totalSlides];
-      nextImage.onload = () => {
-        setCurrentSlide((prev) => (prev + 1) % totalSlides);
-      };
-    }, 4000);
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 9000);
     return () => clearInterval(interval);
-  }, [isInView, currentSlide, logoImages, totalSlides]);
+  }, [isInView, totalSlides]);
 
   const renderLogoSlide = (
     <Link to={categories[0].link} className="relative w-full h-full flex items-center">
-      <div className="relative overflow-hidden w-full max-w-full min-h-[60vh] sm:min-h-[50vh] md:min-h-[60vh] lg:min-h-[80vh] aspect-[4/3]">
-        <AnimatePresence initial={false}>
-          <picture>
-            <source
-              srcSet={`${logoImages[currentSlide].replace(".png", "-mobile.png")} 800w`}
-              media="(max-width: 640px)"
-            />
+      <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[50vh] md:h-[60vh] lg:h-screen !aspect-square sm:aspect-auto lg:aspect-auto">
+        <div className="absolute w-full h-full">
+          {logoImages.map((img, index) => (
             <motion.img
-              key={currentSlide}
-              src={logoImages[currentSlide]}
-              srcSet={`${logoImages[currentSlide]} 1920w`}
-              sizes="(max-width: 640px) 800px, 1920px"
-              alt={`Logo Design Image ${currentSlide + 1}`}
+              key={index}
+              src={img}
+              alt={`Logo Design Image ${index + 1}`}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              animate={{ opacity: index === currentSlide ? 1 : 0 }}
               transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
-              className="absolute w-full h-full object-cover"
+              className={`absolute w-full h-full object-cover transition-opacity ${
+                index === currentSlide ? "z-10" : "z-0 pointer-events-none"
+              }`}
               style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
                 willChange: "opacity",
                 backfaceVisibility: "hidden",
                 WebkitTransform: "translateZ(0)",
               }}
-              loading="eager"
+              loading={index === currentSlide ? "eager" : "lazy"}
               onError={(e) => {
-                console.log(`Image failed to load: ${logoImages[currentSlide]}`);
+                console.log(`Image failed to load: ${img}`);
                 (e.target as HTMLImageElement).src = "https://placehold.co/800x600";
               }}
             />
-          </picture>
-        </AnimatePresence>
+          ))}
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
         <div className="absolute bottom-2 left-8 text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-bold z-20">
           Logo & Corporate Identity
@@ -98,7 +92,7 @@ const ImageSlider: React.FC = () => {
   return (
     <section
       id="image-slider"
-      className="min-h-[60vh] bg-white w-full flex flex-col items-stretch py-0 lg:flex-row lg:items-stretch lg:py-0"
+      className="min-h-screen bg-white w-full flex flex-col items-stretch py-0 lg:flex-row lg:items-stretch lg:py-0"
     >
       <motion.div
         ref={ref as any}
@@ -112,7 +106,7 @@ const ImageSlider: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 lg:col-span-1 lg:grid-cols-2 lg:items-center lg:justify-center h-full">
             {categories.slice(1).map((category) => (
               <Link key={category.name} to={category.link}>
-                <div className="relative overflow-hidden w-full max-w-full min-h-[30vh] sm:min-h-[25vh] md:min-h-[30vh] lg:min-h-[40vh] aspect-[4/3]">
+                <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[25vh] md:h-[30vh] lg:h-[calc(50vh)] !aspect-square sm:aspect-square lg:aspect-square cursor-pointer">
                   <img
                     src={category.images[0]}
                     alt={`${category.name} Image 1`}
