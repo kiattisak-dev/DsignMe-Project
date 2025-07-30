@@ -50,14 +50,14 @@ export default function ServiceStepsPage() {
       try {
         setIsLoading(true);
         const token = Cookies.get("auth_token");
-        if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
+        if (!token) throw new Error("Please log in");
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(category)}/service-steps`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        if (!response.ok) throw new Error("ไม่สามารถโหลดรายการได้");
+        if (!response.ok) throw new Error("Unable to load items");
         const data = await response.json();
         setServiceSteps(
           data.data?.filter((step: ServiceStep) => step._id) || []
@@ -65,8 +65,8 @@ export default function ServiceStepsPage() {
         setCurrentPage(1);
       } catch (error: any) {
         toast({
-          title: "เกิดข้อผิดพลาด",
-          description: error.message || "ไม่สามารถโหลดรายการได้",
+          title: "Error",
+          description: error.message || "Unable to load items",
           variant: "destructive",
         });
         setServiceSteps([]);
@@ -109,7 +109,7 @@ export default function ServiceStepsPage() {
     if (stepToDelete) {
       try {
         const token = Cookies.get("auth_token");
-        if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
+        if (!token) throw new Error("Please log in");
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(category)}/service-steps/${stepToDelete}`,
           {
@@ -117,7 +117,7 @@ export default function ServiceStepsPage() {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        if (!response.ok) throw new Error("ไม่สามารถลบรายการได้");
+        if (!response.ok) throw new Error("Unable to delete item");
         setServiceSteps(
           serviceSteps.filter((step) => step._id !== stepToDelete)
         );
@@ -125,13 +125,13 @@ export default function ServiceStepsPage() {
           setCurrentPage(currentPage - 1);
         }
         toast({
-          title: "สำเร็จ",
-          description: "ลบรายการสำเร็จ",
+          title: "Success",
+          description: "Item deleted successfully",
         });
       } catch (error: any) {
         toast({
-          title: "เกิดข้อผิดพลาด",
-          description: error.message || "ไม่สามารถลบรายการได้",
+          title: "Error",
+          description: error.message || "Unable to delete item",
           variant: "destructive",
         });
       } finally {
@@ -141,7 +141,7 @@ export default function ServiceStepsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("th-TH", {
+    return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -168,13 +168,13 @@ export default function ServiceStepsPage() {
     return (
       <div className="min-h-screen p-4 sm:p-6 md:p-8 bg-gray-100 dark:bg-gray-900">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-          หมวดหมู่ไม่ถูกต้อง
+          Invalid Category
         </h1>
         <p className="text-gray-500 dark:text-gray-400 mt-4">
-          กรุณาเลือกหมวดหมู่ที่ถูกต้อง
+          Please select a valid category
         </p>
         <Link href="/dashboard/projects">
-          <Button className="mt-4">กลับไปยังโปรเจกต์</Button>
+          <Button className="mt-4">Back to Projects</Button>
         </Link>
       </div>
     );
@@ -184,12 +184,12 @@ export default function ServiceStepsPage() {
     <div className="min-h-screen space-y-6 p-4 sm:p-6 md:p-8 bg-gray-100 dark:bg-gray-900">
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:space-x-4">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-          รายการ - {category}
+          Items - {category}
         </h1>
         <Link href={`/dashboard/servicesteps/${category}/new`}>
           <Button className="bg-black text-white border border-gray-300 hover:bg-gray-800 hover:border-gray-400 dark:bg-black dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 flex items-center justify-center w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
-            เพิ่มรายการ
+            Add Item
           </Button>
         </Link>
       </div>
@@ -197,7 +197,7 @@ export default function ServiceStepsPage() {
       <div className="relative">
         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
         <Input
-          placeholder="ค้นหารายการ..."
+          placeholder="Search items..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 max-w-md"
@@ -212,7 +212,7 @@ export default function ServiceStepsPage() {
               animate={{ opacity: 1 }}
               className="col-span-full text-center py-10 text-gray-900 dark:text-gray-100"
             >
-              กำลังโหลด...
+              Loading...
             </motion.div>
           ) : currentSteps.length > 0 ? (
             currentSteps.map((step, index) => (
@@ -246,7 +246,7 @@ export default function ServiceStepsPage() {
               animate={{ opacity: 1 }}
               className="col-span-full text-center py-10 text-gray-900 dark:text-gray-100"
             >
-              ไม่พบรายการ
+              No items found
             </motion.div>
           )}
         </AnimatePresence>
@@ -255,9 +255,9 @@ export default function ServiceStepsPage() {
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            แสดง {indexOfFirstStep + 1} ถึง{" "}
-            {Math.min(indexOfLastStep, filteredSteps.length)} จาก{" "}
-            {filteredSteps.length} รายการ
+            Showing {indexOfFirstStep + 1} to{" "}
+            {Math.min(indexOfLastStep, filteredSteps.length)} of{" "}
+            {filteredSteps.length} items
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -267,7 +267,7 @@ export default function ServiceStepsPage() {
               disabled={currentPage === 1}
               className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700"
             >
-              ก่อนหน้า
+              Previous
             </Button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <Button
@@ -291,7 +291,7 @@ export default function ServiceStepsPage() {
               disabled={currentPage === totalPages}
               className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700"
             >
-              ถัดไป
+              Next
             </Button>
           </div>
         </div>
@@ -307,20 +307,20 @@ export default function ServiceStepsPage() {
           >
             <AlertDialogHeader>
               <AlertDialogTitle className="text-gray-900 dark:text-gray-100">
-                รายละเอียดรายการ
+                Item Details
               </AlertDialogTitle>
               <AlertDialogDescription className="text-gray-500 dark:text-gray-400">
-                ดูรายละเอียดของรายการ
+                View item details
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="space-y-4 p-4">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  {selectedStep?.title || "ไม่มีชื่อ"}
+                  {selectedStep?.title || "No title"}
                 </h3>
                 <div className="mt-2">
                   <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    รายการย่อย:
+                    Subtitles:
                   </h4>
                   {selectedStep?.subtitles && selectedStep.subtitles.length > 0 ? (
                     selectedStep.subtitles.map((subtitle, index) => (
@@ -328,18 +328,18 @@ export default function ServiceStepsPage() {
                         key={index}
                         className="text-sm text-gray-500 dark:text-gray-400 ml-4"
                       >
-                        {index + 1}. {subtitle || `รายการย่อย ${index + 1}`}
+                        {index + 1}. {subtitle || `Subtitle ${index + 1}`}
                       </p>
                     ))
                   ) : (
                     <p className="text-sm text-gray-500 dark:text-gray-400 ml-4">
-                      ไม่มีรายการย่อย
+                      No subtitles
                     </p>
                   )}
                 </div>
                 <div className="mt-2">
                   <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    หัวข้อ:
+                    Headings:
                   </h4>
                   {selectedStep?.headings && selectedStep.headings.length > 0 ? (
                     selectedStep.headings.map((heading, index) => (
@@ -347,20 +347,20 @@ export default function ServiceStepsPage() {
                         key={index}
                         className="text-sm text-gray-500 dark:text-gray-400 ml-4"
                       >
-                        {index + 1}. {heading || `หัวข้อ ${index + 1}`}
+                        {index + 1}. {heading || `Heading ${index + 1}`}
                       </p>
                     ))
                   ) : (
                     <p className="text-sm text-gray-500 dark:text-gray-400 ml-4">
-                      ไม่มีหัวข้อ
+                      No headings
                     </p>
                   )}
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  วันที่สร้าง:{" "}
+                  Created At:{" "}
                   {selectedStep?.createdAt
                     ? formatDate(selectedStep.createdAt)
-                    : "ไม่มีข้อมูล"}
+                    : "No data"}
                 </p>
               </div>
             </div>
@@ -369,7 +369,7 @@ export default function ServiceStepsPage() {
                 onClick={() => setIsViewOpen(false)}
                 className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600"
               >
-                ปิด
+                Close
               </AlertDialogCancel>
             </AlertDialogFooter>
           </motion.div>
@@ -383,10 +383,10 @@ export default function ServiceStepsPage() {
         <AlertDialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-gray-900 dark:text-gray-100">
-              คุณแน่ใจหรือไม่?
+              Are you sure?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-gray-500 dark:text-gray-400">
-              การกระทำนี้ไม่สามารถย้อนกลับได้ รายการนี้จะถูกลบอย่างถาวร
+              This action cannot be undone. This item will be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -394,13 +394,13 @@ export default function ServiceStepsPage() {
               onClick={() => setStepToDelete(null)}
               className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600"
             >
-              ยกเลิก
+              Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteStep}
               className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
             >
-              ลบ
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

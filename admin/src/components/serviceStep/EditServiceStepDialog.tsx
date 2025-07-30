@@ -62,14 +62,14 @@ export default function EditServiceStepDialog({
     const fetchCategoryId = async () => {
       try {
         const token = Cookies.get("auth_token");
-        if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
+        if (!token) throw new Error("Please log in");
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/projects/categories`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        if (!res.ok) throw new Error("ไม่สามารถโหลดหมวดหมู่ได้");
+        if (!res.ok) throw new Error("Unable to load categories");
         const data = await res.json();
         const matchingCategory = data.data.find(
           (cat: Category) => cat.NameCategory.toLowerCase() === categoryName.toLowerCase()
@@ -77,12 +77,12 @@ export default function EditServiceStepDialog({
         if (matchingCategory) {
           setCategoryId(matchingCategory.ID);
         } else {
-          throw new Error("ไม่พบหมวดหมู่");
+          throw new Error("Category not found");
         }
       } catch (error: any) {
         toast({
-          title: "เกิดข้อผิดพลาด",
-          description: error.message || "ไม่สามารถโหลดหมวดหมู่ได้",
+          title: "Error",
+          description: error.message || "Unable to load categories",
           variant: "destructive",
         });
       }
@@ -123,8 +123,8 @@ export default function EditServiceStepDialog({
 
     if (!title.trim()) {
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ต้องระบุชื่อ",
+        title: "Error",
+        description: "Title is required",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -136,8 +136,8 @@ export default function EditServiceStepDialog({
 
     if (filteredSubtitles.length === 0 && filteredHeadings.length === 0) {
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ต้องมีอย่างน้อยหนึ่งรายการย่อยหรือหัวข้อ",
+        title: "Error",
+        description: "At least one subtitle or heading is required",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -153,7 +153,7 @@ export default function EditServiceStepDialog({
 
     try {
       const token = Cookies.get("auth_token");
-      if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
+      if (!token) throw new Error("Please log in");
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(categoryName)}/service-steps/${step._id}`,
         {
@@ -168,17 +168,17 @@ export default function EditServiceStepDialog({
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || "ไม่สามารถอัปเดตรายการได้");
+        throw new Error(errorData.error || "Unable to update item");
       }
 
       const data = await res.json();
       onUpdate(data.data);
-      toast({ title: "สำเร็จ", description: "อัปเดตรายการสำเร็จ" });
+      toast({ title: "Success", description: "Item updated successfully" });
       onOpenChange(false);
     } catch (error: any) {
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: error.message || "ไม่สามารถอัปเดตรายการได้",
+        title: "Error",
+        description: error.message || "Unable to update item",
         variant: "destructive",
       });
     } finally {
@@ -191,35 +191,35 @@ export default function EditServiceStepDialog({
       <AlertDialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 w-[95vw] max-w-lg sm:max-w-2xl max-h-[80vh] overflow-y-auto">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-gray-900 dark:text-gray-100 text-lg sm:text-xl">
-            แก้ไขรายการ
+            Edit Item
           </AlertDialogTitle>
           <AlertDialogDescription className="text-gray-500 dark:text-gray-400 text-sm">
-            ปรับเปลี่ยนรายละเอียดของรายการ
+            Modify item details
           </AlertDialogDescription>
         </AlertDialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 p-4">
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              ชื่อ
+              Title
             </label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="กรอกชื่อ"
+              placeholder="Enter title"
               className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 w-full max-w-md"
               disabled={isLoading}
             />
           </div>
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              รายการย่อย
+              Subtitles
             </label>
             {subtitles.map((subtitle, index) => (
               <div key={index} className="flex items-center gap-2 mt-2">
                 <Input
                   value={subtitle}
                   onChange={(e) => handleSubtitleChange(index, e.target.value)}
-                  placeholder={`รายการย่อย ${index + 1}`}
+                  placeholder={`Subtitle ${index + 1}`}
                   className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 w-full max-w-md"
                   disabled={isLoading}
                 />
@@ -232,7 +232,7 @@ export default function EditServiceStepDialog({
                     disabled={isLoading}
                     className="w-full sm:w-auto mt-2 sm:mt-0"
                   >
-                    ลบรายการย่อย
+                    Delete Subtitle
                   </Button>
                 )}
               </div>
@@ -244,19 +244,19 @@ export default function EditServiceStepDialog({
               onClick={addSubtitle}
               disabled={isLoading}
             >
-              เพิ่มรายการย่อย
+              Add Subtitle
             </Button>
           </div>
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              หัวข้อ
+              Headings
             </label>
             {headings.map((heading, index) => (
               <div key={index} className="flex items-center gap-2 mt-2">
                 <Input
                   value={heading}
                   onChange={(e) => handleHeadingChange(index, e.target.value)}
-                  placeholder={`หัวข้อ ${index + 1}`}
+                  placeholder={`Heading ${index + 1}`}
                   className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 w-full max-w-md"
                   disabled={isLoading}
                 />
@@ -269,7 +269,7 @@ export default function EditServiceStepDialog({
                     disabled={isLoading}
                     className="w-full sm:w-auto mt-2 sm:mt-0"
                   >
-                    ลบหัวข้อ
+                    Delete Heading
                   </Button>
                 )}
               </div>
@@ -281,7 +281,7 @@ export default function EditServiceStepDialog({
               onClick={addHeading}
               disabled={isLoading}
             >
-              เพิ่มหัวข้อ
+              Add Heading
             </Button>
           </div>
           <AlertDialogFooter className="flex flex-col sm:flex-row sm:gap-2">
@@ -289,14 +289,14 @@ export default function EditServiceStepDialog({
               onClick={() => onOpenChange(false)}
               className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 w-full sm:w-auto"
             >
-              ยกเลิก
+              Cancel
             </AlertDialogCancel>
             <Button
               type="submit"
               disabled={isLoading}
               className="w-full sm:w-auto"
             >
-              {isLoading ? "กำลังอัปเดต..." : "อัปเดตรายการ"}
+              {isLoading ? "Updating..." : "Update Item"}
             </Button>
           </AlertDialogFooter>
         </form>

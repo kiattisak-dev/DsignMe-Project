@@ -35,7 +35,7 @@ export default function ServiceStepCard({
     <Card className="shadow-md hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
       <CardHeader className="p-4 relative">
         <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 pr-8 line-clamp-2">
-          {step.title || "ไม่มีชื่อ"}
+          {step.title || "No title"}
         </CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -49,18 +49,18 @@ export default function ServiceStepCard({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <DropdownMenuItem
-              onSelect={onView}
+              onSelect = {onView}
               className="text-gray-900 dark:text-gray-100"
             >
               <Eye className="mr-2 h-4 w-4" />
-              ดู
+              View
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={onEdit}
               className="text-gray-900 dark:text-gray-100"
             >
               <Edit2 className="mr-2 h-4 w-4" />
-              แก้ไข
+              Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
             <DropdownMenuItem
@@ -68,31 +68,31 @@ export default function ServiceStepCard({
               className="text-gray-900 dark:text-gray-100"
             >
               <Trash2 className="mr-2 h-4 w-4 text-red-600 dark:text-red-400" />
-              ลบ
+              Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent className="p-4 space-y-2">
+      <CardContent className="p-4 space-y-/Dependabot alerts2">
         <div>
           <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            รายการย่อย
+            Subtitles
           </h4>
           <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-            {step.subtitles.filter(Boolean).join(", ") || "ไม่มีรายการย่อย"}
+            {step.subtitles.filter(Boolean).join(", ") || "No subtitles"}
           </p>
         </div>
         <div>
           <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            หัวข้อ
+            Headings
           </h4>
           <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-            {step.headings.filter(Boolean).join(", ") || "ไม่มีหัวข้อ"}
+            {step.headings.filter(Boolean).join(", ") || "No headings"}
           </p>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          วันที่สร้าง:{" "}
-          {new Date(step.createdAt).toLocaleDateString("th-TH", {
+          Created At:{" "}
+          {new Date(step.createdAt).toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
