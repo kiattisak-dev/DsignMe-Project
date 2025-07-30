@@ -45,14 +45,15 @@ const LogoPage: React.FC = () => {
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [offset, setOffset] = useState<number>(4); // เริ่มจาก 4 เพราะโหลด 4 รายการแรกแล้ว
   const servicesSectionRef = useRef<HTMLDivElement>(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-  const fetchProjects = async (limit: number = 4) => {
+  const fetchProjects = async (limit: number = 4, offset: number = 0) => {
     try {
       const projectsResponse = await fetch(
-        `${API_BASE_URL}/projects/logo?limit=${limit}`,
+        `${API_BASE_URL}/projects/logo?limit=${limit}&offset=${offset}`,
         {
           headers: {
             Accept: "application/json",
@@ -94,40 +95,6 @@ const LogoPage: React.FC = () => {
           return true;
         });
 
-      // Test image and video accessibility
-      for (const item of mappedPortfolioImages) {
-        if (item.url) {
-          try {
-            const response = await fetch(item.url, { method: "HEAD" });
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status} for ${item.url}`);
-            }
-          } catch (imgErr) {
-            if (imgErr instanceof Error) {
-              console.warn(
-                `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${imgErr.message}`
-              );
-              item.url = "";
-            }
-          }
-        }
-        if (item.videoUrl) {
-          try {
-            const response = await fetch(item.videoUrl, { method: "HEAD" });
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
-            }
-          } catch (videoErr) {
-            if (videoErr instanceof Error) {
-              console.warn(
-                `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${videoErr.message}`
-              );
-              item.videoUrl = "";
-            }
-          }
-        }
-      }
-
       return mappedPortfolioImages;
     } catch (err) {
       throw err;
@@ -137,82 +104,12 @@ const LogoPage: React.FC = () => {
   const fetchMoreProjects = async () => {
     setIsFetchingMore(true);
     try {
-      const projectsResponse = await fetch(`${API_BASE_URL}/projects/logo`, {
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (!projectsResponse.ok) {
-        throw new Error(
-          `Failed to fetch more projects: ${projectsResponse.statusText}`
-        );
+      const moreProjects = await fetchProjects(8, offset); // โหลด 8 รายการต่อครั้ง
+      if (moreProjects.length < 8) {
+        setHasMore(false); // ถ้าได้น้อยกว่า 8 รายการ แปลว่าไม่มีข้อมูลเพิ่มแล้ว
       }
-
-      const projectsData: { data: ProjectResponse[] } =
-        await projectsResponse.json();
-      const projects = projectsData.data || [];
-
-      const mappedPortfolioImages: PortfolioItem[] = projects
-        .map((project, index) => {
-          const id = project._id || `fallback-${index}`;
-          return {
-            id,
-            url: project.imageUrl || "",
-            videoUrl: project.videoUrl || "",
-            videoLink: project.videoLink || "",
-            title: project.title || "Logo Project",
-            category: "logo",
-            description: project.description || "",
-            mediaType: mapMediaType(project.mediaType),
-          };
-        })
-        .filter((item) => {
-          if (!item.id || item.id === "") {
-            console.warn(
-              `Skipping project with invalid ID: ${JSON.stringify(item)}`
-            );
-            return false;
-          }
-          return true;
-        });
-
-      // Test image and video accessibility
-      for (const item of mappedPortfolioImages) {
-        if (item.url) {
-          try {
-            const response = await fetch(item.url, { method: "HEAD" });
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status} for ${item.url}`);
-            }
-          } catch (imgErr) {
-            if (imgErr instanceof Error) {
-              console.warn(
-                `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${imgErr.message}`
-              );
-              item.url = "";
-            }
-          }
-        }
-        if (item.videoUrl) {
-          try {
-            const response = await fetch(item.videoUrl, { method: "HEAD" });
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
-            }
-          } catch (videoErr) {
-            if (videoErr instanceof Error) {
-              console.warn(
-                `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${videoErr.message}`
-              );
-              item.videoUrl = "";
-            }
-          }
-        }
-      }
-
-      setPortfolioImages(mappedPortfolioImages);
-      setHasMore(false);
+      setPortfolioImages((prev) => [...prev, ...moreProjects]);
+      setOffset((prev) => prev + 8);
       setIsFetchingMore(false);
     } catch (err) {
       if (err instanceof Error) {
@@ -228,19 +125,17 @@ const LogoPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch initial 4 projects
-        const initialProjects = await fetchProjects(4);
-        setPortfolioImages(initialProjects);
-
-        // Fetch service steps
-        const servicesResponse = await fetch(
-          `${API_BASE_URL}/servicesteps/logo/service-steps`,
-          {
+        // โหลด projects และ servicesteps พร้อมกัน
+        const [initialProjects, servicesResponse] = await Promise.all([
+          fetchProjects(4),
+          fetch(`${API_BASE_URL}/servicesteps/logo/service-steps`, {
             headers: {
               Accept: "application/json",
             },
-          }
-        );
+          }),
+        ]);
+
+        setPortfolioImages(initialProjects);
 
         if (!servicesResponse.ok) {
           throw new Error(
