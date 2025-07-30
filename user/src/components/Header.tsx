@@ -25,7 +25,10 @@ const Header: React.FC = () => {
       // Ensure header is opaque on other pages
       setIsScrolled(true);
     }
-  }, [isHomePage, location]); // Add location to dependency array to trigger on route change
+
+    // Scroll to top when pathname changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [isHomePage, location]);
 
   const scrollToSection = (sectionId: string) => {
     if (!isHomePage) {
@@ -91,7 +94,7 @@ const Header: React.FC = () => {
                 isHomePage && !isScrolled ? 'text-white' : 'text-black'
               } hover:text-gray-500 transition-colors duration-200 drop-shadow-sm`}
             >
-              หน้าหลัก
+              Home
             </Link>
 
             {/* Services Dropdown */}
@@ -105,7 +108,7 @@ const Header: React.FC = () => {
                   isHomePage && !isScrolled ? 'text-white' : 'text-black'
                 } hover:text-gray-500 transition-colors duration-200 drop-shadow-sm`}
               >
-                <span>บริการ</span>
+                <span>Services</span>
                 <motion.span
                   animate={{ rotate: isServicesOpen ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
@@ -146,13 +149,13 @@ const Header: React.FC = () => {
                 isHomePage && !isScrolled ? 'text-white' : 'text-black'
               } hover:text-gray-500 transition-colors duration-200 drop-shadow-sm`}
             >
-              เกี่ยวกับเรา
+              About Us
             </Link>
             <Link
               to="/contact"
               className="bg-black text-white px-6 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-all duration-200 shadow-sm"
             >
-              ติดต่อเรา
+              Contact Us
             </Link>
           </nav>
 
@@ -183,7 +186,7 @@ const Header: React.FC = () => {
                   className="text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  หน้าหลัก
+                  Home
                 </Link>
 
                 {/* Mobile Services Menu */}
@@ -192,7 +195,7 @@ const Header: React.FC = () => {
                     onClick={() => setIsServicesOpen(!isServicesOpen)}
                     className="flex items-center justify-between w-full text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
                   >
-                    <span>บริการ</span>
+                    <span>Services</span>
                     <motion.span
                       animate={{ rotate: isServicesOpen ? 180 : 0 }}
                       transition={{ duration: 0.3 }}
@@ -227,14 +230,14 @@ const Header: React.FC = () => {
                   className="text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  เกี่ยวกับเรา
+                  About Us
                 </Link>
                 <Link
                   to="/contact"
                   className="bg-black text-white px-6 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-all duration-200 w-fit shadow-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  ติดต่อเรา
+                  Contact Us
                 </Link>
               </nav>
             </motion.div>
