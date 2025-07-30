@@ -56,8 +56,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   const itemsPerPage = 8;
   const initialItems = 4;
 
-  // จำกัด totalItems เป็น 4 รายการแรกถ้า !showAll และมีมากกว่า 4 รายการ
-  const totalItems = showAll ? portfolioImages : portfolioImages.slice(0, initialItems);
+  // คำนวณ totalItems โดยใช้ portfolioImages ทั้งหมด
+  const totalItems = portfolioImages;
   const totalPages = Math.ceil(totalItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = totalItems.slice(startIndex, startIndex + itemsPerPage);
@@ -80,9 +80,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 
   const handleFetchMore = () => {
     setShowAll(true);
-    if (hasMore) {
-      onFetchMore();
-    }
+    onFetchMore();
   };
 
   return (
@@ -130,7 +128,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         )}
 
         <AnimatePresence>
-          {(hasMore || portfolioImages.length > initialItems) && !showAll && (
+          {hasMore && !showAll && totalItems.length <= initialItems && (
             <motion.div
               className="text-center"
               initial="hidden"
