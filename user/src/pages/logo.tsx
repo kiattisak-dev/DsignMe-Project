@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import HeroSection from "../components/ui/HeroSection";
 import PortfolioSection from "../components/ui/PortfolioSection";
@@ -18,14 +20,10 @@ interface ProjectResponse {
   mediaType?: string;
 }
 
-interface ServiceStepSubtitle {
-  text?: string;
-  headings?: string[];
-}
-
 interface ServiceStep {
   title?: string;
-  subtitles?: ServiceStepSubtitle[];
+  subtitles?: string[];
+  headings?: string[];
 }
 
 // ฟังก์ชันแปลง mediaType string เป็น type union ที่ PortfolioItem ต้องการ
@@ -149,12 +147,14 @@ const LogoPage: React.FC = () => {
 
         const mappedServices: Service[] = serviceSteps.map((step) => ({
           title: step.title || "Service",
-          description: step.subtitles
-            ? step.subtitles.map((sub) => sub.text || "").join(" ")
+          description: step.subtitles ? step.subtitles.join(" ") : "",
+          features: step.headings || [],
+          timeline: step.subtitles?.includes("ระยะเวลา")
+            ? step.subtitles.find((s) => s.includes("ระยะเวลา")) || ""
             : "",
-          features: step.subtitles
-            ? step.subtitles.flatMap((sub) => sub.headings || [])
-            : [],
+          revisions: step.subtitles?.includes("แก้ไข")
+            ? step.subtitles.find((s) => s.includes("แก้ไข")) || ""
+            : "",
         }));
 
         setServices(mappedServices);
