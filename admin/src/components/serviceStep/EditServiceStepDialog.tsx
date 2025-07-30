@@ -15,21 +15,17 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Cookies from "js-cookie";
 
-interface Subtitle {
-  text: string;
-  headings: string[];
+interface Category {
+  ID: string;
+  NameCategory: string;
 }
 
 interface ServiceStep {
   _id: string;
   title: string;
-  subtitles: Subtitle[];
+  subtitles: string[];
+  headings: string[];
   createdAt: string;
-}
-
-interface Category {
-  ID: string;
-  NameCategory: string;
 }
 
 interface EditServiceStepDialogProps {
@@ -49,20 +45,16 @@ export default function EditServiceStepDialog({
 }: EditServiceStepDialogProps) {
   const { toast } = useToast();
   const [title, setTitle] = useState("");
-  const [subtitles, setSubtitles] = useState<Subtitle[]>([{ text: "", headings: [] }]);
-  const [allHeadings, setAllHeadings] = useState<string[]>([]);
+  const [subtitles, setSubtitles] = useState<string[]>([""]);
+  const [headings, setHeadings] = useState<string[]>([""]);
   const [categoryId, setCategoryId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (step) {
       setTitle(step.title);
-      setSubtitles(
-        step.subtitles.length > 0
-          ? step.subtitles.map((s) => ({ text: s.text, headings: [] }))
-          : [{ text: "", headings: [] }]
-      );
-      setAllHeadings(step.subtitles.flatMap((s) => s.headings).filter((h) => h.trim()));
+      setSubtitles(step.subtitles.length > 0 ? step.subtitles : [""]);
+      setHeadings(step.headings.length > 0 ? step.headings : [""]);
     }
   }, [step]);
 
@@ -70,11 +62,14 @@ export default function EditServiceStepDialog({
     const fetchCategoryId = async () => {
       try {
         const token = Cookies.get("auth_token");
-        if (!token) throw new Error("Please sign in");
-        const res = await fetch("http://localhost:8081/projects/categories", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Failed to load categories");
+        if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/categories`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) throw new Error("ไม่สามารถโหลดหมวดหมู่ได้");
         const data = await res.json();
         const matchingCategory = data.data.find(
           (cat: Category) => cat.NameCategory.toLowerCase() === categoryName.toLowerCase()
@@ -82,12 +77,12 @@ export default function EditServiceStepDialog({
         if (matchingCategory) {
           setCategoryId(matchingCategory.ID);
         } else {
-          throw new Error("Category not found");
+          throw new Error("ไม่พบหมวดหมู่");
         }
       } catch (error: any) {
         toast({
-          title: "Error",
-          description: error.message || "Failed to load category",
+          title: "เกิดข้อผิดพลาด",
+          description: error.message || "ไม่สามารถโหลดหมวดหมู่ได้",
           variant: "destructive",
         });
       }
@@ -98,15 +93,15 @@ export default function EditServiceStepDialog({
   }, [open, categoryName, toast]);
 
   const handleSubtitleChange = (index: number, value: string) => {
-    setSubtitles(subtitles.map((s, i) => (i === index ? { ...s, text: value } : s)));
+    setSubtitles(subtitles.map((s, i) => (i === index ? value : s)));
   };
 
   const handleHeadingChange = (index: number, value: string) => {
-    setAllHeadings(allHeadings.map((h, i) => (i === index ? value : h)));
+    setHeadings(headings.map((h, i) => (i === index ? value : h)));
   };
 
   const addSubtitle = () => {
-    setSubtitles([...subtitles, { text: "", headings: [] }]);
+    setSubtitles([...subtitles, ""]);
   };
 
   const removeSubtitle = (index: number) => {
@@ -114,11 +109,11 @@ export default function EditServiceStepDialog({
   };
 
   const addHeading = () => {
-    setAllHeadings([...allHeadings, ""]);
+    setHeadings([...headings, ""]);
   };
 
   const removeHeading = (index: number) => {
-    setAllHeadings(allHeadings.filter((_, i) => i !== index));
+    setHeadings(headings.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,25 +123,19 @@ export default function EditServiceStepDialog({
 
     if (!title.trim()) {
       toast({
-        title: "Error",
-        description: "Title is required",
+        title: "เกิดข้อผิดพลาด",
+        description: "ต้องระบุชื่อ",
         variant: "destructive",
       });
       setIsLoading(false);
       return;
     }
 
-    let hasContent = false;
-    for (const subtitle of subtitles) {
-      if (subtitle.text.trim() || allHeadings.some((h) => h.trim())) {
-        hasContent = true;
-        break;
-      }
-    }
+    const hasContent = subtitles.some((s) => s.trim()) || headings.some((h) => h.trim());
     if (!hasContent) {
       toast({
-        title: "Error",
-        description: "At least one subtitle or heading is required",
+        title: "เกิดข้อผิดพลาด",
+        description: "ต้องมีอย่างน้อยหนึ่งรายการย่อยหรือหัวข้อ",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -156,17 +145,15 @@ export default function EditServiceStepDialog({
     const payload = {
       categories: categoryId,
       title: title.trim(),
-      subtitles: subtitles.map((s) => ({
-        text: s.text.trim(),
-        headings: allHeadings.filter((h) => h.trim()),
-      })),
+      subtitles: subtitles.filter((s) => s.trim()),
+      headings: headings.filter((h) => h.trim()),
     };
 
     try {
       const token = Cookies.get("auth_token");
-      if (!token) throw new Error("Please sign in");
+      if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
       const res = await fetch(
-        `http://localhost:8081/servicesteps/${categoryName}/service-steps/${step._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(categoryName)}/service-steps/${step._id}`,
         {
           method: "PUT",
           headers: {
@@ -179,17 +166,17 @@ export default function EditServiceStepDialog({
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to update service step");
+        throw new Error(errorData.error || "ไม่สามารถอัปเดตรายการได้");
       }
 
       const data = await res.json();
       onUpdate(data.data);
-      toast({ title: "Success", description: "Service step updated successfully" });
+      toast({ title: "สำเร็จ", description: "อัปเดตรายการสำเร็จ" });
       onOpenChange(false);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to update service step",
+        title: "เกิดข้อผิดพลาด",
+        description: error.message || "ไม่สามารถอัปเดตรายการได้",
         variant: "destructive",
       });
     } finally {
@@ -202,55 +189,50 @@ export default function EditServiceStepDialog({
       <AlertDialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 w-[95vw] max-w-lg sm:max-w-2xl max-h-[80vh] overflow-y-auto">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-gray-900 dark:text-gray-100 text-lg sm:text-xl">
-            Edit Service Step
+            แก้ไขรายการ
           </AlertDialogTitle>
           <AlertDialogDescription className="text-gray-500 dark:text-gray-400 text-sm">
-            Modify the details of the service step.
+            ปรับเปลี่ยนรายละเอียดของรายการ
           </AlertDialogDescription>
         </AlertDialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 p-4">
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              Title
+              ชื่อ
             </label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter title"
+              placeholder="กรอกชื่อ"
               className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 w-full max-w-md"
               disabled={isLoading}
             />
           </div>
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              Details
+              รายการย่อย
             </label>
-            {subtitles.map((subtitle, subtitleIndex) => (
-              <div
-                key={subtitleIndex}
-                className="mt-2 p-4 border rounded-md bg-gray-50 dark:bg-gray-800 space-y-3"
-              >
-                <div className="flex flex-col gap-2">
-                  <Input
-                    value={subtitle.text}
-                    onChange={(e) => handleSubtitleChange(subtitleIndex, e.target.value)}
-                    placeholder={`Subtitle ${subtitleIndex + 1}`}
-                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 w-full max-w-md"
+            {subtitles.map((subtitle, index) => (
+              <div key={index} className="flex items-center gap-2 mt-2">
+                <Input
+                  value={subtitle}
+                  onChange={(e) => handleSubtitleChange(index, e.target.value)}
+                  placeholder={`รายการย่อย ${index + 1}`}
+                  className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 w-full max-w-md"
+                  disabled={isLoading}
+                />
+                {subtitles.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeSubtitle(index)}
                     disabled={isLoading}
-                  />
-                  {subtitles.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeSubtitle(subtitleIndex)}
-                      disabled={isLoading}
-                      className="w-full sm:w-auto mt-2 sm:mt-0"
-                    >
-                      Remove Subtitle
-                    </Button>
-                  )}
-                </div>
+                    className="w-full sm:w-auto mt-2 sm:mt-0"
+                  >
+                    ลบรายการย่อย
+                  </Button>
+                )}
               </div>
             ))}
             <Button
@@ -260,63 +242,59 @@ export default function EditServiceStepDialog({
               onClick={addSubtitle}
               disabled={isLoading}
             >
-              Add Subtitle
+              เพิ่มรายการย่อย
             </Button>
-            <div className="mt-4">
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Sub-details (Single Box)
-              </label>
-              {allHeadings.map((heading, index) => (
-                <div key={index} className="flex items-center gap-2 mt-1">
-                  <span className="w-6 text-sm text-gray-900 dark:text-gray-100">
-                    {index + 1}.
-                  </span>
-                  <Input
-                    value={heading}
-                    onChange={(e) => handleHeadingChange(index, e.target.value)}
-                    placeholder={`Sub-detail ${index + 1}`}
-                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 flex-1 max-w-md"
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              หัวข้อ
+            </label>
+            {headings.map((heading, index) => (
+              <div key={index} className="flex items-center gap-2 mt-2">
+                <Input
+                  value={heading}
+                  onChange={(e) => handleHeadingChange(index, e.target.value)}
+                  placeholder={`หัวข้อ ${index + 1}`}
+                  className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 w-full max-w-md"
+                  disabled={isLoading}
+                />
+                {headings.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeHeading(index)}
                     disabled={isLoading}
-                  />
-                  {allHeadings.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeHeading(index)}
-                      disabled={isLoading}
-                      className="w-full sm:w-auto mt-2 sm:mt-0"
-                    >
-                      Remove Sub-detail
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-2 w-full sm:w-auto"
-                onClick={addHeading}
-                disabled={isLoading}
-              >
-                Add Sub-detail
-              </Button>
-            </div>
+                    className="w-full sm:w-auto mt-2 sm:mt-0"
+                  >
+                    ลบหัวข้อ
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-4 w-full sm:w-auto"
+              onClick={addHeading}
+              disabled={isLoading}
+            >
+              เพิ่มหัวข้อ
+            </Button>
           </div>
           <AlertDialogFooter className="flex flex-col sm:flex-row sm:gap-2">
             <AlertDialogCancel
               onClick={() => onOpenChange(false)}
               className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 w-full sm:w-auto"
             >
-              Cancel
+              ยกเลิก
             </AlertDialogCancel>
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full sm:w-auto "
+              className="w-full sm:w-auto"
             >
-              {isLoading ? "Updating..." : "Update Service Step"}
+              {isLoading ? "กำลังอัปเดต..." : "อัปเดตรายการ"}
             </Button>
           </AlertDialogFooter>
         </form>

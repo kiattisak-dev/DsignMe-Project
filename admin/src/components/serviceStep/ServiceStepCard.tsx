@@ -10,15 +10,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Eye, Trash2, Edit2 } from "lucide-react";
 
-interface Subtitle {
-  text: string;
-  headings: string[];
-}
-
 interface ServiceStep {
   _id: string;
   title: string;
-  subtitles: Subtitle[];
+  subtitles: string[];
+  headings: string[];
   createdAt: string;
 }
 
@@ -57,14 +53,14 @@ export default function ServiceStepCard({
               className="text-gray-900 dark:text-gray-100"
             >
               <Eye className="mr-2 h-4 w-4" />
-              View
+              ดู
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={onEdit}
               className="text-gray-900 dark:text-gray-100"
             >
               <Edit2 className="mr-2 h-4 w-4" />
-              Edit
+              แก้ไข
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
             <DropdownMenuItem
@@ -72,7 +68,7 @@ export default function ServiceStepCard({
               className="text-gray-900 dark:text-gray-100"
             >
               <Trash2 className="mr-2 h-4 w-4 text-red-600 dark:text-red-400" />
-              Delete
+              ลบ
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -80,31 +76,25 @@ export default function ServiceStepCard({
       <CardContent className="p-4 space-y-2">
         <div>
           <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            Subtitles
+            รายการย่อย
           </h4>
           <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-            {step.subtitles
-              .map((s) => s.text)
-              .filter(Boolean)
-              .join(", ") || "No subtitles"}
+            {step.subtitles.filter(Boolean).join(", ") || "ไม่มีรายการย่อย"}
           </p>
         </div>
         <div>
           <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            Headings
+            หัวข้อ
           </h4>
           <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-            {step.subtitles
-              .flatMap((s) => s.headings)
-              .filter(Boolean)
-              .join(", ") || "No headings"}
+            {step.headings.filter(Boolean).join(", ") || "ไม่มีหัวข้อ"}
           </p>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Created:{" "}
-          {new Date(step.createdAt).toLocaleDateString("en-US", {
+          วันที่สร้าง:{" "}
+          {new Date(step.createdAt).toLocaleDateString("th-TH", {
             year: "numeric",
-            month: "short",
+            month: "long",
             day: "numeric",
           })}
         </p>

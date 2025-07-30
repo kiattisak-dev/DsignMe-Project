@@ -15,9 +15,10 @@ import (
 )
 
 type ServiceStepRequest struct {
-	Categories string            `json:"categories"`
-	Title      string            `json:"title"`
-	Subtitles  []models.Subtitle `json:"subtitles"`
+	Categories string   `json:"categories"`
+	Title      string   `json:"title"`
+	Subtitles  []string `json:"subtitles"`
+	Headings   []string `json:"headings"`
 }
 
 func AddServiceStepHandler(c *fiber.Ctx) error {
@@ -70,14 +71,7 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 			"error": "Service step title is required",
 		})
 	}
-	hasContent := false
-	for _, subtitle := range req.Subtitles {
-		if subtitle.Text != "" || len(subtitle.Headings) > 0 {
-			hasContent = true
-			break
-		}
-	}
-	if !hasContent {
+	if len(req.Subtitles) == 0 && len(req.Headings) == 0 {
 		log.Printf("AddServiceStepHandler: No subtitle or heading provided")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "At least one subtitle or heading is required",
@@ -109,20 +103,16 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 	}
 
 	// Filter out empty subtitles and headings
-	filteredSubtitles := []models.Subtitle{}
+	filteredSubtitles := []string{}
 	for _, subtitle := range req.Subtitles {
-		if subtitle.Text != "" || len(subtitle.Headings) > 0 {
-			// Filter out empty headings
-			filteredHeadings := []string{}
-			for _, heading := range subtitle.Headings {
-				if heading != "" {
-					filteredHeadings = append(filteredHeadings, heading)
-				}
-			}
-			filteredSubtitles = append(filteredSubtitles, models.Subtitle{
-				Text:     subtitle.Text,
-				Headings: filteredHeadings,
-			})
+		if subtitle != "" {
+			filteredSubtitles = append(filteredSubtitles, subtitle)
+		}
+	}
+	filteredHeadings := []string{}
+	for _, heading := range req.Headings {
+		if heading != "" {
+			filteredHeadings = append(filteredHeadings, heading)
 		}
 	}
 
@@ -130,6 +120,7 @@ func AddServiceStepHandler(c *fiber.Ctx) error {
 		CategoryID: categoryObjID,
 		Title:      req.Title,
 		Subtitles:  filteredSubtitles,
+		Headings:   filteredHeadings,
 		CreatedAt:  time.Now(),
 	}
 
@@ -207,14 +198,7 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 			"error": "Service step title is required",
 		})
 	}
-	hasContent := false
-	for _, subtitle := range req.Subtitles {
-		if subtitle.Text != "" || len(subtitle.Headings) > 0 {
-			hasContent = true
-			break
-		}
-	}
-	if !hasContent {
+	if len(req.Subtitles) == 0 && len(req.Headings) == 0 {
 		log.Printf("UpdateServiceStepsHandler: No subtitle or heading provided")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "At least one subtitle or heading is required",
@@ -263,20 +247,16 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 	}
 
 	// Filter out empty subtitles and headings
-	filteredSubtitles := []models.Subtitle{}
+	filteredSubtitles := []string{}
 	for _, subtitle := range req.Subtitles {
-		if subtitle.Text != "" || len(subtitle.Headings) > 0 {
-			// Filter out empty headings
-			filteredHeadings := []string{}
-			for _, heading := range subtitle.Headings {
-				if heading != "" {
-					filteredHeadings = append(filteredHeadings, heading)
-				}
-			}
-			filteredSubtitles = append(filteredSubtitles, models.Subtitle{
-				Text:     subtitle.Text,
-				Headings: filteredHeadings,
-			})
+		if subtitle != "" {
+			filteredSubtitles = append(filteredSubtitles, subtitle)
+		}
+	}
+	filteredHeadings := []string{}
+	for _, heading := range req.Headings {
+		if heading != "" {
+			filteredHeadings = append(filteredHeadings, heading)
 		}
 	}
 
@@ -284,6 +264,7 @@ func UpdateServiceStepsHandler(c *fiber.Ctx) error {
 		"$set": bson.M{
 			"title":       req.Title,
 			"subtitles":   filteredSubtitles,
+			"headings":    filteredHeadings,
 			"category_id": categoryObjID,
 			"updatedAt":   time.Now(),
 		},

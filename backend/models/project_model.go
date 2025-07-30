@@ -19,7 +19,8 @@ type ServiceStep struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	CategoryID primitive.ObjectID `bson:"category_id" json:"category_id"`
 	Title      string             `bson:"title" json:"title"`
-	Subtitles  []Subtitle         `bson:"subtitles" json:"subtitles"`
+	Subtitles  []string           `bson:"subtitles" json:"subtitles"`
+	Headings   []string           `bson:"headings" json:"headings"`
 	CreatedAt  time.Time          `bson:"createdAt" json:"createdAt"`
 	UpdatedAt  *time.Time         `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 }
