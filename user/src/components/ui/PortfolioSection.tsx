@@ -34,7 +34,7 @@ const paginationButtonVariants = {
     x: 0,
     transition: { duration: 0.3, ease: "easeOut" },
   },
-  hover: { backgroundColor: "#f3f4f6", transition: { duration: 0.2 } },
+  hover: { backgroundColor: "#e5e7eb", transition: { duration: 0.2 } }, // สีเทาอ่อนเมื่อ hover
 };
 
 interface PortfolioSectionProps {
@@ -56,8 +56,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   const itemsPerPage = 8;
   const initialItems = 4;
 
-  // คำนวณ totalItems โดยใช้ portfolioImages ทั้งหมด
-  const totalItems = portfolioImages;
+  // จำกัด totalItems เป็น 4 รายการแรกถ้า !showAll
+  const totalItems = showAll ? portfolioImages : portfolioImages.slice(0, initialItems);
   const totalPages = Math.ceil(totalItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = totalItems.slice(startIndex, startIndex + itemsPerPage);
@@ -80,7 +80,9 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 
   const handleFetchMore = () => {
     setShowAll(true);
-    onFetchMore();
+    if (hasMore) {
+      onFetchMore();
+    }
   };
 
   return (
@@ -128,9 +130,9 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         )}
 
         <AnimatePresence>
-          {hasMore && !showAll && totalItems.length <= initialItems && (
+          {(hasMore || portfolioImages.length > initialItems) && !showAll && (
             <motion.div
-              className="text-center"
+              className="text-center mb-6"
               initial="hidden"
               animate="visible"
               exit={{ opacity: 0, scale: 0.8 }}
@@ -139,9 +141,9 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
               <motion.button
                 onClick={handleFetchMore}
                 disabled={isFetchingMore}
-                className={`bg-black text-white px-4 py-2 sm:px-6 sm:py-2 rounded-lg font-semibold transition-colors duration-300 text-sm sm:text-base ${
+                className={`bg-black text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-base sm:text-lg ${
                   isFetchingMore ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-800"
-                }`}
+                } transition-colors duration-300`}
                 variants={buttonVariants}
                 whileHover={isFetchingMore ? {} : "hover"}
               >
@@ -161,11 +163,11 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
             <div className="flex justify-center mb-4">
               <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <p className="text-gray-600">กำลังโหลดผลงานเพิ่มเติม...</p>
+            <p className="text-gray-600 text-base sm:text-lg">กำลังโหลดผลงานเพิ่มเติม...</p>
           </motion.div>
         )}
 
-        {totalPages > 1 && (
+        {showAll && totalPages > 1 && (
           <motion.div
             className="flex justify-center items-center space-x-2 mt-6"
             initial="hidden"
@@ -175,16 +177,16 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
             <motion.button
               onClick={goToPreviousPage}
               disabled={totalPages === 1}
-              className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
+              className={`px-4 py-2 sm:px-5 sm:py-3 rounded-lg font-bold text-base sm:text-lg ${
                 totalPages === 1
                   ? "bg-gray-200 text-gray-900 cursor-not-allowed"
                   : "bg-white text-black hover:bg-gray-100"
-              } border border-black transition-colors duration-300`}
+              } border-2 border-black transition-colors duration-300`}
               variants={paginationButtonVariants}
               whileHover={totalPages === 1 ? {} : "hover"}
               aria-label="Previous page"
             >
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1" />
+              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 inline-block mr-1" />
             </motion.button>
 
             <div className="flex space-x-1">
@@ -192,11 +194,11 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                 <motion.button
                   key={index}
                   onClick={() => setCurrentPage(index + 1)}
-                  className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
+                  className={`px-4 py-2 sm:px-5 sm:py-3 rounded-lg font-bold text-base sm:text-lg ${
                     currentPage === index + 1
-                      ? "bg-black text-white"
-                      : "bg-white text-black hover:bg-gray-100"
-                  } border border-black transition-colors duration-300`}
+                      ? "bg-black text-white border-2 border-black"
+                      : "bg-white text-black hover:bg-gray-100 border-2 border-black"
+                  } transition-colors duration-300`}
                   variants={paginationButtonVariants}
                   whileHover="hover"
                   aria-label={`Page ${index + 1}`}
@@ -209,16 +211,16 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
             <motion.button
               onClick={goToNextPage}
               disabled={totalPages === 1}
-              className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
+              className={`px-4 py-2 sm:px-5 sm:py-3 rounded-lg font-bold text-base sm:text-lg ${
                 totalPages === 1
                   ? "bg-gray-200 text-gray-900 cursor-not-allowed"
                   : "bg-white text-black hover:bg-gray-100"
-              } border border-black transition-colors duration-300`}
+              } border-2 border-black transition-colors duration-300`}
               variants={paginationButtonVariants}
               whileHover={totalPages === 1 ? {} : "hover"}
               aria-label="Next page"
             >
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 inline-block ml-1" />
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 inline-block ml-1" />
             </motion.button>
           </motion.div>
         )}
