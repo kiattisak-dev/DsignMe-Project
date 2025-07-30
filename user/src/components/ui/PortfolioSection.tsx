@@ -51,12 +51,11 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   hasMore,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [showAll, setShowAll] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const itemsPerPage = 8;
   const initialItems = 4;
 
-  const totalItems = showAll || !hasMore ? portfolioImages : portfolioImages.slice(0, initialItems);
+  const totalItems = hasMore ? portfolioImages.slice(0, initialItems) : portfolioImages;
   const totalPages = Math.ceil(totalItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = totalItems.slice(startIndex, startIndex + itemsPerPage);
@@ -75,11 +74,6 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
 
   const goToNextPage = () => {
     setCurrentPage((prev) => (prev === totalPages ? 1 : prev + 1));
-  };
-
-  const handleFetchMore = () => {
-    setShowAll(true);
-    onFetchMore();
   };
 
   return (
@@ -136,7 +130,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
               variants={buttonVariants}
             >
               <motion.button
-                onClick={handleFetchMore}
+                onClick={onFetchMore}
                 disabled={isFetchingMore}
                 className={`bg-black text-white px-4 py-2 sm:px-6 sm:py-2 rounded-lg font-semibold transition-colors duration-300 text-sm sm:text-base ${
                   isFetchingMore ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-800"
@@ -164,7 +158,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
           </motion.div>
         )}
 
-        {!hasMore && totalItems.length > initialItems && (
+        {!hasMore && portfolioImages.length > initialItems && (
           <motion.div
             className="flex justify-center items-center space-x-2 mt-6"
             initial="hidden"
