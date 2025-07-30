@@ -164,7 +164,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
           </motion.div>
         )}
 
-        {portfolioImages.length > 8 && !hasMore && (
+        {!hasMore && totalItems.length > initialItems && (
           <motion.div
             className="flex justify-center items-center space-x-2 mt-6"
             initial="hidden"
