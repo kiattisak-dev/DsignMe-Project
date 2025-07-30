@@ -34,7 +34,11 @@ const paginationButtonVariants = {
     x: 0,
     transition: { duration: 0.3, ease: "easeOut" },
   },
-  hover: { backgroundColor: "#e5e7eb", transition: { duration: 0.2 } }, // สีเทาอ่อนเมื่อ hover
+  hover: { 
+    backgroundColor: "#000000", 
+    color: "#ffffff", 
+    transition: { duration: 0.2 } 
+  },
 };
 
 interface PortfolioSectionProps {
@@ -177,16 +181,16 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
             <motion.button
               onClick={goToPreviousPage}
               disabled={totalPages === 1}
-              className={`px-4 py-2 sm:px-5 sm:py-3 rounded-lg font-bold text-base sm:text-lg ${
+              className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
                 totalPages === 1
                   ? "bg-gray-200 text-gray-900 cursor-not-allowed"
-                  : "bg-white text-black hover:bg-gray-100"
+                  : "bg-white text-black"
               } border-2 border-black transition-colors duration-300`}
               variants={paginationButtonVariants}
               whileHover={totalPages === 1 ? {} : "hover"}
               aria-label="Previous page"
             >
-              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 inline-block mr-1" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1" />
             </motion.button>
 
             <div className="flex space-x-1">
@@ -194,10 +198,10 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
                 <motion.button
                   key={index}
                   onClick={() => setCurrentPage(index + 1)}
-                  className={`px-4 py-2 sm:px-5 sm:py-3 rounded-lg font-bold text-base sm:text-lg ${
+                  className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
                     currentPage === index + 1
                       ? "bg-black text-white border-2 border-black"
-                      : "bg-white text-black hover:bg-gray-100 border-2 border-black"
+                      : "bg-white text-black"
                   } transition-colors duration-300`}
                   variants={paginationButtonVariants}
                   whileHover="hover"
@@ -211,16 +215,16 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
             <motion.button
               onClick={goToNextPage}
               disabled={totalPages === 1}
-              className={`px-4 py-2 sm:px-5 sm:py-3 rounded-lg font-bold text-base sm:text-lg ${
+              className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm sm:text-base ${
                 totalPages === 1
                   ? "bg-gray-200 text-gray-900 cursor-not-allowed"
-                  : "bg-white text-black hover:bg-gray-100"
+                  : "bg-white text-black"
               } border-2 border-black transition-colors duration-300`}
               variants={paginationButtonVariants}
               whileHover={totalPages === 1 ? {} : "hover"}
               aria-label="Next page"
             >
-              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 inline-block ml-1" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 inline-block ml-1" />
             </motion.button>
           </motion.div>
         )}
