@@ -34,10 +34,10 @@ const paginationButtonVariants = {
     x: 0,
     transition: { duration: 0.3, ease: "easeOut" },
   },
-  hover: { 
-    backgroundColor: "#000000", 
-    color: "#ffffff", 
-    transition: { duration: 0.2 } 
+  hover: {
+    backgroundColor: "#000000",
+    color: "#ffffff",
+    transition: { duration: 0.2 },
   },
 };
 
@@ -60,8 +60,15 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   const itemsPerPage = 8;
   const initialItems = 4;
 
+  // กรอง portfolioImages เพื่อลบรายการที่มี id ซ้ำ
+  const uniquePortfolioImages = Array.from(
+    new Map(portfolioImages.map((item) => [item.id, item])).values()
+  );
+
   // จำกัด totalItems เป็น 4 รายการแรกถ้า !showAll
-  const totalItems = showAll ? portfolioImages : portfolioImages.slice(0, initialItems);
+  const totalItems = showAll
+    ? uniquePortfolioImages
+    : uniquePortfolioImages.slice(0, initialItems);
   const totalPages = Math.ceil(totalItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = totalItems.slice(startIndex, startIndex + itemsPerPage);
@@ -109,7 +116,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
           </h3>
         </motion.div>
 
-        {portfolioImages.length === 0 ? (
+        {uniquePortfolioImages.length === 0 ? (
           <div className="text-center text-gray-500 text-base sm:text-lg">
             ไม่มีผลงานที่สามารถแสดงได้
           </div>
@@ -122,9 +129,9 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
           >
             <AnimatePresence mode="wait">
-              {currentItems.map((item, index) => (
+              {currentItems.map((item) => (
                 <MediaItem
-                  key={item.id || `fallback-${index}`}
+                  key={item.id}
                   item={item}
                   onClick={() => openModal(item)}
                 />
@@ -134,7 +141,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         )}
 
         <AnimatePresence>
-          {(hasMore || portfolioImages.length > initialItems) && !showAll && (
+          {(hasMore || uniquePortfolioImages.length > initialItems) && !showAll && (
             <motion.div
               className="text-center mb-6"
               initial="hidden"
