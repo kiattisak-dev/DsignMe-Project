@@ -35,7 +35,7 @@ export default function ServiceStepCard({
     <Card className="shadow-md hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
       <CardHeader className="p-4 relative">
         <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 pr-8 line-clamp-2">
-          {step.title}
+          {step.title || "ไม่มีชื่อ"}
         </CardTitle>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

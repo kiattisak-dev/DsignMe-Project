@@ -21,11 +21,6 @@ interface Category {
   NameCategory: string;
 }
 
-interface Subtitle {
-  text: string;
-  headings: string[];
-}
-
 export default function AddServiceStepPage() {
   const { category } = useParams<{ category: string }>();
   const router = useRouter();
@@ -33,24 +28,22 @@ export default function AddServiceStepPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [title, setTitle] = useState("");
-  const [subtitles, setSubtitles] = useState<Subtitle[]>([
-    { text: "", headings: [] },
-  ]);
-  const [allHeadings, setAllHeadings] = useState<string[]>([""]);
+  const [subtitles, setSubtitles] = useState<string[]>([""]);
+  const [headings, setHeadings] = useState<string[]>([""]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const token = Cookies.get("auth_token");
-        if (!token) throw new Error("Please go back login");
+        if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/projects/categories`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        if (!res.ok) throw new Error("Can not load categories");
+        if (!res.ok) throw new Error("ไม่สามารถโหลดหมวดหมู่ได้");
         const data = await res.json();
         setCategories(data.data || []);
         const matchingCategory = data.data.find(
@@ -60,8 +53,8 @@ export default function AddServiceStepPage() {
         if (matchingCategory) setSelectedCategoryId(matchingCategory.ID);
       } catch (error: any) {
         toast({
-          title: "Error",
-          description: error.message || "Can not load categories",
+          title: "เกิดข้อผิดพลาด",
+          description: error.message || "ไม่สามารถโหลดหมวดหมู่ได้",
           variant: "destructive",
         });
       }
@@ -70,17 +63,15 @@ export default function AddServiceStepPage() {
   }, [category, toast]);
 
   const handleSubtitleChange = (index: number, value: string) => {
-    setSubtitles(
-      subtitles.map((s, i) => (i === index ? { ...s, text: value } : s))
-    );
+    setSubtitles(subtitles.map((s, i) => (i === index ? value : s)));
   };
 
   const handleHeadingChange = (index: number, value: string) => {
-    setAllHeadings(allHeadings.map((h, i) => (i === index ? value : h)));
+    setHeadings(headings.map((h, i) => (i === index ? value : h)));
   };
 
   const addSubtitle = () => {
-    setSubtitles([...subtitles, { text: "", headings: [] }]);
+    setSubtitles([...subtitles, ""]);
   };
 
   const removeSubtitle = (index: number) => {
@@ -88,11 +79,11 @@ export default function AddServiceStepPage() {
   };
 
   const addHeading = () => {
-    setAllHeadings([...allHeadings, ""]);
+    setHeadings([...headings, ""]);
   };
 
   const removeHeading = (index: number) => {
-    setAllHeadings(allHeadings.filter((_, i) => i !== index));
+    setHeadings(headings.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,25 +92,21 @@ export default function AddServiceStepPage() {
 
     if (!title.trim()) {
       toast({
-        title: "Error",
-        description: "Title is required",
+        title: "เกิดข้อผิดพลาด",
+        description: "ต้องระบุชื่อ",
         variant: "destructive",
       });
       setIsLoading(false);
       return;
     }
 
-    let hasContent = false;
-    for (const subtitle of subtitles) {
-      if (subtitle.text.trim() || allHeadings.some((h) => h.trim())) {
-        hasContent = true;
-        break;
-      }
-    }
-    if (!hasContent) {
+    const filteredSubtitles = subtitles.filter((s) => s.trim());
+    const filteredHeadings = headings.filter((h) => h.trim());
+
+    if (filteredSubtitles.length === 0 && filteredHeadings.length === 0) {
       toast({
-        title: "Error",
-        description: "At least one subtitle or detail is required",
+        title: "เกิดข้อผิดพลาด",
+        description: "ต้องมีอย่างน้อยหนึ่งรายการย่อยหรือหัวข้อ",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -128,16 +115,14 @@ export default function AddServiceStepPage() {
 
     const payload = {
       categories: selectedCategoryId,
-      title,
-      subtitles: subtitles.map((s) => ({
-        text: s.text,
-        headings: allHeadings.filter((h) => h.trim()),
-      })),
+      title: title.trim(),
+      subtitles: filteredSubtitles,
+      headings: filteredHeadings,
     };
 
     try {
       const token = Cookies.get("auth_token");
-      if (!token) throw new Error("Please go back login");
+      if (!token) throw new Error("กรุณาเข้าสู่ระบบ");
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/servicesteps/${encodeURIComponent(
           category
@@ -154,15 +139,15 @@ export default function AddServiceStepPage() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || "Add service step not success");
+        throw new Error(errorData.error || "ไม่สามารถเพิ่มรายการได้");
       }
 
-      toast({ title: "Success", description: "Add service step success" });
+      toast({ title: "สำเร็จ", description: "เพิ่มรายการสำเร็จ" });
       router.push(`/dashboard/servicesteps/${category}`);
     } catch (error: any) {
       toast({
-        title: "Something error",
-        description: error.message || "Add service step not success",
+        title: "เกิดข้อผิดพลาด",
+        description: error.message || "ไม่สามารถเพิ่มรายการได้",
         variant: "destructive",
       });
     } finally {
@@ -174,13 +159,13 @@ export default function AddServiceStepPage() {
     return (
       <div className="min-h-screen p-4 sm:p-6 md:p-8 bg-[#F9FAFB] dark:bg-[#1F2937]">
         <h1 className="text-3xl font-bold tracking-tight text-[#111827] dark:text-[#D1D5DB]">
-          Category incorrect
+          หมวดหมู่ไม่ถูกต้อง
         </h1>
         <p className="text-[#6B7280] dark:text-[#9CA3AF] mt-4">
-          Please choose category correct
+          กรุณาเลือกหมวดหมู่ที่ถูกต้อง
         </p>
         <Link href="/dashboard/projects">
-          <Button className="mt-4">Go back Projects</Button>
+          <Button className="mt-4">กลับไปยังโปรเจกต์</Button>
         </Link>
       </div>
     );
@@ -190,24 +175,24 @@ export default function AddServiceStepPage() {
     <div className="min-h-screen p-4 sm:p-6 md:p-8 bg-[#F9FAFB] dark:bg-[#1F2937]">
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:space-x-4">
         <h1 className="text-3xl font-bold tracking-tight text-[#111827] dark:text-[#D1D5DB]">
-          Add Service Step - {category}
+          เพิ่มรายการ - {category}
         </h1>
         <Link href={`/dashboard/servicesteps/${category}`}>
-          <Button variant="outline">Go back Service Steps</Button>
+          <Button variant="outline">กลับไปยังรายการ</Button>
         </Link>
       </div>
 
       <Card className="mt-6 border-[#D1D5DB] dark:border-[#4B5563]">
         <CardHeader>
           <CardTitle className="text-[#111827] dark:text-[#D1D5DB]">
-            Service Step
+            รายการ
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-sm font-medium text-[#111827] dark:text-[#D1D5DB]">
-                Category
+                หมวดหมู่
               </label>
               <Select
                 value={selectedCategoryId}
@@ -215,7 +200,7 @@ export default function AddServiceStepPage() {
                 disabled={isLoading}
               >
                 <SelectTrigger className="mt-1 bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder="เลือกหมวดหมู่" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#374151] border-[#D1D5DB] dark:border-[#4B5563]">
                   {categories.map((cat) => (
@@ -228,103 +213,90 @@ export default function AddServiceStepPage() {
             </div>
             <div>
               <label className="text-sm font-medium text-[#111827] dark:text-[#D1D5DB]">
-                Title
+                ชื่อ
               </label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter title"
+                placeholder="กรอกชื่อ"
                 className="mt-1 bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
                 disabled={isLoading}
               />
             </div>
             <div>
               <label className="text-sm font-medium text-[#111827] dark:text-[#D1D5DB]">
-                Details
+                รายการย่อย
               </label>
-              {subtitles.map((subtitle, subtitleIndex) => (
-                <div
-                  key={subtitleIndex}
-                  className="mt-2 p-4 border rounded-md bg-gray-50 dark:bg-[#2D3748]"
-                >
-                  <div className="flex flex-col gap-2">
-                    <Input
-                      value={subtitle.text}
-                      onChange={(e) =>
-                        handleSubtitleChange(subtitleIndex, e.target.value)
-                      }
-                      placeholder={`Subtitle ${subtitleIndex + 1}`}
-                      className="bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
+              {subtitles.map((subtitle, index) => (
+                <div key={index} className="flex items-center gap-2 mt-2">
+                  <Input
+                    value={subtitle}
+                    onChange={(e) => handleSubtitleChange(index, e.target.value)}
+                    placeholder={`รายการย่อย ${index + 1}`}
+                    className="bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
+                    disabled={isLoading}
+                  />
+                  {subtitles.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeSubtitle(index)}
                       disabled={isLoading}
-                    />
-                    {subtitles.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => removeSubtitle(subtitleIndex)}
-                        disabled={isLoading}
-                      >
-                        Remove Subtitle
-                      </Button>
-                    )}
-                  </div>
+                    >
+                      ลบรายการย่อย
+                    </Button>
+                  )}
                 </div>
               ))}
-              <div className="flex items-center justify-between mt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full sm:w-auto"
-                  onClick={addSubtitle}
-                  disabled={isLoading}
-                >
-                  Add Subtitle
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="w-full sm:w-auto ml-2"
-                  onClick={addHeading}
-                  disabled={isLoading}
-                >
-                  Add Sub-detail
-                </Button>
-              </div>
-              <div className="mt-4">
-                <label className="text-sm font-medium text-[#666666] dark:text-[#9CA3AF]">
-                  Sub-details (Single Box)
-                </label>
-                {allHeadings.map((heading, index) => (
-                  <div key={index} className="flex items-center gap-2 mt-1">
-                    <span className="text-sm text-[#111827] dark:text-[#D1D5DB] w-6">
-                      {index + 1}.
-                    </span>
-                    <Input
-                      value={heading}
-                      onChange={(e) => handleHeadingChange(index, e.target.value)}
-                      placeholder={`Sub-detail ${index + 1}`}
-                      className="bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-4 w-full sm:w-auto"
+                onClick={addSubtitle}
+                disabled={isLoading}
+              >
+                เพิ่มรายการย่อย
+              </Button>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-[#111827] dark:text-[#D1D5DB]">
+                หัวข้อ
+              </label>
+              {headings.map((heading, index) => (
+                <div key={index} className="flex items-center gap-2 mt-2">
+                  <Input
+                    value={heading}
+                    onChange={(e) => handleHeadingChange(index, e.target.value)}
+                    placeholder={`หัวข้อ ${index + 1}`}
+                    className="bg-white dark:bg-[#374151] text-[#111827] dark:text-[#D1D5DB] border-[#D1D5DB] dark:border-[#4B5563]"
+                    disabled={isLoading}
+                  />
+                  {headings.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeHeading(index)}
                       disabled={isLoading}
-                    />
-                    {allHeadings.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => removeHeading(index)}
-                        disabled={isLoading}
-                      >
-                        Remove Sub-detail
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
+                    >
+                      ลบหัวข้อ
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-4 w-full sm:w-auto"
+                onClick={addHeading}
+                disabled={isLoading}
+              >
+                เพิ่มหัวข้อ
+              </Button>
             </div>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Adding..." : "Add Service Step"}
+              {isLoading ? "กำลังเพิ่ม..." : "เพิ่มรายการ"}
             </Button>
           </form>
         </CardContent>

@@ -45,8 +45,8 @@ export default function EditServiceStepDialog({
 }: EditServiceStepDialogProps) {
   const { toast } = useToast();
   const [title, setTitle] = useState("");
-  const [subtitles, setSubtitles] = useState<string[]>([""]);
-  const [headings, setHeadings] = useState<string[]>([""]);
+  const [subtitles, setSubtitles] = useState<string[]>([]);
+  const [headings, setHeadings] = useState<string[]>([]);
   const [categoryId, setCategoryId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -131,8 +131,10 @@ export default function EditServiceStepDialog({
       return;
     }
 
-    const hasContent = subtitles.some((s) => s.trim()) || headings.some((h) => h.trim());
-    if (!hasContent) {
+    const filteredSubtitles = subtitles.filter((s) => s.trim());
+    const filteredHeadings = headings.filter((h) => h.trim());
+
+    if (filteredSubtitles.length === 0 && filteredHeadings.length === 0) {
       toast({
         title: "เกิดข้อผิดพลาด",
         description: "ต้องมีอย่างน้อยหนึ่งรายการย่อยหรือหัวข้อ",
@@ -145,8 +147,8 @@ export default function EditServiceStepDialog({
     const payload = {
       categories: categoryId,
       title: title.trim(),
-      subtitles: subtitles.filter((s) => s.trim()),
-      headings: headings.filter((h) => h.trim()),
+      subtitles: filteredSubtitles,
+      headings: filteredHeadings,
     };
 
     try {
