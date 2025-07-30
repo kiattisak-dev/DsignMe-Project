@@ -42,103 +42,100 @@ const LogoPage: React.FC = () => {
   const [portfolioImages, setPortfolioImages] = useState<PortfolioItem[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [offset, setOffset] = useState<number>(4); // เริ่มจาก 4 เพราะโหลด 4 รายการแรกแล้ว
   const servicesSectionRef = useRef<HTMLDivElement>(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+  const fetchProjects = async (limit: number = 4, offset: number = 0) => {
+    try {
+      const projectsResponse = await fetch(
+        `${API_BASE_URL}/projects/logo?limit=${limit}&offset=${offset}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (!projectsResponse.ok) {
+        throw new Error(
+          `Failed to fetch projects: ${projectsResponse.statusText}`
+        );
+      }
+
+      const projectsData: { data: ProjectResponse[] } =
+        await projectsResponse.json();
+      const projects = projectsData.data || [];
+
+      const mappedPortfolioImages: PortfolioItem[] = projects
+        .map((project, index) => {
+          const id = project._id || `fallback-${index}`;
+          return {
+            id,
+            url: project.imageUrl || "",
+            videoUrl: project.videoUrl || "",
+            videoLink: project.videoLink || "",
+            title: project.title || "Logo Project",
+            category: "logo",
+            description: project.description || "",
+            mediaType: mapMediaType(project.mediaType),
+          };
+        })
+        .filter((item) => {
+          if (!item.id || item.id === "") {
+            console.warn(
+              `Skipping project with invalid ID: ${JSON.stringify(item)}`
+            );
+            return false;
+          }
+          return true;
+        });
+
+      return mappedPortfolioImages;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const fetchMoreProjects = async () => {
+    setIsFetchingMore(true);
+    try {
+      const moreProjects = await fetchProjects(8, offset); // โหลด 8 รายการต่อครั้ง
+      if (moreProjects.length < 8) {
+        setHasMore(false); // ถ้าได้น้อยกว่า 8 รายการ แปลว่าไม่มีข้อมูลเพิ่มแล้ว
+      }
+      setPortfolioImages((prev) => [...prev, ...moreProjects]);
+      setOffset((prev) => prev + 8);
+      setIsFetchingMore(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(`Fetch more error: ${err.message}`);
+        setError(err.message || "เกิดข้อผิดพลาดขณะดึงข้อมูลเพิ่มเติม");
+      } else {
+        setError("เกิดข้อผิดพลาดไม่ทราบสาเหตุ");
+      }
+      setIsFetchingMore(false);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch projects
-        const projectsResponse = await fetch(
-          `${API_BASE_URL}/projects/logo`,
-          {
+        // โหลด projects และ servicesteps พร้อมกัน
+        const [initialProjects, servicesResponse] = await Promise.all([
+          fetchProjects(4),
+          fetch(`${API_BASE_URL}/servicesteps/logo/service-steps`, {
             headers: {
               Accept: "application/json",
             },
-          }
-        );
+          }),
+        ]);
 
-        if (!projectsResponse.ok) {
-          throw new Error(
-            `Failed to fetch projects: ${projectsResponse.statusText}`
-          );
-        }
-
-        const projectsData: { data: ProjectResponse[] } =
-          await projectsResponse.json();
-        const projects = projectsData.data || [];
-
-        const mappedPortfolioImages: PortfolioItem[] = projects
-          .map((project, index) => {
-            const id = project._id || `fallback-${index}`;
-            return {
-              id,
-              url: project.imageUrl || "",
-              videoUrl: project.videoUrl || "",
-              videoLink: project.videoLink || "",
-              title: project.title || "Logo Project",
-              category: "logo",
-              description: project.description || "",
-              mediaType: mapMediaType(project.mediaType),
-            };
-          })
-          .filter((item) => {
-            if (!item.id || item.id === "") {
-              console.warn(
-                `Skipping project with invalid ID: ${JSON.stringify(item)}`
-              );
-              return false;
-            }
-            return true;
-          });
-
-        // Test image accessibility (optional)
-        for (const item of mappedPortfolioImages) {
-          if (item.url) {
-            try {
-              const response = await fetch(item.url, { method: "HEAD" });
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status} for ${item.url}`);
-              }
-            } catch (imgErr) {
-              if (imgErr instanceof Error) {
-                console.warn(
-                  `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${imgErr.message}`
-                );
-              }
-              item.url = "";
-            }
-          }
-          if (item.videoUrl) {
-            try {
-              const response = await fetch(item.videoUrl, { method: "HEAD" });
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
-              }
-            } catch (videoErr) {
-              if (videoErr instanceof Error) {
-                console.warn(
-                  `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${videoErr.message}`
-                );
-              }
-              item.videoUrl = "";
-            }
-          }
-        }
-
-        setPortfolioImages(mappedPortfolioImages);
-
-        // Fetch service steps
-        const servicesResponse = await fetch(
-          `${API_BASE_URL}/servicesteps/logo/service-steps`,
-          {
-            headers: {
-              Accept: "application/json",
-            },
-          }
-        );
+        setPortfolioImages(initialProjects);
 
         if (!servicesResponse.ok) {
           throw new Error(
@@ -161,7 +158,6 @@ const LogoPage: React.FC = () => {
         }));
 
         setServices(mappedServices);
-
         setLoading(false);
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -209,10 +205,12 @@ const LogoPage: React.FC = () => {
     );
   }
 
-   const scrollToServices = () => {
+  const scrollToServices = () => {
     if (servicesSectionRef.current) {
-      const navbarHeight = 100; // Adjust this value based on your navbar height
-      const elementPosition = servicesSectionRef.current.getBoundingClientRect().top + window.pageYOffset;
+      const navbarHeight = 100;
+      const elementPosition =
+        servicesSectionRef.current.getBoundingClientRect().top +
+        window.pageYOffset;
       window.scrollTo({
         top: elementPosition - navbarHeight,
         behavior: "smooth",
@@ -228,8 +226,13 @@ const LogoPage: React.FC = () => {
         contactInfo={logoPageData.contactInfo}
         onServicesClick={scrollToServices}
       />
-      <PortfolioSection portfolioImages={portfolioImages} />
-      <div ref={servicesSectionRef}> {/* Wrap ServicesSection with ref */}
+      <PortfolioSection
+        portfolioImages={portfolioImages}
+        isFetchingMore={isFetchingMore}
+        onFetchMore={fetchMoreProjects}
+        hasMore={hasMore}
+      />
+      <div ref={servicesSectionRef}>
         <ServicesSection services={services} />
       </div>
       <ProcessSection process={logoPageData.process} />
