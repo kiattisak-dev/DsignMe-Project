@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { PortfolioItem } from "../../types/types";
@@ -39,24 +39,23 @@ const paginationButtonVariants = {
 
 interface PortfolioSectionProps {
   portfolioImages: PortfolioItem[];
-  isFetchingMore: boolean;
-  onFetchMore: () => void;
-  hasMore: boolean;
 }
 
 const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   portfolioImages,
-  isFetchingMore,
-  onFetchMore,
-  hasMore,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [showAll, setShowAll] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const itemsPerPage = 8;
 
-  const totalPages = Math.ceil(portfolioImages.length / itemsPerPage);
+  const totalItems = useMemo(
+    () => (showAll ? portfolioImages : portfolioImages.slice(0, 4)),
+    [showAll, portfolioImages]
+  );
+  const totalPages = Math.ceil(totalItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = portfolioImages.slice(startIndex, startIndex + itemsPerPage);
+  const currentItems = totalItems.slice(startIndex, startIndex + itemsPerPage);
 
   const openModal = (item: PortfolioItem) => {
     setSelectedItem(item);
@@ -66,6 +65,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
     setSelectedItem(null);
   };
 
+  // ฟังก์ชันสำหรับเลื่อนหน้าแบบวนลูป
   const goToPreviousPage = () => {
     setCurrentPage((prev) => (prev === 1 ? totalPages : prev - 1));
   };
@@ -101,7 +101,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         ) : (
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
-            key={currentPage}
+            key={currentPage} // Ensure smooth transition on page change
             initial="hidden"
             animate="visible"
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
@@ -119,7 +119,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         )}
 
         <AnimatePresence>
-          {hasMore && (
+          {!showAll && portfolioImages.length > 4 && (
             <motion.div
               className="text-center"
               initial="hidden"
@@ -128,35 +128,18 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
               variants={buttonVariants}
             >
               <motion.button
-                onClick={onFetchMore}
-                disabled={isFetchingMore}
-                className={`bg-black text-white px-4 py-2 sm:px-6 sm:py-2 rounded-lg font-semibold transition-colors duration-300 text-sm sm:text-base ${
-                  isFetchingMore ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-800"
-                }`}
+                onClick={() => setShowAll(true)}
+                className="bg-black text-white px-4 py-2 sm:px-6 sm:py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors duration-300 text-sm sm:text-base"
                 variants={buttonVariants}
-                whileHover={isFetchingMore ? {} : "hover"}
+                whileHover="hover"
               >
-                {isFetchingMore ? "กำลังโหลด..." : "ดูเพิ่มเติม"}
+                ดูเพิ่มเติม
               </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {isFetchingMore && (
-          <motion.div
-            className="text-center mt-6"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          >
-            <div className="flex justify-center mb-4">
-              <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <p className="text-gray-600">กำลังโหลดผลงานเพิ่มเติม...</p>
-          </motion.div>
-        )}
-
-        {portfolioImages.length > 8 && !hasMore && (
+        {showAll && totalPages > 1 && (
           <motion.div
             className="flex justify-center items-center space-x-2 mt-6"
             initial="hidden"
