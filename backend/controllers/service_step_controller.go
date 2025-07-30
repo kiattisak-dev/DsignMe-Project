@@ -9,6 +9,7 @@ import (
     "github.com/gofiber/fiber/v2"
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
+    "github.com/golang-jwt/jwt/v5" // ใช้ jwt/v5 แทน jwt-go
 )
 
 type ServiceStepRequest struct {
@@ -406,48 +407,12 @@ func GetAllServiceStepsHandler(c *fiber.Ctx) error {
     }
     defer cursor.Close(ctx)
 
-    var legacySteps []models.LegacyServiceStep
     var serviceSteps []models.ServiceStep
-
-    // ลอง decode เป็น LegacyServiceStep (โครงสร้างเก่า)
-    if err := cursor.All(ctx, &legacySteps); err == nil {
-        // แปลง LegacyServiceStep เป็น ServiceStep
-        for _, legacy := range legacySteps {
-            subtitles := make([]string, 0)
-            headings := make([]string, 0)
-            for _, sub := range legacy.Subtitles {
-                if sub.Text != "" {
-                    subtitles = append(subtitles, sub.Text)
-                }
-                headings = append(headings, sub.Headings...)
-            }
-            serviceSteps = append(serviceSteps, models.ServiceStep{
-                ID:         legacy.ID,
-                CategoryID: legacy.CategoryID,
-                Title:      legacy.Title,
-                Subtitles:  subtitles,
-                Headings:   headings,
-                CreatedAt:  legacy.CreatedAt,
-                UpdatedAt:  legacy.UpdatedAt,
-            })
-        }
-    } else {
-        // ถ้า decode เป็น LegacyServiceStep ล้มเหลว ลอง decode เป็น ServiceStep (โครงสร้างใหม่)
-        cursor, err = configs.ServiceStepsColl.Find(ctx, bson.M{"category_id": category.ID})
-        if err != nil {
-            log.Printf("GetAllServiceStepsHandler: ไม่สามารถดึงข้อมูลขั้นตอนบริการสำหรับหมวดหมู่ %s: %v", categoryName, err)
-            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-                "error": "ไม่สามารถดึงข้อมูลขั้นตอนบริการ",
-            })
-        }
-        defer cursor.Close(ctx)
-
-        if err := cursor.All(ctx, &serviceSteps); err != nil {
-            log.Printf("GetAllServiceStepsHandler: ไม่สามารถประมวลผลขั้นตอนบริการสำหรับหมวดหมู่ %s: %v", categoryName, err)
-            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-                "error": "ไม่สามารถประมวลผลขั้นตอนบริการ",
-            })
-        }
+    if err := cursor.All(ctx, &serviceSteps); err != nil {
+        log.Printf("GetAllServiceStepsHandler: ไม่สามารถประมวลผลขั้นตอนบริการสำหรับหมวดหมู่ %s: %v", categoryName, err)
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": "ไม่สามารถประมวลผลขั้นตอนบริการ",
+        })
     }
 
     log.Printf("GetAllServiceStepsHandler: ดึงข้อมูล %d ขั้นตอนบริการสำหรับหมวดหมู่ %s สำเร็จ", len(serviceSteps), categoryName)
@@ -496,39 +461,13 @@ func GetServiceStepHandler(c *fiber.Ctx) error {
         })
     }
 
-    var legacyStep models.LegacyServiceStep
     var serviceStep models.ServiceStep
-
-    // ลอง decode เป็น LegacyServiceStep (โครงสร้างเก่า)
-    err = configs.ServiceStepsColl.FindOne(ctx, bson.M{"_id": stepObjID, "category_id": category.ID}).Decode(&legacyStep)
-    if err == nil {
-        // แปลง LegacyServiceStep เป็น ServiceStep
-        subtitles := make([]string, 0)
-        headings := make([]string, 0)
-        for _, sub := range legacyStep.Subtitles {
-            if sub.Text != "" {
-                subtitles = append(subtitles, sub.Text)
-            }
-            headings = append(headings, sub.Headings...)
-        }
-        serviceStep = models.ServiceStep{
-            ID:         legacyStep.ID,
-            CategoryID: legacyStep.CategoryID,
-            Title:      legacyStep.Title,
-            Subtitles:  subtitles,
-            Headings:   headings,
-            CreatedAt:  legacyStep.CreatedAt,
-            UpdatedAt:  legacyStep.UpdatedAt,
-        }
-    } else {
-        // ถ้า decode เป็น LegacyServiceStep ล้มเหลว ลอง decode เป็น ServiceStep (โครงสร้างใหม่)
-        err = configs.ServiceStepsColl.FindOne(ctx, bson.M{"_id": stepObjID, "category_id": category.ID}).Decode(&serviceStep)
-        if err != nil {
-            log.Printf("GetServiceStepHandler: ไม่พบขั้นตอนบริการ ID %s ในหมวดหมู่ %s: %v", stepID, categoryName, err)
-            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-                "error": "ไม่พบขั้นตอนบริการ",
-            })
-        }
+    err = configs.ServiceStepsColl.FindOne(ctx, bson.M{"_id": stepObjID, "category_id": category.ID}).Decode(&serviceStep)
+    if err != nil {
+        log.Printf("GetServiceStepHandler: ไม่พบขั้นตอนบริการ ID %s ในหมวดหมู่ %s: %v", stepID, categoryName, err)
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+            "error": "ไม่พบขั้นตอนบริการ",
+        })
     }
 
     log.Printf("GetServiceStepHandler: ดึงขั้นตอนบริการ %s สำเร็จ", stepID)
