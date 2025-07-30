@@ -34,11 +34,11 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
     }),
   };
 
-  const renderDescription = (description: string) => {
-    return description.split(" ").map((line, index) => (
+  const renderDescription = (description: string[]) => {
+    return description.map((line, index) => (
       <p
         key={index}
-        className={`${index > 0 ? "mt-0" : ""} whitespace-pre-line break-words text-gray-700`}
+        className={`whitespace-pre-line break-words text-gray-700`}
       >
         {line.trim() === "" ? "\u00A0" : line}
       </p>
@@ -92,7 +92,11 @@ const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
                     >
                       <div className="p-1 text-gray-700">
                         <div className="mb-2 mt-[-0.5rem] flex flex-col gap-2">
-                          {renderDescription(service.description)}
+                          {service.description.length > 0 ? (
+                            renderDescription(service.description)
+                          ) : (
+                            <p className="text-gray-700">ไม่มีคำอธิบาย</p>
+                          )}
                         </div>
 
                         {service.features.length > 0 && (

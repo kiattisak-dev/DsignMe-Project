@@ -147,14 +147,10 @@ const LogoPage: React.FC = () => {
 
         const mappedServices: Service[] = serviceSteps.map((step) => ({
           title: step.title || "Service",
-          description: step.subtitles ? step.subtitles.join(" ") : "",
+          description: step.subtitles || [], // ส่ง subtitles เป็น string[] โดยตรง
           features: step.headings || [],
-          timeline: step.subtitles?.includes("ระยะเวลา")
-            ? step.subtitles.find((s) => s.includes("ระยะเวลา")) || ""
-            : "",
-          revisions: step.subtitles?.includes("แก้ไข")
-            ? step.subtitles.find((s) => s.includes("แก้ไข")) || ""
-            : "",
+          timeline: step.subtitles?.find((s) => s.includes("ระยะเวลา")) || "",
+          revisions: step.subtitles?.find((s) => s.includes("แก้ไข")) || "",
         }));
 
         setServices(mappedServices);

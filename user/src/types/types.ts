@@ -12,7 +12,7 @@ export interface PortfolioItem {
 export interface Service {
   icon?: React.ComponentType<{ className?: string }>;
   title: string;
-  description: string;
+  description: string[]; // เปลี่ยนจาก string เป็น string[]
   features: string[];
   timeline?: string;
   revisions?: string;
