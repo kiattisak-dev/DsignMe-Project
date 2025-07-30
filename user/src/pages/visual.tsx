@@ -7,107 +7,179 @@ import { visualPageData } from "../types/data";
 import { PortfolioItem, Service } from "../types/types";
 import { motion } from "framer-motion";
 
+// กำหนด interface สำหรับ response ของ project และ service step
+interface ProjectResponse {
+  _id?: string;
+  id?: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  videoLink?: string;
+  title?: string;
+  description?: string;
+  mediaType?: string;
+  category?: string;
+}
+
+interface ServiceStepSubtitle {
+  text?: string;
+  headings?: string[];
+}
+
+interface ServiceStep {
+  title?: string;
+  subtitles?: ServiceStepSubtitle[];
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const VisualPage: React.FC = () => {
   const [portfolioImages, setPortfolioImages] = useState<PortfolioItem[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [offset, setOffset] = useState<number>(4); // เริ่มจาก 4 เพราะโหลด 4 รายการแรก
   const servicesSectionRef = useRef<HTMLDivElement>(null);
+
+  const fetchProjects = async (limit: number = 4, offset: number = 0) => {
+    try {
+      const projectsResponse = await fetch(
+        `${API_BASE_URL}/projects/visual?limit=${limit}&offset=${offset}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (!projectsResponse.ok) {
+        throw new Error(
+          `Failed to fetch projects: ${projectsResponse.statusText}`
+        );
+      }
+
+      const projectsData: { data: ProjectResponse[] } =
+        await projectsResponse.json();
+      const projects = projectsData.data || [];
+
+      const mappedPortfolioImages: PortfolioItem[] = projects
+        .map((project, index) => {
+          const id = project._id || project.id || `fallback-${index}`;
+          return {
+            id,
+            url: project.imageUrl || "",
+            videoUrl: project.videoUrl || "",
+            videoLink: project.videoLink || "",
+            title: project.title || "Visual Project",
+            category: project.category || "visual",
+            description: project.description || "",
+            mediaType: project.mediaType as "video" | "image" | "youtube" | undefined,
+          };
+        })
+        .filter((item) => {
+          if (!item.id || item.id === "") {
+            console.warn(
+              `Skipping project with invalid ID: ${JSON.stringify(item)}`
+            );
+            return false;
+          }
+          return true;
+        });
+
+      // Test media accessibility only for non-YouTube URLs
+      for (const item of mappedPortfolioImages) {
+        const mediaUrl = item.url || item.videoUrl || item.videoLink || "";
+        if (
+          mediaUrl &&
+          !(
+            mediaUrl.includes("youtube.com") ||
+            mediaUrl.includes("youtu.be")
+          )
+        ) {
+          try {
+            const response = await fetch(mediaUrl, { method: "HEAD" });
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status} for ${mediaUrl}`);
+            }
+          } catch (err: any) {
+            console.warn(
+              `Media not accessible: ${mediaUrl}, ID: ${item.id}, Error: ${err.message}`
+            );
+            item.url = item.url ? "" : item.url;
+            item.videoUrl = item.videoUrl ? "" : item.videoUrl;
+            item.videoLink = item.videoLink ? "" : item.videoLink;
+            item.mediaType = undefined;
+          }
+        }
+      }
+
+      return mappedPortfolioImages;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const fetchMoreProjects = async () => {
+    setIsFetchingMore(true);
+    try {
+      const moreProjects = await fetchProjects(8, offset); // โหลด 8 รายการต่อครั้ง
+      if (moreProjects.length < 8) {
+        setHasMore(false); // ถ้าได้น้อยกว่า 8 รายการ แปลว่าไม่มีข้อมูลเพิ่ม
+      }
+      setPortfolioImages((prev) => [...prev, ...moreProjects]);
+      setOffset((prev) => prev + 8);
+      setIsFetchingMore(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(`Fetch more error: ${err.message}`);
+        setError(err.message || "เกิดข้อผิดพลาดขณะดึงข้อมูลเพิ่มเติม");
+      } else {
+        setError("เกิดข้อผิดพลาดไม่ทราบสาเหตุ");
+      }
+      setIsFetchingMore(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch portfolio images for 'visual' category
-        const projectsResponse = await fetch(
-          `${API_BASE_URL}/projects/visual`,
-          {
+        // โหลด projects และ servicesteps พร้อมกัน
+        const [initialProjects, servicesResponse] = await Promise.all([
+          fetchProjects(4),
+          fetch(`${API_BASE_URL}/servicesteps/visual/service-steps`, {
             headers: {
               Accept: "application/json",
             },
-          }
-        );
-        if (!projectsResponse.ok) {
-          throw new Error(
-            `Failed to fetch projects: ${projectsResponse.statusText}`
-          );
-        }
-        const projectsData = await projectsResponse.json();
-        const projects = projectsData.data || [];
+          }),
+        ]);
 
-        // Map projects to portfolioImages with available media fields
-        const mappedPortfolioImages: PortfolioItem[] = projects.map(
-          (project: any, index: number) => {
-            const id = project._id || project.id || `fallback-${index}`; // Fallback to index if id is missing
-            return {
-              id,
-              url: project.imageUrl || "",
-              videoUrl: project.videoUrl || "",
-              videoLink: "", // ถ้า backend ไม่มี videoLink, ตั้งเป็น empty
-              title: project.title || "Visual Project",
-              category: project.category || "visual",
-              description: project.description || "",
-              mediaType: project.mediaType || undefined, // ใช้ mediaType จาก backend
-            };
-          }
-        );
+        setPortfolioImages(initialProjects);
 
-        // Test media accessibility only for non-YouTube URLs
-        for (const item of mappedPortfolioImages) {
-          const mediaUrl = item.videoUrl || item.url || "";
-          if (
-            mediaUrl &&
-            !(mediaUrl.includes("youtube.com") || mediaUrl.includes("youtu.be"))
-          ) {
-            try {
-              const response = await fetch(mediaUrl, { method: "HEAD" });
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status} for ${mediaUrl}`);
-              }
-            } catch (imgErr: any) {
-              console.warn(
-                `Media not accessible: ${mediaUrl}, Error: ${imgErr.message}`
-              );
-              // Clear invalid media URLs
-              item.url = "";
-              item.videoUrl = "";
-              item.mediaType = undefined;
-            }
-          }
-        }
-        setPortfolioImages(mappedPortfolioImages);
-
-        // Fetch service steps for 'visual' category
-        const servicesResponse = await fetch(
-          `${API_BASE_URL}/servicesteps/visual/service-steps`,
-          {
-            headers: {
-              Accept: "application/json",
-            },
-          }
-        );
         if (!servicesResponse.ok) {
           throw new Error(
             `Failed to fetch service steps: ${servicesResponse.statusText}`
           );
         }
-        const servicesData = await servicesResponse.json();
+
+        const servicesData: { data: ServiceStep[] } =
+          await servicesResponse.json();
         const serviceSteps = servicesData.data || [];
 
-        // Map service steps to services
-        const mappedServices: Service[] = serviceSteps.map((step: any) => ({
-          title: step.title,
-          description: "",
-          subtitles: step.subtitles
-            ? step.subtitles.map((sub: any) => sub.text || "")
+        const mappedServices: Service[] = serviceSteps.map((step) => ({
+          title: step.title || "Service",
+          description: step.subtitles
+            ? step.subtitles.map((sub) => sub.text || "").join("\n")
+            : "",
+          features: step.subtitles
+            ? step.subtitles.flatMap((sub) => sub.headings || [])
             : [],
-          features: step.subtitles.flatMap((sub: any) => sub.headings || []),
         }));
-        setServices(mappedServices);
 
+        setServices(mappedServices);
         setLoading(false);
       } catch (err: any) {
+        console.error(`Fetch error: ${err.message}`);
         setError(err.message || "เกิดข้อผิดพลาดขณะดึงข้อมูล");
         setLoading(false);
       }
@@ -142,21 +214,25 @@ const VisualPage: React.FC = () => {
           <p className="text-xl font-semibold text-red-500">
             ข้อผิดพลาด: {error}
           </p>
-          <p className="text-gray-500">กรุณาลองใหม่ในภายหลัง</p>
+          <p className="text-gray-500 mt-2">กรุณาลองใหม่ในภายหลัง</p>
         </div>
       </div>
     );
   }
+
   const scrollToServices = () => {
     if (servicesSectionRef.current) {
-      const navbarHeight = 100; // Adjust this value based on your navbar height
-      const elementPosition = servicesSectionRef.current.getBoundingClientRect().top + window.pageYOffset;
+      const navbarHeight = 100;
+      const elementPosition =
+        servicesSectionRef.current.getBoundingClientRect().top +
+        window.pageYOffset;
       window.scrollTo({
         top: elementPosition - navbarHeight,
         behavior: "smooth",
       });
     }
   };
+
   return (
     <div>
       <HeroSection
@@ -165,8 +241,13 @@ const VisualPage: React.FC = () => {
         contactInfo={visualPageData.contactInfo}
         onServicesClick={scrollToServices}
       />
-      <PortfolioSection portfolioImages={portfolioImages} />
-      <div ref={servicesSectionRef}> {/* Wrap ServicesSection with ref */}
+      <PortfolioSection
+        portfolioImages={portfolioImages}
+        isFetchingMore={isFetchingMore}
+        onFetchMore={fetchMoreProjects}
+        hasMore={hasMore}
+      />
+      <div ref={servicesSectionRef}>
         <ServicesSection services={services} />
       </div>
       <ProcessSection process={visualPageData.process} />
