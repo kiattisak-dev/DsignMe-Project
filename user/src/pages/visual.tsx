@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import HeroSection from "../components/ui/HeroSection";
 import PortfolioSection from "../components/ui/PortfolioSection";
@@ -6,6 +8,8 @@ import ProcessSection from "../components/ui/ProcessSection";
 import { visualPageData } from "../types/data";
 import { PortfolioItem, Service } from "../types/types";
 import { motion } from "framer-motion";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // กำหนด interface สำหรับ response ของ project และ service step
 interface ProjectResponse {
@@ -20,17 +24,11 @@ interface ProjectResponse {
   category?: string;
 }
 
-interface ServiceStepSubtitle {
-  text?: string;
-  headings?: string[];
-}
-
 interface ServiceStep {
   title?: string;
-  subtitles?: ServiceStepSubtitle[];
+  subtitles?: string[];
+  headings?: string[];
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const VisualPage: React.FC = () => {
   const [portfolioImages, setPortfolioImages] = useState<PortfolioItem[]>([]);
@@ -168,12 +166,10 @@ const VisualPage: React.FC = () => {
 
         const mappedServices: Service[] = serviceSteps.map((step) => ({
           title: step.title || "Service",
-          description: step.subtitles
-            ? step.subtitles.map((sub) => sub.text || "").join("\n")
-            : "",
-          features: step.subtitles
-            ? step.subtitles.flatMap((sub) => sub.headings || [])
-            : [],
+          description: step.subtitles || [],
+          features: step.headings || [],
+          timeline: step.subtitles?.find((s) => s.includes("ระยะเวลา")) || "",
+          revisions: step.subtitles?.find((s) => s.includes("แก้ไข")) || "",
         }));
 
         setServices(mappedServices);

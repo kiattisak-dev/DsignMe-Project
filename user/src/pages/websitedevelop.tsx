@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import HeroSection from "../components/ui/HeroSection";
 import PortfolioSection from "../components/ui/PortfolioSection";
@@ -26,14 +28,10 @@ interface ProjectResponse {
   mediaType?: string;
 }
 
-interface ServiceStepSubtitle {
-  text?: string;
-  headings?: string[];
-}
-
 interface ServiceStep {
   title?: string;
-  subtitles?: ServiceStepSubtitle[];
+  subtitles?: string[];
+  headings?: string[];
 }
 
 const WebsiteDevelopPage: React.FC = () => {
@@ -207,12 +205,10 @@ const WebsiteDevelopPage: React.FC = () => {
 
         const mappedServices: Service[] = serviceSteps.map((step) => ({
           title: step.title || "Service",
-          description: step.subtitles
-            ? step.subtitles.map((sub) => sub.text || "").join("\n")
-            : "",
-          features: step.subtitles
-            ? step.subtitles.flatMap((sub) => sub.headings || [])
-            : [],
+          description: step.subtitles || [],
+          features: step.headings || [],
+          timeline: step.subtitles?.find((s) => s.includes("ระยะเวลา")) || "",
+          revisions: step.subtitles?.find((s) => s.includes("แก้ไข")) || "",
         }));
 
         setServices(mappedServices);

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import HeroSection from "../components/ui/HeroSection";
 import PortfolioSection from "../components/ui/PortfolioSection";
@@ -27,14 +29,10 @@ interface ProjectAPI {
   mediaType?: string;
 }
 
-interface Subtitle {
-  text?: string;
-  headings?: string[];
-}
-
-interface ServiceStepAPI {
+interface ServiceStep {
   title?: string;
-  subtitles?: Subtitle[];
+  subtitles?: string[];
+  headings?: string[];
 }
 
 // ฟังก์ชันแปลง mediaType ให้ตรงกับ union type ที่ PortfolioItem ต้องการ
@@ -211,18 +209,16 @@ const AdvertisementPage: React.FC = () => {
           );
         }
 
-        const servicesData: { data: ServiceStepAPI[] } =
+        const servicesData: { data: ServiceStep[] } =
           await servicesResponse.json();
         const serviceSteps = servicesData.data || [];
 
         const mappedServices: Service[] = serviceSteps.map((step) => ({
           title: step.title || "Service",
-          description: step.subtitles
-            ? step.subtitles.map((sub) => sub.text || "").join("\n")
-            : "",
-          features: step.subtitles
-            ? step.subtitles.flatMap((sub) => sub.headings || [])
-            : [],
+          description: step.subtitles || [],
+          features: step.headings || [],
+          timeline: step.subtitles?.find((s) => s.includes("ระยะเวลา")) || "",
+          revisions: step.subtitles?.find((s) => s.includes("แก้ไข")) || "",
         }));
 
         setServices(mappedServices);
