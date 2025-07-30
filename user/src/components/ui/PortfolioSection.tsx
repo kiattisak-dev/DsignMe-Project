@@ -56,7 +56,8 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
   const itemsPerPage = 8;
   const initialItems = 4;
 
-  const totalItems = showAll || !hasMore ? portfolioImages : portfolioImages.slice(0, initialItems);
+  // คำนวณ totalItems โดยใช้ portfolioImages ทั้งหมด
+  const totalItems = portfolioImages;
   const totalPages = Math.ceil(totalItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = totalItems.slice(startIndex, startIndex + itemsPerPage);
@@ -127,7 +128,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
         )}
 
         <AnimatePresence>
-          {hasMore && (
+          {hasMore && !showAll && totalItems.length <= initialItems && (
             <motion.div
               className="text-center"
               initial="hidden"
@@ -164,7 +165,7 @@ const PortfolioSection: React.FC<PortfolioSectionProps> = ({
           </motion.div>
         )}
 
-        {!hasMore && totalItems.length > initialItems && (
+        {totalPages > 1 && (
           <motion.div
             className="flex justify-center items-center space-x-2 mt-6"
             initial="hidden"
