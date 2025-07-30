@@ -24,7 +24,7 @@ interface ProjectAPI {
   VideoURL?: string;
   videoLink?: string;
   VideoLink?: string;
-  mediaType?: string; // รับ string มา แต่จะกรองให้ตรงกับ ValidMediaType
+  mediaType?: string;
 }
 
 interface Subtitle {
@@ -49,112 +49,183 @@ const AdvertisementPage: React.FC = () => {
   const [portfolioImages, setPortfolioImages] = useState<PortfolioItem[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [offset, setOffset] = useState<number>(4); // เริ่มจาก 4 เพราะโหลด 4 รายการแรก
   const servicesSectionRef = useRef<HTMLDivElement>(null);
+
+  const fetchProjects = async (limit: number = 4, offset: number = 0) => {
+    try {
+      const projectsResponse = await fetch(
+        `${apiUrl}/projects/advertisement?limit=${limit}&offset=${offset}`,
+        {
+          headers: { Accept: "application/json" },
+        }
+      );
+
+      if (!projectsResponse.ok) {
+        throw new Error(
+          `Failed to fetch projects: ${projectsResponse.statusText}`
+        );
+      }
+
+      const projectsData: { data: ProjectAPI[] } = await projectsResponse.json();
+      const projects = projectsData.data || [];
+
+      const mappedPortfolioImages: PortfolioItem[] = projects
+        .map((project, index) => {
+          const id = project._id || project.ID || `fallback-${index}`;
+          const imageUrl =
+            project.imageUrl || project.ImageUrl || project.ImageURL || "";
+          return {
+            id,
+            url: imageUrl,
+            videoUrl:
+              project.videoUrl || project.VideoUrl || project.VideoURL || "",
+            videoLink: project.videoLink || project.VideoLink || "",
+            title: project.title || "Advertisement Project",
+            category: "advertisement",
+            description: project.description || "",
+            mediaType: parseMediaType(project.mediaType),
+          };
+        })
+        .filter((item) => {
+          if (!item.id || item.id === "") {
+            console.warn(
+              `Skipping project with invalid ID: ${JSON.stringify(item)}`
+            );
+            return false;
+          }
+          return true;
+        });
+
+      // Test media accessibility for each item
+      for (const item of mappedPortfolioImages) {
+        if (item.url) {
+          try {
+            const response = await fetch(item.url, { method: "HEAD" });
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status} for ${item.url}`);
+            }
+          } catch (imgErr) {
+            console.warn(
+              `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${
+                imgErr instanceof Error ? imgErr.message : String(imgErr)
+              }`
+            );
+            item.url = "";
+          }
+        }
+        if (
+          item.videoUrl &&
+          !(
+            item.videoUrl.includes("youtube.com") ||
+            item.videoUrl.includes("youtu.be")
+          )
+        ) {
+          try {
+            const response = await fetch(item.videoUrl, { method: "HEAD" });
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
+            }
+            console.log(`Video accessible: ${item.videoUrl}`);
+          } catch (videoErr) {
+            console.warn(
+              `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${
+                videoErr instanceof Error ? videoErr.message : String(videoErr)
+              }`
+            );
+            item.videoUrl = "";
+          }
+        }
+        if (
+          item.videoLink &&
+          !(
+            item.videoLink.includes("youtube.com") ||
+            item.videoLink.includes("youtu.be")
+          )
+        ) {
+          try {
+            const response = await fetch(item.videoLink, { method: "HEAD" });
+            if (!response.ok) {
+              throw new Error(
+                `HTTP ${response.status} for ${item.videoLink}`
+              );
+            }
+            console.log(`Video link accessible: ${item.videoLink}`);
+          } catch (linkErr) {
+            console.warn(
+              `Video link not accessible: ${item.videoLink}, ID: ${item.id}, Error: ${
+                linkErr instanceof Error ? linkErr.message : String(linkErr)
+              }`
+            );
+            item.videoLink = "";
+          }
+        }
+      }
+
+      return mappedPortfolioImages;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const fetchMoreProjects = async () => {
+    setIsFetchingMore(true);
+    try {
+      const moreProjects = await fetchProjects(8, offset); // โหลด 8 รายการต่อครั้ง
+      if (moreProjects.length < 8) {
+        setHasMore(false); // ถ้าได้น้อยกว่า 8 รายการ แปลว่าไม่มีข้อมูลเพิ่ม
+      }
+      setPortfolioImages((prev) => [...prev, ...moreProjects]);
+      setOffset((prev) => prev + 8);
+      setIsFetchingMore(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(`Fetch more error: ${err.message}`);
+        setError(err.message || "เกิดข้อผิดพลาดขณะดึงข้อมูลเพิ่มเติม");
+      } else {
+        setError("เกิดข้อผิดพลาดไม่ทราบสาเหตุ");
+      }
+      setIsFetchingMore(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const projectsResponse = await fetch(`${apiUrl}/projects/advertisement`, {
-          headers: { Accept: "application/json" },
-        });
-        if (!projectsResponse.ok) {
-          throw new Error(`Failed to fetch projects: ${projectsResponse.statusText}`);
-        }
-        const projectsData = await projectsResponse.json();
-        const projects: ProjectAPI[] = projectsData.data || [];
+        // โหลด projects และ servicesteps พร้อมกัน
+        const [initialProjects, servicesResponse] = await Promise.all([
+          fetchProjects(4),
+          fetch(`${apiUrl}/servicesteps/advertisement/service-steps`, {
+            headers: { Accept: "application/json" },
+          }),
+        ]);
 
-        const mappedPortfolioImages: PortfolioItem[] = projects
-          .map((project, index) => {
-            const id = project._id || project.ID || `fallback-${index}`;
-            const imageUrl = project.imageUrl || project.ImageUrl || project.ImageURL || "";
-            const title = project.title || "Advertisement Project";
-            return {
-              id,
-              url: imageUrl,
-              videoUrl: project.videoUrl || project.VideoUrl || project.VideoURL || "",
-              videoLink: project.videoLink || project.VideoLink || "",
-              title,
-              category: "advertisement",
-              description: project.description || "",
-              mediaType: parseMediaType(project.mediaType),
-            };
-          })
-          .filter((item) => {
-            if (!item.id || item.id === "") {
-              console.warn(`Skipping project with invalid ID: ${JSON.stringify(item)}`);
-              return false;
-            }
-            return true;
-          });
+        setPortfolioImages(initialProjects);
 
-        for (const item of mappedPortfolioImages) {
-          if (item.url) {
-            try {
-              const response = await fetch(item.url, { method: "HEAD" });
-              if (!response.ok) throw new Error(`HTTP ${response.status} for ${item.url}`);
-            } catch (imgErr) {
-              console.warn(
-                `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${
-                  imgErr instanceof Error ? imgErr.message : String(imgErr)
-                }`
-              );
-              item.url = "";
-            }
-          }
-          if (
-            item.videoUrl &&
-            !(item.videoUrl.includes("youtube.com") || item.videoUrl.includes("youtu.be"))
-          ) {
-            try {
-              const response = await fetch(item.videoUrl, { method: "HEAD" });
-              if (!response.ok) throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
-            } catch (videoErr) {
-              console.warn(
-                `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${
-                  videoErr instanceof Error ? videoErr.message : String(videoErr)
-                }`
-              );
-              item.videoUrl = "";
-            }
-          }
-          if (
-            item.videoLink &&
-            !(item.videoLink.includes("youtube.com") || item.videoLink.includes("youtu.be"))
-          ) {
-            try {
-              const response = await fetch(item.videoLink, { method: "HEAD" });
-              if (!response.ok) throw new Error(`HTTP ${response.status} for ${item.videoLink}`);
-            } catch (linkErr) {
-              console.warn(
-                `Video link not accessible: ${item.videoLink}, ID: ${item.id}, Error: ${
-                  linkErr instanceof Error ? linkErr.message : String(linkErr)
-                }`
-              );
-              item.videoLink = "";
-            }
-          }
-        }
-        setPortfolioImages(mappedPortfolioImages);
-
-        const servicesResponse = await fetch(`${apiUrl}/servicesteps/advertisement/service-steps`, {
-          headers: { Accept: "application/json" },
-        });
         if (!servicesResponse.ok) {
-          throw new Error(`Failed to fetch service steps: ${servicesResponse.statusText}`);
+          throw new Error(
+            `Failed to fetch service steps: ${servicesResponse.statusText}`
+          );
         }
-        const servicesData = await servicesResponse.json();
-        const serviceSteps: ServiceStepAPI[] = servicesData.data || [];
+
+        const servicesData: { data: ServiceStepAPI[] } =
+          await servicesResponse.json();
+        const serviceSteps = servicesData.data || [];
 
         const mappedServices: Service[] = serviceSteps.map((step) => ({
           title: step.title || "Service",
           description: step.subtitles
             ? step.subtitles.map((sub) => sub.text || "").join("\n")
             : "",
-          features: step.subtitles ? step.subtitles.flatMap((sub) => sub.headings || []) : [],
+          features: step.subtitles
+            ? step.subtitles.flatMap((sub) => sub.headings || [])
+            : [],
         }));
-        setServices(mappedServices);
 
+        setServices(mappedServices);
         setLoading(false);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -190,7 +261,9 @@ const AdvertisementPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-xl font-semibold text-red-500">ข้อผิดพลาด: {error}</p>
+          <p className="text-xl font-semibold text-red-500">
+            ข้อผิดพลาด: {error}
+          </p>
           <p className="text-gray-500 mt-2">กรุณาลองใหม่ในภายหลัง</p>
         </div>
       </div>
@@ -199,8 +272,10 @@ const AdvertisementPage: React.FC = () => {
 
   const scrollToServices = () => {
     if (servicesSectionRef.current) {
-      const navbarHeight = 100; // Adjust this value based on your navbar height
-      const elementPosition = servicesSectionRef.current.getBoundingClientRect().top + window.pageYOffset;
+      const navbarHeight = 100;
+      const elementPosition =
+        servicesSectionRef.current.getBoundingClientRect().top +
+        window.pageYOffset;
       window.scrollTo({
         top: elementPosition - navbarHeight,
         behavior: "smooth",
@@ -216,8 +291,13 @@ const AdvertisementPage: React.FC = () => {
         contactInfo={advertisementPageData.contactInfo}
         onServicesClick={scrollToServices}
       />
-      <PortfolioSection portfolioImages={portfolioImages} />
-       <div ref={servicesSectionRef}> {/* Wrap ServicesSection with ref */}
+      <PortfolioSection
+        portfolioImages={portfolioImages}
+        isFetchingMore={isFetchingMore}
+        onFetchMore={fetchMoreProjects}
+        hasMore={hasMore}
+      />
+      <div ref={servicesSectionRef}>
         <ServicesSection services={services} />
       </div>
       <ProcessSection process={advertisementPageData.process} />
