@@ -94,7 +94,7 @@ const Header: React.FC = () => {
                 isHomePage && !isScrolled ? 'text-white' : 'text-black'
               } hover:text-gray-500 transition-colors duration-200 drop-shadow-sm`}
             >
-              Home
+              หน้าหลัก
             </Link>
 
             {/* Services Dropdown */}
@@ -108,7 +108,7 @@ const Header: React.FC = () => {
                   isHomePage && !isScrolled ? 'text-white' : 'text-black'
                 } hover:text-gray-500 transition-colors duration-200 drop-shadow-sm`}
               >
-                <span>Services</span>
+                <span>บริการ</span>
                 <motion.span
                   animate={{ rotate: isServicesOpen ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
@@ -149,13 +149,13 @@ const Header: React.FC = () => {
                 isHomePage && !isScrolled ? 'text-white' : 'text-black'
               } hover:text-gray-500 transition-colors duration-200 drop-shadow-sm`}
             >
-              About Us
+              เกี่ยวกับเรา
             </Link>
             <Link
               to="/contact"
               className="bg-black text-white px-6 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-all duration-200 shadow-sm"
             >
-              Contact Us
+              ติดต่อเรา
             </Link>
           </nav>
 
@@ -186,7 +186,7 @@ const Header: React.FC = () => {
                   className="text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Home
+                  หน้าหลัก
                 </Link>
 
                 {/* Mobile Services Menu */}
@@ -195,7 +195,7 @@ const Header: React.FC = () => {
                     onClick={() => setIsServicesOpen(!isServicesOpen)}
                     className="flex items-center justify-between w-full text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
                   >
-                    <span>Services</span>
+                    <span>บริการ</span>
                     <motion.span
                       animate={{ rotate: isServicesOpen ? 180 : 0 }}
                       transition={{ duration: 0.3 }}
@@ -230,14 +230,14 @@ const Header: React.FC = () => {
                   className="text-left text-black hover:text-gray-500 transition-colors duration-200 drop-shadow-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  About Us
+                  เกี่ยวกับเรา
                 </Link>
                 <Link
                   to="/contact"
                   className="bg-black text-white px-6 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-all duration-200 w-fit shadow-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Contact Us
+                 ติดต่อเรา
                 </Link>
               </nav>
             </motion.div>
