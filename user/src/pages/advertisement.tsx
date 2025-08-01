@@ -35,7 +35,6 @@ interface ServiceStep {
   headings?: string[];
 }
 
-// ฟังก์ชันแปลง mediaType ให้ตรงกับ union type ที่ PortfolioItem ต้องการ
 function parseMediaType(value?: string): ValidMediaType {
   if (value === "video" || value === "image" || value === "youtube") {
     return value;
@@ -50,7 +49,7 @@ const AdvertisementPage: React.FC = () => {
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [offset, setOffset] = useState<number>(4); // เริ่มจาก 4 เพราะโหลด 4 รายการแรก
+  const [offset, setOffset] = useState<number>(4);
   const servicesSectionRef = useRef<HTMLDivElement>(null);
 
   const fetchProjects = async (limit: number = 4, offset: number = 0) => {
@@ -63,9 +62,7 @@ const AdvertisementPage: React.FC = () => {
       );
 
       if (!projectsResponse.ok) {
-        throw new Error(
-          `Failed to fetch projects: ${projectsResponse.statusText}`
-        );
+        throw new Error(`Failed to fetch projects: ${projectsResponse.statusText}`);
       }
 
       const projectsData: { data: ProjectAPI[] } = await projectsResponse.json();
@@ -74,13 +71,11 @@ const AdvertisementPage: React.FC = () => {
       const mappedPortfolioImages: PortfolioItem[] = projects
         .map((project, index) => {
           const id = project._id || project.ID || `fallback-${index}`;
-          const imageUrl =
-            project.imageUrl || project.ImageUrl || project.ImageURL || "";
+          const imageUrl = project.imageUrl || project.ImageUrl || project.ImageURL || "";
           return {
             id,
             url: imageUrl,
-            videoUrl:
-              project.videoUrl || project.VideoUrl || project.VideoURL || "",
+            videoUrl: project.videoUrl || project.VideoUrl || project.VideoURL || "",
             videoLink: project.videoLink || project.VideoLink || "",
             title: project.title || "Advertisement Project",
             category: "advertisement",
@@ -90,78 +85,11 @@ const AdvertisementPage: React.FC = () => {
         })
         .filter((item) => {
           if (!item.id || item.id === "") {
-            console.warn(
-              `Skipping project with invalid ID: ${JSON.stringify(item)}`
-            );
+            console.warn(`Skipping project with invalid ID: ${JSON.stringify(item)}`);
             return false;
           }
           return true;
         });
-
-      // Test media accessibility for each item
-      for (const item of mappedPortfolioImages) {
-        if (item.url) {
-          try {
-            const response = await fetch(item.url, { method: "HEAD" });
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status} for ${item.url}`);
-            }
-          } catch (imgErr) {
-            console.warn(
-              `Image not accessible: ${item.url}, ID: ${item.id}, Error: ${
-                imgErr instanceof Error ? imgErr.message : String(imgErr)
-              }`
-            );
-            item.url = "";
-          }
-        }
-        if (
-          item.videoUrl &&
-          !(
-            item.videoUrl.includes("youtube.com") ||
-            item.videoUrl.includes("youtu.be")
-          )
-        ) {
-          try {
-            const response = await fetch(item.videoUrl, { method: "HEAD" });
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status} for ${item.videoUrl}`);
-            }
-            console.log(`Video accessible: ${item.videoUrl}`);
-          } catch (videoErr) {
-            console.warn(
-              `Video not accessible: ${item.videoUrl}, ID: ${item.id}, Error: ${
-                videoErr instanceof Error ? videoErr.message : String(videoErr)
-              }`
-            );
-            item.videoUrl = "";
-          }
-        }
-        if (
-          item.videoLink &&
-          !(
-            item.videoLink.includes("youtube.com") ||
-            item.videoLink.includes("youtu.be")
-          )
-        ) {
-          try {
-            const response = await fetch(item.videoLink, { method: "HEAD" });
-            if (!response.ok) {
-              throw new Error(
-                `HTTP ${response.status} for ${item.videoLink}`
-              );
-            }
-            console.log(`Video link accessible: ${item.videoLink}`);
-          } catch (linkErr) {
-            console.warn(
-              `Video link not accessible: ${item.videoLink}, ID: ${item.id}, Error: ${
-                linkErr instanceof Error ? linkErr.message : String(linkErr)
-              }`
-            );
-            item.videoLink = "";
-          }
-        }
-      }
 
       return mappedPortfolioImages;
     } catch (err) {
@@ -172,9 +100,9 @@ const AdvertisementPage: React.FC = () => {
   const fetchMoreProjects = async () => {
     setIsFetchingMore(true);
     try {
-      const moreProjects = await fetchProjects(8, offset); // โหลด 8 รายการต่อครั้ง
+      const moreProjects = await fetchProjects(8, offset);
       if (moreProjects.length < 8) {
-        setHasMore(false); // ถ้าได้น้อยกว่า 8 รายการ แปลว่าไม่มีข้อมูลเพิ่ม
+        setHasMore(false);
       }
       setPortfolioImages((prev) => [...prev, ...moreProjects]);
       setOffset((prev) => prev + 8);
@@ -193,7 +121,6 @@ const AdvertisementPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // โหลด projects และ servicesteps พร้อมกัน
         const [initialProjects, servicesResponse] = await Promise.all([
           fetchProjects(4),
           fetch(`${apiUrl}/servicesteps/advertisement/service-steps`, {
@@ -204,13 +131,10 @@ const AdvertisementPage: React.FC = () => {
         setPortfolioImages(initialProjects);
 
         if (!servicesResponse.ok) {
-          throw new Error(
-            `Failed to fetch service steps: ${servicesResponse.statusText}`
-          );
+          throw new Error(`Failed to fetch service steps: ${servicesResponse.statusText}`);
         }
 
-        const servicesData: { data: ServiceStep[] } =
-          await servicesResponse.json();
+        const servicesData: { data: ServiceStep[] } = await servicesResponse.json();
         const serviceSteps = servicesData.data || [];
 
         const mappedServices: Service[] = serviceSteps.map((step) => ({
