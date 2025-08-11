@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { debounce } from "lodash";
+import React, { useState, useEffect, useRef } from "react";
 import HeroSection from "../components/ui/HeroSection";
 import PortfolioSection from "../components/ui/PortfolioSection";
 import ServicesSection from "../components/ui/ServicesSection";
@@ -10,31 +8,6 @@ import ProcessSection from "../components/ui/ProcessSection";
 import { logoPageData } from "../types/data";
 import { PortfolioItem, Service } from "../types/types";
 import { motion } from "framer-motion";
-
-// Error Boundary
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-  state = { hasError: false };
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <p className="text-xl font-semibold text-red-500">
-              เกิดข้อผิดพลาดในการโหลดหน้า
-            </p>
-            <p className="text-gray-500 mt-2">กรุณารีเฟรชหน้าหรือลองใหม่ภายหลัง</p>
-          </div>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 // กำหนด interface สำหรับ response ของ project และ service step
 interface ProjectResponse {
@@ -64,130 +37,137 @@ const mapMediaType = (
 };
 
 const LogoPage: React.FC = () => {
+  const [portfolioImages, setPortfolioImages] = useState<PortfolioItem[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [offset, setOffset] = useState<number>(4); // เริ่มจาก 4 เพราะโหลด 4 รายการแรกแล้ว
   const servicesSectionRef = useRef<HTMLDivElement>(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "https://fallback-api-url.com";
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-  // ฟังก์ชัน fetch projects พร้อมจำกัด fields เพื่อลดขนาดข้อมูล
-  const fetchProjects = async (
-    limit: number = 4,
-    offset: number = 0
-  ): Promise<PortfolioItem[]> => {
-    const projectsResponse = await fetch(
-      `${API_BASE_URL}/projects/logo?limit=${limit}&offset=${offset}&fields=_id,imageUrl,videoUrl,videoLink,title,description,mediaType`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
-
-    if (!projectsResponse.ok) {
-      throw new Error(`Failed to fetch projects: ${projectsResponse.statusText}`);
-    }
-
-    const projectsData: { data: ProjectResponse[] } = await projectsResponse.json();
-    const projects = projectsData.data || [];
-
-    const mappedPortfolioImages: PortfolioItem[] = projects
-      .map((project, index) => {
-        const id = project._id || `fallback-${index}`;
-        return {
-          id,
-          url: project.imageUrl || "",
-          videoUrl: project.videoUrl || "",
-          videoLink: project.videoLink || "",
-          title: project.title || "Logo Project",
-          category: "logo",
-          description: project.description || "",
-          mediaType: mapMediaType(project.mediaType),
-        };
-      })
-      .filter((item) => {
-        if (!item.id || item.id === "") {
-          console.warn(`Skipping project with invalid ID: ${JSON.stringify(item)}`);
-          return false;
+  const fetchProjects = async (limit: number = 4, offset: number = 0) => {
+    try {
+      const projectsResponse = await fetch(
+        `${API_BASE_URL}/projects/logo?limit=${limit}&offset=${offset}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
         }
-        return true;
-      });
+      );
 
-    return mappedPortfolioImages;
-  };
-
-  // ฟังก์ชัน fetch services
-  const fetchServices = async (): Promise<Service[]> => {
-    const servicesResponse = await fetch(
-      `${API_BASE_URL}/servicesteps/logo/service-steps`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
+      if (!projectsResponse.ok) {
+        throw new Error(
+          `Failed to fetch projects: ${projectsResponse.statusText}`
+        );
       }
-    );
 
-    if (!servicesResponse.ok) {
-      throw new Error(`Failed to fetch service steps: ${servicesResponse.statusText}`);
+      const projectsData: { data: ProjectResponse[] } =
+        await projectsResponse.json();
+      const projects = projectsData.data || [];
+
+      const mappedPortfolioImages: PortfolioItem[] = projects
+        .map((project, index) => {
+          const id = project._id || `fallback-${index}`;
+          return {
+            id,
+            url: project.imageUrl || "",
+            videoUrl: project.videoUrl || "",
+            videoLink: project.videoLink || "",
+            title: project.title || "Logo Project",
+            category: "logo",
+            description: project.description || "",
+            mediaType: mapMediaType(project.mediaType),
+          };
+        })
+        .filter((item) => {
+          if (!item.id || item.id === "") {
+            console.warn(
+              `Skipping project with invalid ID: ${JSON.stringify(item)}`
+            );
+            return false;
+          }
+          return true;
+        });
+
+      return mappedPortfolioImages;
+    } catch (err) {
+      throw err;
     }
-
-    const servicesData: { data: ServiceStep[] } = await servicesResponse.json();
-    const serviceSteps = servicesData.data || [];
-
-    const mappedServices: Service[] = serviceSteps.map((step) => ({
-      title: step.title || "Service",
-      description: step.subtitles || [],
-      features: step.headings || [],
-      timeline: step.subtitles?.find((s) => s.includes("ระยะเวลา")) || "",
-      revisions: step.subtitles?.find((s) => s.includes("แก้ไข")) || "",
-    }));
-
-    return mappedServices;
   };
 
-  // Use Query for initial projects and services
-  const { data: initialProjects = [], isLoading: isProjectsLoading, error: projectsError } = useQuery({
-    queryKey: ["logoProjectsInitial"],
-    queryFn: () => fetchProjects(4, 0),
-    staleTime: 5 * 60 * 1000, // Cache 5 นาที
-    retry: 1,
-  });
+  const fetchMoreProjects = async () => {
+    setIsFetchingMore(true);
+    try {
+      const moreProjects = await fetchProjects(8, offset); // โหลด 8 รายการต่อครั้ง
+      if (moreProjects.length < 8) {
+        setHasMore(false); // ถ้าได้น้อยกว่า 8 รายการ แปลว่าไม่มีข้อมูลเพิ่มแล้ว
+      }
+      setPortfolioImages((prev) => [...prev, ...moreProjects]);
+      setOffset((prev) => prev + 8);
+      setIsFetchingMore(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(`Fetch more error: ${err.message}`);
+        setError(err.message || "เกิดข้อผิดพลาดขณะดึงข้อมูลเพิ่มเติม");
+      } else {
+        setError("เกิดข้อผิดพลาดไม่ทราบสาเหตุ");
+      }
+      setIsFetchingMore(false);
+    }
+  };
 
-  const { data: services = [], isLoading: isServicesLoading, error: servicesError } = useQuery({
-    queryKey: ["logoServices"],
-    queryFn: fetchServices,
-    staleTime: 5 * 60 * 1000,
-    retry: 1,
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // โหลด projects และ servicesteps พร้อมกัน
+        const [initialProjects, servicesResponse] = await Promise.all([
+          fetchProjects(4),
+          fetch(`${API_BASE_URL}/servicesteps/logo/service-steps`, {
+            headers: {
+              Accept: "application/json",
+            },
+          }),
+        ]);
 
-  // Infinite Query for fetching more projects
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    error: moreError,
-  } = useInfiniteQuery<PortfolioItem[], Error>({
-    queryKey: ["logoProjectsInfinite"],
-    queryFn: ({ pageParam = 4 }) => fetchProjects(8, pageParam as number),
-    getNextPageParam: (lastPage: PortfolioItem[], allPages: PortfolioItem[][]) => {
-      const nextOffset = allPages.flat().length;
-      return lastPage.length < 8 ? undefined : nextOffset;
-    },
-    initialPageParam: 4,
-    staleTime: 5 * 60 * 1000,
-    retry: 1,
-  });
+        setPortfolioImages(initialProjects);
 
-  // รวม portfolioImages จาก initial + infinite
-  const portfolioImages = [
-    ...initialProjects,
-    ...(data?.pages.flatMap((page: PortfolioItem[]) => page) || []),
-  ];
+        if (!servicesResponse.ok) {
+          throw new Error(
+            `Failed to fetch service steps: ${servicesResponse.statusText}`
+          );
+        }
 
-  // Debounce fetchNextPage เพื่อป้องกันเรียกซ้ำเร็วเกิน
-  const debouncedFetchNextPage = debounce(fetchNextPage, 300);
+        const servicesData: { data: ServiceStep[] } =
+          await servicesResponse.json();
+        const serviceSteps = servicesData.data || [];
 
-  const loading = isProjectsLoading || isServicesLoading;
-  const error = projectsError || servicesError || moreError;
+        const mappedServices: Service[] = serviceSteps.map((step) => ({
+          title: step.title || "Service",
+          description: step.subtitles || [], // ส่ง subtitles เป็น string[] โดยตรง
+          features: step.headings || [],
+          timeline: step.subtitles?.find((s) => s.includes("ระยะเวลา")) || "",
+          revisions: step.subtitles?.find((s) => s.includes("แก้ไข")) || "",
+        }));
+
+        setServices(mappedServices);
+        setLoading(false);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          console.error(`Fetch error: ${err.message}`);
+          setError(err.message || "เกิดข้อผิดพลาดขณะดึงข้อมูล");
+        } else {
+          setError("เกิดข้อผิดพลาดไม่ทราบสาเหตุ");
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [API_BASE_URL]);
 
   if (loading) {
     return (
@@ -213,7 +193,7 @@ const LogoPage: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-xl font-semibold text-red-500">
-            ข้อผิดพลาด: {(error as Error).message || "เกิดข้อผิดพลาดขณะดึงข้อมูล"}
+            ข้อผิดพลาด: {error}
           </p>
           <p className="text-gray-500 mt-2">กรุณาลองใหม่ในภายหลัง</p>
         </div>
@@ -235,26 +215,24 @@ const LogoPage: React.FC = () => {
   };
 
   return (
-    <ErrorBoundary>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <HeroSection
-          title={logoPageData.title}
-          description={logoPageData.description}
-          contactInfo={logoPageData.contactInfo}
-          onServicesClick={scrollToServices}
-        />
-        <PortfolioSection
-          portfolioImages={portfolioImages}
-          isFetchingMore={isFetchingNextPage}
-          onFetchMore={debouncedFetchNextPage}
-          hasMore={hasNextPage}
-        />
-        <div ref={servicesSectionRef}>
-          <ServicesSection services={services} />
-        </div>
-        <ProcessSection process={logoPageData.process} />
+    <div>
+      <HeroSection
+        title={logoPageData.title}
+        description={logoPageData.description}
+        contactInfo={logoPageData.contactInfo}
+        onServicesClick={scrollToServices}
+      />
+      <PortfolioSection
+        portfolioImages={portfolioImages}
+        isFetchingMore={isFetchingMore}
+        onFetchMore={fetchMoreProjects}
+        hasMore={hasMore}
+      />
+      <div ref={servicesSectionRef}>
+        <ServicesSection services={services} />
       </div>
-    </ErrorBoundary>
+      <ProcessSection process={logoPageData.process} />
+    </div>
   );
 };
 
