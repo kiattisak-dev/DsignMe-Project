@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 
-// Preload images to prevent lag
+// ✅ preload เฉพาะ logo slide เท่านั้น
 const preloadImages = (imageUrls: string[]) => {
   imageUrls.forEach((url) => {
     const img = new Image();
@@ -34,13 +34,10 @@ const ImageSlider: React.FC = () => {
   const ref = useRef<HTMLElement | null>(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
+  // ✅ preload แค่ logoImages
   useEffect(() => {
-    const allImages = [
-      ...logoImages,
-      ...categories.slice(1).flatMap((c) => c.images),
-    ];
-    preloadImages(allImages);
-  }, [logoImages, categories]);
+    preloadImages(logoImages);
+  }, [logoImages]);
 
   useEffect(() => {
     if (!isInView) return;
@@ -50,39 +47,44 @@ const ImageSlider: React.FC = () => {
     return () => clearInterval(interval);
   }, [isInView, totalSlides]);
 
+  // ✅ component ย่อยให้แต่ละรูปมี skeleton
+  const LazyImage: React.FC<{ src: string; alt: string; className?: string }> = ({ src, alt, className }) => {
+    const [loaded, setLoaded] = useState(false);
+    return (
+      <div className={`relative w-full h-full ${!loaded ? "bg-gray-200 animate-pulse" : ""}`}>
+        <img
+          src={src}
+          alt={alt}
+          className={`w-full h-full object-cover ${className}`}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          onError={(e) => {
+            console.warn(`Image failed: ${src}`);
+            (e.target as HTMLImageElement).src = "https://placehold.co/600x400";
+          }}
+        />
+      </div>
+    );
+  };
+
   const renderLogoSlide = (
     <Link to={categories[0].link} className="relative w-full h-full flex items-center">
-      <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[50vh] md:h-[60vh] lg:h-screen !aspect-square sm:aspect-auto lg:aspect-auto">
+      <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[50vh] md:h-[60vh] lg:h-screen">
         <div className="absolute w-full h-full">
           {logoImages.map((img, index) => (
-            <motion.img
+            <motion.div
               key={index}
-              src={img}
-              alt={`Logo Design Image ${index + 1}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: index === currentSlide ? 1 : 0 }}
-              transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
-              className={`absolute w-full h-full object-cover transition-opacity ${
-                index === currentSlide ? "z-10" : "z-0 pointer-events-none"
-              }`}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                willChange: "opacity",
-                backfaceVisibility: "hidden",
-                WebkitTransform: "translateZ(0)",
-              }}
-              loading={index === currentSlide ? "eager" : "lazy"}
-              onError={(e) => {
-                console.log(`Image failed to load: ${img}`);
-                (e.target as HTMLImageElement).src = "https://placehold.co/800x600";
-              }}
-            />
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className={`absolute w-full h-full ${index === currentSlide ? "z-10" : "z-0 pointer-events-none"}`}
+            >
+              <LazyImage src={img} alt={`Logo Design ${index + 1}`} />
+            </motion.div>
           ))}
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-        <div className="absolute bottom-2 left-8 text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-bold z-20">
+        <div className="absolute bottom-2 left-8 text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold z-20">
           Logo & Corporate Identity
         </div>
       </div>
@@ -92,7 +94,7 @@ const ImageSlider: React.FC = () => {
   return (
     <section
       id="image-slider"
-      className="min-h-screen bg-white w-full flex flex-col items-stretch py-0 lg:flex-row lg:items-stretch lg:py-0"
+      className="min-h-screen bg-white w-full flex flex-col items-stretch lg:flex-row lg:items-stretch"
     >
       <motion.div
         ref={ref as any}
@@ -101,24 +103,15 @@ const ImageSlider: React.FC = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="w-full h-full"
       >
-        <div className="grid grid-cols-1 gap-0 w-full lg:grid-cols-2 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
           {renderLogoSlide}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 lg:col-span-1 lg:grid-cols-2 lg:items-center lg:justify-center h-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 h-full">
             {categories.slice(1).map((category) => (
               <Link key={category.name} to={category.link}>
-                <div className="relative overflow-hidden w-full max-w-full h-[100vw] sm:h-[25vh] md:h-[30vh] lg:h-[calc(50vh)] !aspect-square sm:aspect-square lg:aspect-square cursor-pointer">
-                  <img
-                    src={category.images[0]}
-                    alt={`${category.name} Image 1`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => {
-                      console.log(`Image failed to load: ${category.images[0]}`);
-                      (e.target as HTMLImageElement).src = "https://placehold.co/400x400";
-                    }}
-                  />
+                <div className="relative overflow-hidden w-full h-[100vw] sm:h-[25vh] md:h-[30vh] lg:h-[50vh] cursor-pointer">
+                  <LazyImage src={category.images[0]} alt={`${category.name} Image`} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  <div className="absolute bottom-2 left-8 text-white text-[1.25rem] sm:text-[1.375rem] md:text-[1.5rem] lg:text-[1.625rem] font-semibold z-20">
+                  <div className="absolute bottom-2 left-8 text-white text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold z-20">
                     {category.name}
                   </div>
                 </div>
