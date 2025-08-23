@@ -1,6 +1,5 @@
 import React from "react";
-import { FaLine } from "react-icons/fa"; // ✅ ดึง icon LINE จาก react-icons
-
+import { FaLine } from "react-icons/fa";
 const FloatingLineButton: React.FC = () => {
   return (
     <a
@@ -21,7 +20,6 @@ const FloatingLineButton: React.FC = () => {
         animate-bounce
       "
     >
-      {/* ✅ ใช้ react-icons */}
       <FaLine className="w-10 h-10 text-white" />
     </a>
   );

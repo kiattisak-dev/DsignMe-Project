@@ -126,19 +126,25 @@ const Hero: React.FC = () => {
           <p className="text-gray-500 text-lg mb-4 italic">
             แอดไลน์เราเพื่อปรึกษาฟรี
           </p>
-          <motion.a
-            href="https://lin.ee/c2HxJS1"
-            target="_blank"
-            rel="noopener noreferrer"
+          <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="inline-block bg-green-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-600 transition-colors duration-300"
           >
-            Line เพิ่มเพื่อน
-          </motion.a>
+            <a
+              href="https://lin.ee/nrIGpEa"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="https://scdn.line-apps.com/n/line_add_friends/btn/th.png"
+                alt="เพิ่มเพื่อน"
+                height="24"
+              />
+            </a>
+          </motion.div>
         </motion.div>
       </motion.div>
     </section>
