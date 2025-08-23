@@ -56,7 +56,7 @@ const Hero: React.FC = () => {
   return (
     <section
       id="home"
-      className="bg-white relative overflow-hidden flex items-center justify-center min-h-screen h-full"
+      className="bg-white relative overflow-hidden flex items-center justify-center min-h-screen h-full pt-8 md:pt-12 lg:pt-18"
     >
       <motion.div
         className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100"
@@ -121,6 +121,24 @@ const Hero: React.FC = () => {
               </motion.p>
             </div>
           </motion.div>
+        </motion.div>
+        <motion.div variants={textVariants} className="text-center mt-8 mb-8">
+          <p className="text-gray-500 text-lg mb-4 italic">
+            แอดไลน์เราเพื่อปรึกษาฟรี
+          </p>
+          <motion.a
+            href="https://lin.ee/c2HxJS1"
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-block bg-green-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-600 transition-colors duration-300"
+          >
+            Line เพิ่มเพื่อน
+          </motion.a>
         </motion.div>
       </motion.div>
     </section>

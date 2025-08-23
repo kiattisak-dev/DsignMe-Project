@@ -12,6 +12,7 @@ import ContactPage from "./pages/contact";
 import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose } from "./components/ui/toast";
 import { useToast } from "./hooks/use-toast";
 import AboutPage from "./pages/about";
+import FloatingLineButton from "./components/FloatingLineButton";
 
 function App() {
   const { toasts, dismiss } = useToast();
@@ -32,6 +33,8 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
           </Routes>
         </main>
+        
+        <FloatingLineButton />
         <Footer />
         <ToastViewport />
         {toasts.map(({ id, title, description, variant, duration, ...props }) => (
