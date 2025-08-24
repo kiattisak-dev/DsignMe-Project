@@ -24,7 +24,7 @@ const ImageSlider: React.FC = () => {
     { name: "Advertisement", images: ["/Home-Picture/Advertisement/01.png"], link: "/services/advertisement" },
     { name: "Visual Graphics", images: ["/Home-Picture/Visual/01.png"], link: "/services/visual" },
     { name: "Products Retouch", images: ["/Home-Picture/Product/01.jpg"], link: "/services/product" },
-    { name: "UX/UI & Development", images: ["/Home-Picture/UXUI/01.jpg"], link: "/services/website-develop" },
+    { name: "UX/UI & Development", images: ["/Home-Picture/UXUI/01.png"], link: "/services/website-develop" },
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
